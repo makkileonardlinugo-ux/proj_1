@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import cron from 'node-cron';
 import Groq from 'groq-sdk';
+import { createHmac } from 'crypto';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -28,10 +29,16 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 const resend   = new Resend(RESEND_API_KEY);
 const groq     = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
 
+function createToken(username) {
+  const payload = Buffer.from(JSON.stringify({ u: username, t: Date.now() })).toString('base64url');
+  const sig     = createHmac('sha256', DASHBOARD_PASSWORD).update(payload).digest('base64url');
+  return `${payload}.${sig}`;
+}
+
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   if (username === DASHBOARD_USERNAME && password === DASHBOARD_PASSWORD) {
-    return res.json({ ok: true });
+    return res.json({ ok: true, token: createToken(username) });
   }
   res.status(401).json({ ok: false, error: 'Incorrect username or password.' });
 });
