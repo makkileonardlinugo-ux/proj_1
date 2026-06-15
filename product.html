@@ -517,7 +517,7 @@
         btn.disabled = true;
         var data = {};
         new FormData(form).forEach(function (v, k) { data[k] = v; });
-        fetch("http://localhost:3001/contact", {
+        fetch("/api/contact", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

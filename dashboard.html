@@ -995,21 +995,23 @@
 <script>
   var SESSION_KEY = 'dashboard_auth';
 
+  window.getAuthToken = function() { return sessionStorage.getItem(SESSION_KEY); };
+
   function handleLogin(e) {
     e.preventDefault();
     var u = document.getElementById('loginUser').value.trim();
     var p = document.getElementById('loginPass').value;
     var btn = e.target.querySelector('button[type=submit]');
     btn.disabled = true;
-    fetch('http://localhost:3001/login', {
+    fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: u, password: p }),
     })
       .then(function(r) { return r.json(); })
       .then(function(r) {
-        if (r.ok) {
-          sessionStorage.setItem(SESSION_KEY, '1');
+        if (r.ok && r.token) {
+          sessionStorage.setItem(SESSION_KEY, r.token);
           showDashboard();
         } else {
           document.getElementById('loginError').style.display = 'block';
@@ -1028,11 +1030,26 @@
     document.getElementById('dashShell').style.display  = 'flex';
   }
 
-  // Auto-login if session still active
-  if (sessionStorage.getItem(SESSION_KEY) === '1') { showDashboard(); }
+  // Auto-login if session token still present
+  if (sessionStorage.getItem(SESSION_KEY)) { showDashboard(); }
 </script>
 
 <script type="module">
+  // Adds Bearer token to every API call; redirects to login on 401.
+  async function authFetch(url, opts = {}) {
+    const token = window.getAuthToken();
+    const res = await fetch(url, {
+      ...opts,
+      headers: { ...(opts.headers || {}), 'Authorization': `Bearer ${token}` },
+    });
+    if (res.status === 401) {
+      sessionStorage.removeItem('dashboard_auth');
+      location.reload();
+      return;
+    }
+    return res;
+  }
+
   function formatDate(iso) {
     if (!iso) return '<span class="td-muted">—</span>';
     const d = new Date(iso);
@@ -1045,7 +1062,7 @@
 
     let data;
     try {
-      const res = await fetch('http://localhost:3001/submissions');
+      const res = await authFetch('/api/submissions');
       const json = await res.json();
       if (!json.ok) throw new Error(json.error);
       data = json.data;
@@ -1126,7 +1143,7 @@
     log.style.display = 'none';
 
     try {
-      const r = await fetch('http://localhost:3001/briefing/product', {
+      const r = await authFetch('/api/briefing/product', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product: selectedProduct, ...recip }),
@@ -1167,7 +1184,7 @@
     log.style.display = 'none';
 
     try {
-      const r = await fetch('http://localhost:3001/briefing/send', {
+      const r = await authFetch('/api/briefing/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(recip),
@@ -1230,7 +1247,7 @@
     }
 
     try {
-      const res  = await fetch('http://localhost:3001/newsletters', {
+      const res  = await authFetch('/api/newsletters', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subject, preview_text, body }),
       });
@@ -1239,7 +1256,7 @@
 
       if (andSend) {
         const recip = getRecipientPayload('newsletter') || { recipient_type: 'all' };
-        const sr = await fetch(`http://localhost:3001/newsletters/${json.data.id}/send`, {
+        const sr = await authFetch(`/api/newsletters/${json.data.id}/send`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(recip),
@@ -1275,7 +1292,7 @@
     btn.innerHTML = '<span class="btn-spinner btn-spinner-dark"></span>Generating…';
     status.textContent = '';
     try {
-      const r = await fetch('http://localhost:3001/newsletters/generate', {
+      const r = await authFetch('/api/newsletters/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
@@ -1323,7 +1340,7 @@
     btn.disabled    = true;
     btn.innerHTML   = '<span class="btn-spinner"></span>Sending…';
     try {
-      const res = await fetch(`http://localhost:3001/newsletters/${id}/send`, {
+      const res = await authFetch(`/api/newsletters/${id}/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipient_type: 'all' }),
@@ -1343,7 +1360,7 @@
     const container = document.getElementById('nl-list');
     container.innerHTML = '<p class="nl-empty">Loading…</p>';
     try {
-      const res  = await fetch('http://localhost:3001/newsletters');
+      const res  = await authFetch('/api/newsletters');
       const json = await res.json();
       if (!json.ok) throw new Error(json.error);
 
@@ -1488,7 +1505,7 @@
   async function loadDbSubscribers(ctx, container) {
     container.innerHTML = '<span style="color:var(--muted);font-size:0.82rem;">Loading…</span>';
     try {
-      const r = await fetch('http://localhost:3001/submissions');
+      const r = await authFetch('/api/submissions');
       const j = await r.json();
       dbCache[ctx] = (j.data || []).filter(s => s.subscribed);
       renderDbList(ctx, container);
@@ -1595,7 +1612,7 @@
     }
 
     try {
-      const r = await fetch('http://localhost:3001/schedules', {
+      const r = await authFetch('/api/schedules', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -1621,7 +1638,7 @@
     btn.disabled    = true;
     btn.textContent = '…';
     try {
-      const r = await fetch(`http://localhost:3001/schedules/${id}`, { method: 'DELETE' });
+      const r = await authFetch(`/api/schedules/${id}`, { method: 'DELETE' });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error);
       showToast('Schedule removed.', 'success');
@@ -1647,7 +1664,7 @@
     tbody.innerHTML = '<tr class="state-row"><td colspan="8"><span class="spinner"></span> Loading…</td></tr>';
 
     try {
-      const r = await fetch('http://localhost:3001/schedules');
+      const r = await authFetch('/api/schedules');
       const j = await r.json();
       if (!j.ok) throw new Error(j.error);
 
