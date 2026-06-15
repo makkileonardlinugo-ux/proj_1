@@ -1,61 +1,106 @@
 import { groq, resend, FROM_EMAIL } from './helpers.js';
 
 function renderBriefingEmail(data, dateStr) {
-  const highlightRows = data.highlights.map(h => `
+  const highlightCards = data.highlights.map(h => `
     <tr>
-      <td style="padding:14px 0; border-bottom:1px solid #1e2129;">
-        <div style="font-size:0.85rem; font-weight:700; color:#f2f4f5; margin-bottom:4px;">${h.title}</div>
-        <div style="font-size:0.82rem; color:#8b9197; line-height:1.6;">${h.summary}</div>
+      <td style="padding:0 0 12px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="background:#0f1219; border:1px solid #252b38; border-left:3px solid #c6a559; border-radius:6px; padding:18px 20px;">
+              <div style="font-family:Helvetica,Arial,sans-serif; font-size:14px; font-weight:700; color:#f0f2f5; margin-bottom:6px; line-height:1.3;">${h.title}</div>
+              <div style="font-family:Helvetica,Arial,sans-serif; font-size:13px; color:#8b9197; line-height:1.7;">${h.summary}</div>
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>`).join('');
 
   const focusItems = data.focus.map((f, i) => `
     <tr>
-      <td style="padding:10px 0; border-bottom:1px solid #1e2129;">
-        <span style="color:#c6a559; font-weight:700; margin-right:10px;">${i + 1}.</span>
-        <span style="font-size:0.85rem; color:#f2f4f5;">${f}</span>
+      <td style="padding:0 0 10px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td width="36" valign="top" style="padding-top:2px;">
+              <div style="width:26px; height:26px; background:linear-gradient(135deg,#c6a559,#e6b979); border-radius:50%; text-align:center; line-height:26px; font-family:Helvetica,Arial,sans-serif; font-size:12px; font-weight:800; color:#0a0c10;">${i + 1}</div>
+            </td>
+            <td style="font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#e8eaed; line-height:1.6; padding-left:4px;">${f}</td>
+          </tr>
+        </table>
       </td>
     </tr>`).join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Morning Briefing</title></head>
-<body style="margin:0; padding:0; background:#05070a; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#05070a; padding:40px 0;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
-        <tr><td style="background:#0a0c10; border:1px solid #1e2129; border-radius:16px 16px 0 0; padding:32px 36px 24px;">
-          <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:#c6a559; margin-bottom:10px;">Morning Briefing</div>
-          <div style="font-size:1.5rem; font-weight:700; color:#f2f4f5; line-height:1.2; margin-bottom:6px;">${dateStr}</div>
-          <div style="font-size:0.9rem; color:#8b9197; line-height:1.6;">${data.greeting}</div>
-        </td></tr>
-        <tr><td style="height:2px; background:linear-gradient(90deg, #c6a559, #e6b979, #c6a559);"></td></tr>
-        <tr><td style="background:#0a0c10; border-left:1px solid #1e2129; border-right:1px solid #1e2129; padding:28px 36px 20px;">
-          <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#c6a559; margin-bottom:16px;">Today's Focus</div>
-          <table width="100%" cellpadding="0" cellspacing="0">${focusItems}</table>
-        </td></tr>
-        <tr><td style="background:#0d0f15; border:1px solid #1e2129; border-top:none; padding:28px 36px 20px;">
-          <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#c6a559; margin-bottom:16px;">What's Happening</div>
-          <table width="100%" cellpadding="0" cellspacing="0">${highlightRows}</table>
-        </td></tr>
-        <tr><td style="background:#0a0c10; border:1px solid #1e2129; border-top:none; padding:24px 36px;">
-          <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:16px 20px; background:#111318; border-left:3px solid #c6a559; border-radius:4px;">
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:#c6a559; margin-bottom:6px;">Tip of the Day</div>
-            <div style="font-size:0.85rem; color:#f2f4f5; line-height:1.6;">${data.tip}</div>
-          </td></tr></table>
-        </td></tr>
-        <tr><td style="background:#0d0f15; border:1px solid #1e2129; border-top:none; padding:24px 36px; text-align:center;">
-          <div style="font-size:1rem; font-style:italic; color:#f2f4f5; line-height:1.7; margin-bottom:8px;">&ldquo;${data.quote.text}&rdquo;</div>
-          <div style="font-size:0.78rem; color:#c6a559; font-weight:600; letter-spacing:0.08em;">&mdash; ${data.quote.author}</div>
-        </td></tr>
-        <tr><td style="background:#080a0e; border:1px solid #1e2129; border-top:none; border-radius:0 0 16px 16px; padding:20px 36px; text-align:center;">
-          <div style="font-size:0.82rem; color:#8b9197; line-height:1.6; margin-bottom:12px;">${data.closing}</div>
-          <div style="font-size:0.72rem; color:#3e4248; letter-spacing:0.08em;">Tester.io Morning Briefing &bull; Powered by Groq &amp; Resend</div>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>
-</body></html>`;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Morning Briefing</title>
+</head>
+<body style="margin:0; padding:0; background:#070910;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#070910; padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
+
+  <!-- TOP ACCENT BAR -->
+  <tr><td style="height:4px; background:linear-gradient(90deg,#c6a559,#f0c060,#c6a559); border-radius:4px 4px 0 0;"></td></tr>
+
+  <!-- HEADER -->
+  <tr><td style="background:#0c0e14; border-left:1px solid #1e2535; border-right:1px solid #1e2535; padding:36px 40px 28px;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; margin-bottom:14px;">&#9788; &nbsp;Morning Briefing</div>
+    <div style="font-family:Georgia,serif; font-size:32px; font-weight:700; color:#ffffff; line-height:1.15; margin-bottom:14px;">${dateStr}</div>
+    <div style="height:1px; background:linear-gradient(90deg,#c6a55940,transparent); margin-bottom:16px;"></div>
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:15px; color:#a0a8b4; line-height:1.75;">${data.greeting}</div>
+  </td></tr>
+
+  <!-- TODAY'S FOCUS -->
+  <tr><td style="background:#0a0c12; border-left:1px solid #1e2535; border-right:1px solid #1e2535; border-top:1px solid #1e2535; padding:28px 40px;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; margin-bottom:20px;">&#9654; &nbsp;Today's Focus</div>
+    <table width="100%" cellpadding="0" cellspacing="0">${focusItems}</table>
+  </td></tr>
+
+  <!-- WHAT'S HAPPENING -->
+  <tr><td style="background:#0c0e14; border-left:1px solid #1e2535; border-right:1px solid #1e2535; border-top:1px solid #1e2535; padding:28px 40px;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; margin-bottom:20px;">&#9670; &nbsp;What's Happening</div>
+    <table width="100%" cellpadding="0" cellspacing="0">${highlightCards}</table>
+  </td></tr>
+
+  <!-- TIP OF THE DAY -->
+  <tr><td style="background:#0a0c12; border-left:1px solid #1e2535; border-right:1px solid #1e2535; border-top:1px solid #1e2535; padding:24px 40px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="background:linear-gradient(135deg,#1a1508,#120e05); border:1px solid #3a2e10; border-radius:8px; padding:20px 24px;">
+          <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; margin-bottom:10px;">&#9998; &nbsp;Tip of the Day</div>
+          <div style="font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#d4c9a8; line-height:1.75;">${data.tip}</div>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+
+  <!-- QUOTE -->
+  <tr><td style="background:#0c0e14; border-left:1px solid #1e2535; border-right:1px solid #1e2535; border-top:1px solid #1e2535; padding:32px 40px; text-align:center;">
+    <div style="font-family:Georgia,serif; font-size:42px; color:#c6a559; line-height:1; margin-bottom:4px; opacity:0.6;">&ldquo;</div>
+    <div style="font-family:Georgia,serif; font-size:16px; font-style:italic; color:#d8dce4; line-height:1.8; margin-bottom:16px;">${data.quote.text}</div>
+    <div style="display:inline-block; width:40px; height:1px; background:#c6a559; margin-bottom:12px;"></div>
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#c6a559;">${data.quote.author}</div>
+  </td></tr>
+
+  <!-- FOOTER -->
+  <tr><td style="background:#080a0f; border:1px solid #1e2535; border-top:none; border-radius:0 0 6px 6px; padding:24px 40px; text-align:center;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#6b7280; line-height:1.7; margin-bottom:16px;">${data.closing}</div>
+    <div style="height:1px; background:linear-gradient(90deg,transparent,#1e2535,transparent); margin-bottom:16px;"></div>
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:11px; color:#3a4050; letter-spacing:1px;">TESTER.IO &nbsp;&bull;&nbsp; MORNING BRIEFING &nbsp;&bull;&nbsp; POWERED BY GROQ</div>
+  </td></tr>
+
+  <!-- BOTTOM ACCENT -->
+  <tr><td style="height:3px; background:linear-gradient(90deg,transparent,#c6a559,transparent);"></td></tr>
+
+</table>
+</td></tr>
+</table>
+
+</body>
+</html>`;
 }
 
 export async function sendBriefingEmail(toList) {
