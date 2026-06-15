@@ -1,52 +1,9 @@
 import { supabase, resolveRecipients, computeNextRun } from '../_lib/helpers.js';
+import { sendBriefingEmail } from '../_lib/send-briefing.js';
+import { sendProductEmail }  from '../_lib/send-product.js';
 
-// Called by Vercel Cron every 5 minutes. Protected by CRON_SECRET env var.
-
-async function runEmailJob(type, productKey, recipients, host) {
-  // Dynamically import the briefing handlers to reuse their logic
-  if (type === 'briefing') {
-    const { default: handler } = await import('../briefing/send.js');
-    // Build a minimal req/res pair to invoke the handler
-    const mockReq = {
-      method: 'POST',
-      headers: { authorization: `Bearer __cron__`, host },
-      body: { recipient_type: 'custom', recipient_emails: recipients },
-      query: {},
-    };
-    return new Promise((resolve, reject) => {
-      const mockRes = {
-        status(code) { this._code = code; return this; },
-        json(data)   { if (this._code >= 400) reject(new Error(data.error)); else resolve(data); },
-        end()        { reject(new Error('No response')); },
-        setHeader()  {},
-      };
-      // Bypass auth for cron — patch requireAuth temporarily
-      handler(mockReq, mockRes).catch(reject);
-    });
-  }
-
-  if (type === 'product') {
-    const { default: handler } = await import('../briefing/product.js');
-    const mockReq = {
-      method: 'POST',
-      headers: { authorization: `Bearer __cron__`, host },
-      body: { product: productKey, recipient_type: 'custom', recipient_emails: recipients },
-      query: {},
-    };
-    return new Promise((resolve, reject) => {
-      const mockRes = {
-        status(code) { this._code = code; return this; },
-        json(data)   { if (this._code >= 400) reject(new Error(data.error)); else resolve(data); },
-        end()        { reject(new Error('No response')); },
-        setHeader()  {},
-      };
-      handler(mockReq, mockRes).catch(reject);
-    });
-  }
-}
-
+// Called by Vercel Cron. Protected by CRON_SECRET env var.
 export default async function handler(req, res) {
-  // Vercel sends Authorization: Bearer <CRON_SECRET> on cron requests
   const secret = process.env.CRON_SECRET;
   if (secret && req.headers.authorization !== `Bearer ${secret}`) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -71,7 +28,14 @@ export default async function handler(req, res) {
       const toList = recipients ?? [];
       if (!toList.length) continue;
 
-      await runEmailJob(s.type, s.product_key, toList, host);
+      if (s.type === 'briefing') {
+        await sendBriefingEmail(toList);
+      } else if (s.type === 'product') {
+        await sendProductEmail(s.product_key, toList, host);
+      } else {
+        continue;
+      }
+
       fired++;
 
       if (s.schedule_type === 'once') {
