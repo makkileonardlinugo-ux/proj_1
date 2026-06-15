@@ -80,9 +80,14 @@ export async function sendBriefingEmail(toList) {
 
   const content = JSON.parse(completion.choices[0].message.content);
   const html    = renderBriefingEmail(content, dateStr);
-  const to      = toList.length === 1 ? toList[0] : toList;
 
-  const { data, error } = await resend.emails.send({ from: FROM_EMAIL, to, subject, html });
-  if (error) throw new Error(error.message);
-  return { ok: true, output: `Briefing sent. ID: ${data.id}` };
+  const ids = [];
+  for (let i = 0; i < toList.length; i += 50) {
+    const batch = toList.slice(i, i + 50);
+    const to    = batch.length === 1 ? batch[0] : batch;
+    const { data, error } = await resend.emails.send({ from: FROM_EMAIL, to, subject, html });
+    if (error) throw new Error(error.message);
+    ids.push(data.id);
+  }
+  return { ok: true, output: `Briefing sent to ${toList.length} recipient(s).` };
 }
