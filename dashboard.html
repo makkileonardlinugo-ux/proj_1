@@ -1046,6 +1046,7 @@
   // Adds Bearer token to every API call; redirects to login on 401.
   async function authFetch(url, opts = {}) {
     const token = window.getAuthToken();
+    if (!token) return null; // Not logged in — skip the request entirely
     const res = await fetch(url, {
       ...opts,
       headers: { ...(opts.headers || {}), 'Authorization': `Bearer ${token}` },
@@ -1053,7 +1054,7 @@
     if (res.status === 401) {
       sessionStorage.removeItem('dashboard_auth');
       location.reload();
-      return;
+      return null;
     }
     return res;
   }
@@ -1111,7 +1112,7 @@
     `).join('');
   };
 
-  loadData();
+  if (window.getAuthToken()) loadData();
 
   // ── View switching ────────────────────────────────────────────────────────
   window.showView = function(view) {
