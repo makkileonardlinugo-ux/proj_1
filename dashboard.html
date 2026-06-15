@@ -1008,18 +1008,26 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: u, password: p }),
     })
-      .then(function(r) { return r.json(); })
       .then(function(r) {
+        var status = r.status;
+        return r.text().then(function(text) {
+          try { return { data: JSON.parse(text), status: status }; }
+          catch(e) { throw new Error('Server error ' + status + ': ' + text.slice(0, 120)); }
+        });
+      })
+      .then(function(res) {
+        var r = res.data;
         if (r.ok && r.token) {
           sessionStorage.setItem(SESSION_KEY, r.token);
           showDashboard();
         } else {
+          document.getElementById('loginError').textContent = r.error || 'Incorrect username or password.';
           document.getElementById('loginError').style.display = 'block';
           btn.disabled = false;
         }
       })
-      .catch(function() {
-        document.getElementById('loginError').textContent = 'Could not reach server.';
+      .catch(function(err) {
+        document.getElementById('loginError').textContent = err.message || 'Could not reach server.';
         document.getElementById('loginError').style.display = 'block';
         btn.disabled = false;
       });
