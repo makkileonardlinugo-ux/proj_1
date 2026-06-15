@@ -90,7 +90,7 @@
     }
 
     /* ── Main ── */
-    .main { margin-left: 220px; flex: 1; padding: 36px 40px; }
+    .main { margin-left: 220px; flex: 1; padding: 36px 32px; min-width: 0; }
 
     /* ── Page header ── */
     .page-header { margin-bottom: 32px; }
@@ -438,6 +438,12 @@
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .sched-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    /* ── Schedule table tighter layout ── */
+    #view-schedule .table-card table th,
+    #view-schedule .table-card table td { padding: 11px 14px; font-size: 0.82rem; }
+    #view-schedule .table-card table th { font-size: 0.68rem; }
+    #view-schedule .table-card { overflow-x: auto; }
+
     .sched-del-btn {
       background: none; border: 1px solid var(--line); border-radius: 6px;
       color: var(--red); font-size: 0.78rem; font-weight: 600;
@@ -858,7 +864,7 @@
       </div>
 
       <!-- Create schedule card -->
-      <div style="max-width:860px; margin-bottom:24px;">
+      <div style="margin-bottom:24px;">
         <div class="table-card" style="padding:28px 32px;">
           <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:20px;">Create Schedule</div>
 
@@ -964,7 +970,7 @@
       </div>
 
       <!-- Schedules table -->
-      <div class="table-card" style="max-width:860px;">
+      <div class="table-card">
         <div class="table-header">
           <div style="display:flex; align-items:center; gap:12px;">
             <h2>Active Schedules</h2>
