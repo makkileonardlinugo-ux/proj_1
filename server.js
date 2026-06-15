@@ -15,6 +15,12 @@ const app = express();
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 
+// Allow dashboard to call /api/* locally (Vercel uses real serverless routes)
+app.use((req, _res, next) => {
+  if (req.url.startsWith('/api/')) req.url = req.url.slice(4);
+  next();
+});
+
 const SUPABASE_URL        = process.env.SUPABASE_URL;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 

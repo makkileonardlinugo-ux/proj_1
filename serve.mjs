@@ -23,7 +23,7 @@ const types = {
 // Forward /api/* requests to the Express API server on port 3001.
 // Strips the /api prefix so /api/login -> localhost:3001/login, etc.
 function proxyToApi(req, res, urlPath) {
-  const target = urlPath.slice(4) || '/'; // strip /api prefix
+  const target = urlPath; // forward full path — server.js rewrites /api/* internally
   const search = new URL(req.url, "http://localhost").search || "";
   const chunks = [];
 
