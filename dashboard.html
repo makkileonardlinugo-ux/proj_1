@@ -441,10 +441,20 @@
     .sched-del-btn {
       background: none; border: 1px solid var(--line); border-radius: 6px;
       color: var(--red); font-size: 0.78rem; font-weight: 600;
-      padding: 4px 10px; cursor: pointer; font-family: inherit;
-      transition: border-color 0.15s ease;
+      padding: 4px 9px; cursor: pointer; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 4px;
+      transition: border-color 0.15s ease, background 0.15s ease;
     }
-    .sched-del-btn:hover { border-color: var(--red); }
+    .sched-del-btn:hover { border-color: var(--red); background: rgba(220,53,69,0.07); }
+    .sched-fire-btn {
+      background: none; border: 1px solid var(--line); border-radius: 6px;
+      color: var(--accent); font-size: 0.78rem; font-weight: 600;
+      padding: 4px 9px; cursor: pointer; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 4px;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .sched-fire-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+    .sched-fire-btn:disabled, .sched-del-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .db-filter-btn {
       padding: 3px 9px; border-radius: 6px; border: 1px solid var(--line);
       background: var(--bg); color: var(--muted); font-family: inherit;
@@ -918,12 +928,12 @@
               </div>
 
               <div id="sched-time-row" class="field">
-                <label>Send at (local time)</label>
+                <label>Send at <span style="color:var(--accent); font-weight:700;">(UTC)</span></label>
                 <input class="sched-input" type="time" id="sched-time" value="08:00" />
               </div>
 
               <div id="sched-datetime-row" class="field" style="display:none;">
-                <label>Send at (date + time, local)</label>
+                <label>Send at <span style="color:var(--accent); font-weight:700;">(UTC date + time)</span></label>
                 <input class="sched-input" type="datetime-local" id="sched-datetime" />
               </div>
             </div>
@@ -1612,7 +1622,8 @@
     if (schedFreq === 'once') {
       const dt = document.getElementById('sched-datetime').value;
       if (!dt) { showToast('Pick a date and time.', 'error'); btn.disabled = false; btn.innerHTML = restoreAddBtn(); return; }
-      body.run_once_at = new Date(dt).toISOString();
+      // datetime-local gives "YYYY-MM-DDTHH:MM" — treat as UTC directly
+      body.run_once_at = dt.length === 16 ? dt + ':00Z' : new Date(dt).toISOString();
     } else {
       const [h, m] = document.getElementById('sched-time').value.split(':').map(Number);
       body.send_hour   = h;
@@ -1668,6 +1679,36 @@
   };
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
+  window._schedules = [];
+
+  window.fireScheduleNow = async function(id, btn) {
+    const s = window._schedules.find(x => x.id === id);
+    if (!s) { showToast('Schedule not found.', 'error'); return; }
+    btn.disabled = true;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span class="btn-spinner" style="width:10px;height:10px;border-width:2px;"></span>';
+    try {
+      const body = { recipient_type: s.recipient_type, recipient_emails: s.recipient_emails };
+      let url;
+      if (s.type === 'briefing') {
+        url = '/api/briefing/send';
+      } else if (s.type === 'product') {
+        url = '/api/briefing/product';
+        body.product = s.product_key;
+      } else {
+        throw new Error('Unknown schedule type: ' + s.type);
+      }
+      const r = await authFetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error);
+      showToast('Sent! ' + (j.output || ''), 'success');
+    } catch(e) {
+      showToast('Failed: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  };
+
   window.loadSchedules = async function() {
     const tbody = document.getElementById('sched-tbody');
     tbody.innerHTML = '<tr class="state-row"><td colspan="8"><span class="spinner"></span> Loading…</td></tr>';
@@ -1678,6 +1719,7 @@
       if (!j.ok) throw new Error(j.error);
 
       const data = j.data;
+      window._schedules = data;
       document.getElementById('sched-count').textContent = `${data.length} schedule${data.length !== 1 ? 's' : ''}`;
 
       if (!data.length) {
@@ -1717,7 +1759,18 @@
             <td class="td-muted">${fmt(s.next_run)}</td>
             <td class="td-muted">${s.last_run ? fmt(s.last_run) : 'Never'}</td>
             <td>${status}</td>
-            <td><button class="sched-del-btn" onclick="deleteSchedule('${s.id}', this)">Delete</button></td>
+            <td>
+              <div style="display:flex; gap:5px; align-items:center;">
+                <button class="sched-fire-btn" onclick="fireScheduleNow('${s.id}', this)" title="Send now">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Fire
+                </button>
+                <button class="sched-del-btn" onclick="deleteSchedule('${s.id}', this)" title="Delete schedule">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Delete
+                </button>
+              </div>
+            </td>
           </tr>`;
       }).join('');
     } catch (e) {

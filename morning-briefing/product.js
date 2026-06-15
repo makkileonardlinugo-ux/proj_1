@@ -1,9 +1,12 @@
 require('dotenv').config();
 const Groq       = require('groq-sdk');
 const { Resend } = require('resend');
-const sharp      = require('sharp');
 const fs         = require('fs');
 const path       = require('path');
+
+// sharp is optional — images are embedded as base64 when available
+let sharp;
+try { sharp = require('sharp'); } catch { sharp = null; }
 
 const IMAGES_DIR = path.join(__dirname, '..', 'images');
 
@@ -125,17 +128,13 @@ const PLANETS = {
 // ── Image helper: resize to max 600px wide and return base64 data URI ─────────
 
 async function imageToDataUri(filename) {
+  if (!sharp) return null;
   const filepath = path.join(IMAGES_DIR, filename);
   if (!fs.existsSync(filepath)) return null;
-
-  const ext  = path.extname(filename).toLowerCase();
-  const mime = ext === '.png' ? 'image/png' : 'image/jpeg';
-
   const buffer = await sharp(filepath)
     .resize({ width: 600, withoutEnlargement: true })
     .jpeg({ quality: 82 })
     .toBuffer();
-
   return `data:image/jpeg;base64,${buffer.toString('base64')}`;
 }
 
@@ -192,132 +191,109 @@ Make it feel premium, technical, and exciting.`;
 // ── Render HTML email ──────────────────────────────────────────────────────────
 
 function renderProductEmail(product, content, isPlanet = false, imageDataUri = null) {
-  const specRows = product.specs.map(s => `
+  const accentColors = ['#c6a559', '#5c7cfa', '#34d399'];
+  const specRows = product.specs.map((s, i) => `
     <tr>
-      <td style="padding:9px 0; border-bottom:1px solid #1e2129; font-size:0.82rem; color:#f2f4f5;">
-        <span style="color:#c6a559; margin-right:8px;">&#10003;</span>${s}
+      <td style="padding:13px 0; border-bottom:1px solid #141824;">
+        <table cellpadding="0" cellspacing="0" width="100%"><tr>
+          <td width="24" valign="top" style="padding-top:4px;">
+            <div style="width:7px; height:7px; background:${accentColors[i % accentColors.length]}; border-radius:50%;"></div>
+          </td>
+          <td style="font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#c8d0de; line-height:1.5;">${s}</td>
+        </tr></table>
       </td>
     </tr>`).join('');
 
-  const bestForItems = content.best_for.map(b => `
-    <span style="display:inline-block; margin:4px 4px 4px 0; padding:5px 12px; background:#111318; border:1px solid #1e2129; border-radius:999px; font-size:0.78rem; color:#8b9197;">
-      ${b}
-    </span>`).join('');
+  const bestForItems = content.best_for.map(b =>
+    `<span style="display:inline-block; margin:4px 6px 4px 0; padding:6px 16px; background:#0e1120; border:1px solid #1e2535; border-radius:20px; font-family:Helvetica,Arial,sans-serif; font-size:12px; color:#6e7d99; letter-spacing:0.4px;">${b}</span>`
+  ).join('');
+
+  const brandLabel = isPlanet ? 'PLANETEX ACQUISITION' : 'TESTER.IO PRODUCT SPOTLIGHT';
+  const priceBlock = isPlanet
+    ? `<div style="margin-top:14px;"><span style="display:inline-block; padding:5px 18px; background:linear-gradient(135deg,#c6a559,#e6b979); border-radius:4px; font-family:Helvetica,Arial,sans-serif; font-size:13px; font-weight:800; color:#060810; letter-spacing:0.5px;">${product.price}</span></div>`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${product.name} — Tester.io</title>
+  <title>${product.name}</title>
 </head>
-<body style="margin:0; padding:0; background:#05070a; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;">
+<body style="margin:0; padding:0; background:#060810;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#05070a; padding:40px 0;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#060810; padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
 
-          <!-- Header -->
-          <tr>
-            <td style="background:#0a0c10; border:1px solid #1e2129; border-radius:16px 16px 0 0; padding:32px 36px 24px;">
-              <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:#c6a559; margin-bottom:8px;">
-                ${isPlanet ? 'PLANETEX' : 'Tester.io'} &bull; ${product.category}
-              </div>
-              ${isPlanet ? `<div style="font-size:0.78rem; color:#8b9197; margin-bottom:6px;">Acquisition Price: <span style="color:#c6a559; font-weight:700;">${product.price}</span></div>` : ''}
-              <div style="font-size:1.8rem; font-weight:800; color:#f2f4f5; line-height:1.1; margin-bottom:8px;">
-                ${product.name}
-              </div>
-              <div style="font-size:0.9rem; color:#8b9197; line-height:1.5;">
-                ${product.tagline}
-              </div>
-            </td>
-          </tr>
+  <!-- TOP LABEL BAR -->
+  <tr><td style="background:#090b13; border:1px solid #1a1f2e; border-bottom:none; border-radius:10px 10px 0 0; padding:14px 32px;">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559;">${brandLabel}</td>
+      <td align="right" style="font-family:Helvetica,Arial,sans-serif; font-size:10px; color:#2e3650; letter-spacing:1.5px; text-transform:uppercase;">${product.category}</td>
+    </tr></table>
+  </td></tr>
 
-          <!-- Gold bar -->
-          <tr>
-            <td style="height:2px; background:linear-gradient(90deg, #c6a559, #e6b979, #c6a559);"></td>
-          </tr>
+  <!-- HERO IMAGE -->
+  ${imageDataUri ? `
+  <tr><td style="border-left:1px solid #1a1f2e; border-right:1px solid #1a1f2e; padding:0; line-height:0; font-size:0;">
+    <img src="${imageDataUri}" alt="${product.name}" width="600"
+         style="width:100%; height:300px; object-fit:cover; object-position:center; display:block;" />
+  </td></tr>
+  <tr><td style="height:3px; background:linear-gradient(90deg,#c6a559,#f0c060,#c6a559);"></td></tr>` : `
+  <tr><td style="height:3px; background:linear-gradient(90deg,#c6a559,#f0c060,#c6a559);"></td></tr>`}
 
-          <!-- Product image -->
-          ${imageDataUri ? `
-          <tr>
-            <td style="border-left:1px solid #1e2129; border-right:1px solid #1e2129; padding:0; line-height:0;">
-              <img src="${imageDataUri}" alt="${product.name}" width="600"
-                   style="width:100%; max-width:600px; height:240px; object-fit:cover; display:block;" />
-            </td>
-          </tr>` : ''}
+  <!-- PRODUCT IDENTITY -->
+  <tr><td style="background:#090b13; border-left:1px solid #1a1f2e; border-right:1px solid #1a1f2e; padding:28px 32px 24px;">
+    <div style="font-family:Georgia,'Times New Roman',serif; font-size:34px; font-weight:700; color:#ffffff; line-height:1.1; margin-bottom:10px; letter-spacing:-0.5px;">${product.name}</div>
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:15px; color:#6a7896; line-height:1.6;">${product.tagline}</div>
+    ${priceBlock}
+  </td></tr>
 
-          <!-- Pitch -->
-          <tr>
-            <td style="background:#0a0c10; border-left:1px solid #1e2129; border-right:1px solid #1e2129; padding:28px 36px;">
-              <div style="font-size:0.95rem; color:#f2f4f5; line-height:1.8;">
-                ${content.pitch}
-              </div>
-            </td>
-          </tr>
+  <!-- PITCH COPY -->
+  <tr><td style="background:#0c0f18; border:1px solid #1a1f2e; border-top:none; padding:26px 32px;">
+    <div style="font-family:Georgia,'Times New Roman',serif; font-size:15px; color:#c0c8d8; line-height:1.95; font-style:italic;">${content.pitch}</div>
+  </td></tr>
 
-          <!-- Specs -->
-          <tr>
-            <td style="background:#0d0f15; border:1px solid #1e2129; border-top:none; padding:24px 36px;">
-              <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#c6a559; margin-bottom:14px;">
-                Key Specs
-              </div>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                ${specRows}
-              </table>
-            </td>
-          </tr>
+  <!-- KEY SPECS -->
+  <tr><td style="background:#090b13; border:1px solid #1a1f2e; border-top:none; padding:24px 32px;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid #141824;">${isPlanet ? 'PLANETARY DATA' : 'KEY SPECIFICATIONS'}</div>
+    <table width="100%" cellpadding="0" cellspacing="0">${specRows}</table>
+  </td></tr>
 
-          <!-- Why Now -->
-          <tr>
-            <td style="background:#0a0c10; border:1px solid #1e2129; border-top:none; padding:24px 36px;">
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="padding:16px 20px; background:#111318; border-left:3px solid #c6a559; border-radius:4px;">
-                    <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:#c6a559; margin-bottom:6px;">
-                      Why Now
-                    </div>
-                    <div style="font-size:0.85rem; color:#f2f4f5; line-height:1.65;">${content.why_now}</div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Best For -->
-          <tr>
-            <td style="background:#0d0f15; border:1px solid #1e2129; border-top:none; padding:24px 36px;">
-              <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#c6a559; margin-bottom:12px;">
-                Best For
-              </div>
-              <div>${bestForItems}</div>
-            </td>
-          </tr>
-
-          <!-- CTA -->
-          <tr>
-            <td style="background:#0a0c10; border:1px solid #1e2129; border-top:none; padding:28px 36px; text-align:center;">
-              <a href="${product.url}"
-                 style="display:inline-block; padding:14px 32px; background:linear-gradient(135deg, #c6a559, #e6b979); color:#0a0c10; font-weight:700; font-size:0.9rem; text-decoration:none; border-radius:999px; letter-spacing:0.02em;">
-                ${content.cta} &rarr;
-              </a>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background:#080a0e; border:1px solid #1e2129; border-top:none; border-radius:0 0 16px 16px; padding:18px 36px; text-align:center;">
-              <div style="font-size:0.72rem; color:#3e4248; letter-spacing:0.06em;">
-                Tester.io Product Spotlight &bull; Powered by Groq &amp; Resend
-              </div>
-            </td>
-          </tr>
-
-        </table>
+  <!-- WHY NOW -->
+  <tr><td style="background:#0c0f18; border:1px solid #1a1f2e; border-top:none; padding:22px 32px;">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="background:#0a0d18; border:1px solid #1e2535; border-left:3px solid #c6a559; border-radius:0 6px 6px 0; padding:16px 20px;">
+        <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:#c6a559; margin-bottom:8px;">${isPlanet ? 'ACQUISITION WINDOW' : 'WHY NOW'}</div>
+        <div style="font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#d0d8e8; line-height:1.7;">${content.why_now}</div>
       </td>
-    </tr>
-  </table>
+    </tr></table>
+  </td></tr>
+
+  <!-- IDEAL FOR -->
+  <tr><td style="background:#090b13; border:1px solid #1a1f2e; border-top:none; padding:20px 32px 22px;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; margin-bottom:12px;">IDEAL FOR</div>
+    <div>${bestForItems}</div>
+  </td></tr>
+
+  <!-- CTA -->
+  <tr><td style="background:#0c0f18; border:1px solid #1a1f2e; border-top:none; padding:28px 32px; text-align:center;">
+    <a href="${product.url}" style="display:inline-block; padding:15px 44px; background:linear-gradient(135deg,#c6a559,#e6b979); color:#060810; font-family:Helvetica,Arial,sans-serif; font-size:12px; font-weight:800; text-decoration:none; border-radius:4px; letter-spacing:2px; text-transform:uppercase;">${content.cta} &rarr;</a>
+  </td></tr>
+
+  <!-- FOOTER -->
+  <tr><td style="background:#060810; border:1px solid #1a1f2e; border-top:none; border-radius:0 0 10px 10px; padding:18px 32px; text-align:center;">
+    <div style="height:1px; background:linear-gradient(90deg,transparent,#1a1f2e,transparent); margin-bottom:14px;"></div>
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; color:#232b3e; letter-spacing:2px; text-transform:uppercase;">${isPlanet ? 'PLANETEX' : 'TESTER.IO'} &nbsp;&bull;&nbsp; POWERED BY GROQ &amp; RESEND</div>
+  </td></tr>
+
+  <!-- BOTTOM ACCENT -->
+  <tr><td style="height:2px; background:linear-gradient(90deg,transparent,#c6a559,transparent); border-radius:0 0 4px 4px;"></td></tr>
+
+</table>
+</td></tr>
+</table>
 
 </body>
 </html>`;
@@ -344,19 +320,22 @@ async function sendProductEmail(productKey) {
   const html = renderProductEmail(product, content, isPlanet, imageDataUri);
 
   const subjectPrefix = isPlanet ? 'Planet Listing' : 'Product Spotlight';
+  const subject = `${subjectPrefix}: ${product.name}`;
   console.log('Sending via Resend...');
   const _toList = (process.env.RESEND_TO || '').split(',').map(e => e.trim()).filter(Boolean);
   if (!_toList.length) throw new Error('RESEND_TO is empty — no recipients configured');
-  const { data, error } = await resend.emails.send({
-    from:    process.env.RESEND_FROM,
-    to:      _toList.length === 1 ? _toList[0] : _toList,
-    subject: `${subjectPrefix}: ${product.name}`,
-    html,
-  });
 
-  if (error) throw new Error(error.message);
-  console.log('Sent! ID:', data.id);
-  return { ok: true, id: data.id, product: product.name };
+  const ids = [];
+  for (let i = 0; i < _toList.length; i += 50) {
+    const batch = _toList.slice(i, i + 50);
+    const to    = batch.length === 1 ? batch[0] : batch;
+    const { data, error } = await resend.emails.send({ from: process.env.RESEND_FROM, to, subject, html });
+    if (error) throw new Error(error.message);
+    ids.push(data.id);
+    console.log(`Batch ${Math.floor(i / 50) + 1}: sent to ${batch.length} recipient(s). ID: ${data.id}`);
+  }
+  console.log(`Sent ${product.name} to ${_toList.length} recipient(s).`);
+  return { ok: true, ids, product: product.name };
 }
 
 const productKey = process.argv[2];

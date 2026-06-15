@@ -83,19 +83,18 @@ export async function resolveRecipients(type, emails) {
 
 export function computeNextRun(scheduleType, hour, minute, weekday) {
   const now  = new Date();
-  const next = new Date();
 
   if (scheduleType === 'daily') {
-    next.setHours(hour, minute, 0, 0);
-    if (next <= now) next.setDate(next.getDate() + 1);
+    // Build next run as UTC
+    const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour, minute, 0, 0));
+    if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
     return next;
   }
 
   if (scheduleType === 'weekly') {
-    const diff = ((weekday - now.getDay()) + 7) % 7;
-    next.setDate(now.getDate() + diff);
-    next.setHours(hour, minute, 0, 0);
-    if (next <= now) next.setDate(next.getDate() + 7);
+    const diff = ((weekday - now.getUTCDay()) + 7) % 7;
+    const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + diff, hour, minute, 0, 0));
+    if (next <= now) next.setUTCDate(next.getUTCDate() + 7);
     return next;
   }
 

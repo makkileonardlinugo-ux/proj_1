@@ -48,19 +48,29 @@ Return ONLY valid JSON matching this exact shape:
 // ── 2. Render content into a polished HTML email ───────────────────────────────
 
 function renderEmail(data, dateStr) {
-  const highlightRows = data.highlights.map(h => `
+  const cardAccents = ['#c6a559', '#5c7cfa', '#34d399'];
+
+  const highlightCards = data.highlights.map((h, i) => `
     <tr>
-      <td style="padding:14px 0; border-bottom:1px solid #1e2129;">
-        <div style="font-size:0.85rem; font-weight:700; color:#f2f4f5; margin-bottom:4px;">${h.title}</div>
-        <div style="font-size:0.82rem; color:#8b9197; line-height:1.6;">${h.summary}</div>
+      <td style="padding:0 0 10px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td style="background:#0a0d18; border:1px solid #1a1f2e; border-left:3px solid ${cardAccents[i % cardAccents.length]}; border-radius:0 6px 6px 0; padding:16px 18px;">
+            <div style="font-family:Helvetica,Arial,sans-serif; font-size:13px; font-weight:700; color:#e0e6f0; margin-bottom:6px; line-height:1.3;">${h.title}</div>
+            <div style="font-family:Helvetica,Arial,sans-serif; font-size:12px; color:#5a6a84; line-height:1.75;">${h.summary}</div>
+          </td>
+        </tr></table>
       </td>
     </tr>`).join('');
 
   const focusItems = data.focus.map((f, i) => `
     <tr>
-      <td style="padding:10px 0; border-bottom:1px solid #1e2129;">
-        <span style="color:#c6a559; font-weight:700; margin-right:10px;">${i + 1}.</span>
-        <span style="font-size:0.85rem; color:#f2f4f5;">${f}</span>
+      <td style="padding:0 0 10px 0;">
+        <table cellpadding="0" cellspacing="0"><tr>
+          <td width="30" valign="top">
+            <div style="width:22px; height:22px; background:linear-gradient(135deg,#c6a559,#e6b979); border-radius:4px; text-align:center; line-height:22px; font-family:Helvetica,Arial,sans-serif; font-size:11px; font-weight:800; color:#060810;">${i + 1}</div>
+          </td>
+          <td style="font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#c0c8d8; line-height:1.6; padding-top:2px;">${f}</td>
+        </tr></table>
       </td>
     </tr>`).join('');
 
@@ -71,101 +81,67 @@ function renderEmail(data, dateStr) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Morning Briefing</title>
 </head>
-<body style="margin:0; padding:0; background:#05070a; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;">
+<body style="margin:0; padding:0; background:#060810;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#05070a; padding:40px 0;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#060810; padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%;">
 
-          <!-- Header -->
-          <tr>
-            <td style="background:#0a0c10; border:1px solid #1e2129; border-radius:16px 16px 0 0; padding:32px 36px 24px;">
-              <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:#c6a559; margin-bottom:10px;">
-                Morning Briefing
-              </div>
-              <div style="font-size:1.5rem; font-weight:700; color:#f2f4f5; line-height:1.2; margin-bottom:6px;">
-                ${dateStr}
-              </div>
-              <div style="font-size:0.9rem; color:#8b9197; line-height:1.6;">
-                ${data.greeting}
-              </div>
-            </td>
-          </tr>
+  <!-- TOP ACCENT -->
+  <tr><td style="height:3px; background:linear-gradient(90deg,#c6a559,#f0c060,#c6a559); border-radius:3px 3px 0 0;"></td></tr>
 
-          <!-- Divider -->
-          <tr>
-            <td style="height:2px; background:linear-gradient(90deg, #c6a559, #e6b979, #c6a559);"></td>
-          </tr>
+  <!-- MASTHEAD -->
+  <tr><td style="background:#090b13; border:1px solid #1a1f2e; border-top:none; padding:36px 36px 30px;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:#c6a559; margin-bottom:18px;">TESTER.IO &nbsp;&#9670;&nbsp; MORNING BRIEFING</div>
+    <div style="font-family:Georgia,'Times New Roman',serif; font-size:38px; font-weight:700; color:#ffffff; line-height:1.05; margin-bottom:18px; letter-spacing:-1px;">${dateStr}</div>
+    <div style="height:1px; background:linear-gradient(90deg,#c6a55950,transparent); margin-bottom:16px;"></div>
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:15px; color:#6a7896; line-height:1.8;">${data.greeting}</div>
+  </td></tr>
 
-          <!-- Today's Focus -->
-          <tr>
-            <td style="background:#0a0c10; border-left:1px solid #1e2129; border-right:1px solid #1e2129; padding:28px 36px 20px;">
-              <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#c6a559; margin-bottom:16px;">
-                Today's Focus
-              </div>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                ${focusItems}
-              </table>
-            </td>
-          </tr>
+  <!-- TODAY'S PRIORITIES -->
+  <tr><td style="background:#0c0f18; border:1px solid #1a1f2e; border-top:none; padding:26px 36px;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; padding-bottom:12px; margin-bottom:16px; border-bottom:1px solid #141824;">TODAY'S PRIORITIES</div>
+    <table width="100%" cellpadding="0" cellspacing="0">${focusItems}</table>
+  </td></tr>
 
-          <!-- Highlights -->
-          <tr>
-            <td style="background:#0d0f15; border:1px solid #1e2129; border-top:none; padding:28px 36px 20px;">
-              <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#c6a559; margin-bottom:16px;">
-                What's Happening
-              </div>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                ${highlightRows}
-              </table>
-            </td>
-          </tr>
+  <!-- INTELLIGENCE BRIEF -->
+  <tr><td style="background:#090b13; border:1px solid #1a1f2e; border-top:none; padding:26px 36px;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; padding-bottom:12px; margin-bottom:16px; border-bottom:1px solid #141824;">INTELLIGENCE BRIEF</div>
+    <table width="100%" cellpadding="0" cellspacing="0">${highlightCards}</table>
+  </td></tr>
 
-          <!-- Productivity Tip -->
-          <tr>
-            <td style="background:#0a0c10; border:1px solid #1e2129; border-top:none; padding:24px 36px;">
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="padding:16px 20px; background:#111318; border-left:3px solid #c6a559; border-radius:4px;">
-                    <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:#c6a559; margin-bottom:6px;">
-                      Tip of the Day
-                    </div>
-                    <div style="font-size:0.85rem; color:#f2f4f5; line-height:1.6;">${data.tip}</div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Quote -->
-          <tr>
-            <td style="background:#0d0f15; border:1px solid #1e2129; border-top:none; padding:24px 36px; text-align:center;">
-              <div style="font-size:1rem; font-style:italic; color:#f2f4f5; line-height:1.7; margin-bottom:8px;">
-                &ldquo;${data.quote.text}&rdquo;
-              </div>
-              <div style="font-size:0.78rem; color:#c6a559; font-weight:600; letter-spacing:0.08em;">
-                &mdash; ${data.quote.author}
-              </div>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background:#080a0e; border:1px solid #1e2129; border-top:none; border-radius:0 0 16px 16px; padding:20px 36px; text-align:center;">
-              <div style="font-size:0.82rem; color:#8b9197; line-height:1.6; margin-bottom:12px;">
-                ${data.closing}
-              </div>
-              <div style="font-size:0.72rem; color:#3e4248; letter-spacing:0.08em;">
-                Tester.io Morning Briefing &bull; Powered by Groq &amp; Resend
-              </div>
-            </td>
-          </tr>
-
-        </table>
+  <!-- EDGE TIP -->
+  <tr><td style="background:#0c0f18; border:1px solid #1a1f2e; border-top:none; padding:22px 36px;">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="background:linear-gradient(135deg,#1a1508,#110f07); border:1px solid #2a2010; border-radius:6px; padding:18px 22px;">
+        <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c6a559; margin-bottom:8px;">EDGE &nbsp;&#9998;</div>
+        <div style="font-family:Georgia,'Times New Roman',serif; font-size:14px; color:#d4c9a8; line-height:1.85; font-style:italic;">${data.tip}</div>
       </td>
-    </tr>
-  </table>
+    </tr></table>
+  </td></tr>
+
+  <!-- QUOTE -->
+  <tr><td style="background:#090b13; border:1px solid #1a1f2e; border-top:none; padding:32px 36px; text-align:center;">
+    <div style="font-family:Georgia,'Times New Roman',serif; font-size:52px; color:#c6a559; line-height:0.6; margin-bottom:14px; opacity:0.4;">&ldquo;</div>
+    <div style="font-family:Georgia,'Times New Roman',serif; font-size:17px; font-style:italic; color:#d0d8e8; line-height:1.9; margin-bottom:18px;">${data.quote.text}</div>
+    <div style="display:inline-block; height:1px; width:36px; background:#c6a559; margin-bottom:12px; vertical-align:middle;"></div>
+    <br />
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:11px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:#c6a559;">${data.quote.author}</div>
+  </td></tr>
+
+  <!-- CLOSING + FOOTER -->
+  <tr><td style="background:#060810; border:1px solid #1a1f2e; border-top:none; border-radius:0 0 8px 8px; padding:24px 36px; text-align:center;">
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:14px; color:#4a5570; line-height:1.7; margin-bottom:16px;">${data.closing}</div>
+    <div style="height:1px; background:linear-gradient(90deg,transparent,#1a1f2e,transparent); margin-bottom:14px;"></div>
+    <div style="font-family:Helvetica,Arial,sans-serif; font-size:10px; color:#232b3e; letter-spacing:2px; text-transform:uppercase;">TESTER.IO &nbsp;&bull;&nbsp; MORNING BRIEFING &nbsp;&bull;&nbsp; POWERED BY GROQ</div>
+  </td></tr>
+
+  <!-- BOTTOM ACCENT -->
+  <tr><td style="height:2px; background:linear-gradient(90deg,transparent,#c6a559,transparent); border-radius:0 0 4px 4px;"></td></tr>
+
+</table>
+</td></tr>
+</table>
 
 </body>
 </html>`;
@@ -188,16 +164,18 @@ async function sendBriefing() {
   console.log('Sending via Resend...');
   const _toList = (process.env.RESEND_TO || '').split(',').map(e => e.trim()).filter(Boolean);
   if (!_toList.length) throw new Error('RESEND_TO is empty — no recipients configured');
-  const { data, error } = await resend.emails.send({
-    from: process.env.RESEND_FROM,
-    to:   _toList.length === 1 ? _toList[0] : _toList,
-    subject,
-    html,
-  });
 
-  if (error) throw new Error(error.message);
-  console.log('Briefing sent successfully. ID:', data.id);
-  return { ok: true, id: data.id, subject };
+  const ids = [];
+  for (let i = 0; i < _toList.length; i += 50) {
+    const batch = _toList.slice(i, i + 50);
+    const to    = batch.length === 1 ? batch[0] : batch;
+    const { data, error } = await resend.emails.send({ from: process.env.RESEND_FROM, to, subject, html });
+    if (error) throw new Error(error.message);
+    ids.push(data.id);
+    console.log(`Batch ${Math.floor(i / 50) + 1}: sent to ${batch.length} recipient(s). ID: ${data.id}`);
+  }
+  console.log(`Briefing sent to ${_toList.length} recipient(s).`);
+  return { ok: true, ids, subject };
 }
 
 sendBriefing()
