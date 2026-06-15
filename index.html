@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tester.io · One platform. Every smart device.</title>
+  <meta name="description" content="Tester.io builds wearables, ambient computers and assistants that speak the same language. Watch, glasses, ring and home, finally in sync." />
+
+  <link rel="icon" type="image/png" href="brand_assets/tester-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            card: "hsl(var(--card))",
+            "card-foreground": "hsl(var(--card-foreground))",
+            primary: "hsl(var(--primary))",
+            "primary-foreground": "hsl(var(--primary-foreground))",
+            secondary: "hsl(var(--secondary))",
+            "secondary-foreground": "hsl(var(--secondary-foreground))",
+            muted: "hsl(var(--muted))",
+            "muted-foreground": "hsl(var(--muted-foreground))",
+            accent: "hsl(var(--accent))",
+            "accent-foreground": "hsl(var(--accent-foreground))",
+            border: "hsl(var(--border))",
+          },
+          fontFamily: {
+            sans: ["Montserrat", "system-ui", "sans-serif"],
+            serif: ["Montserrat", "system-ui", "sans-serif"],
+          },
+          borderRadius: { DEFAULT: "var(--radius)" },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    :root {
+      --background: 220 14% 4%;
+      --foreground: 40 20% 92%;
+      --card: 220 12% 7%;
+      --card-foreground: 40 20% 92%;
+      --popover: 220 12% 7%;
+      --popover-foreground: 40 20% 92%;
+      --primary: 40 20% 92%;
+      --primary-foreground: 220 14% 4%;
+      --secondary: 220 10% 12%;
+      --secondary-foreground: 40 15% 75%;
+      --muted: 220 10% 12%;
+      --muted-foreground: 220 8% 45%;
+      --accent: 42 49% 56%;
+      --accent-foreground: 220 14% 4%;
+      --gold-1: #c6a559;
+      --gold-2: #e6b979;
+      --destructive: 0 84.2% 60.2%;
+      --border: 220 10% 15%;
+      --input: 220 10% 15%;
+      --ring: 42 49% 56%;
+      --radius: 0.25rem;
+      --pass: 145 55% 48%;
+      --fail: 0 70% 58%;
+      --flaky: 38 85% 58%;
+    }
+
+    * { border-color: hsl(var(--border)); }
+
+    body {
+      background-color: hsl(var(--background));
+      font-family: Montserrat, system-ui, sans-serif;
+      font-weight: 500;
+      color: hsl(var(--foreground));
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .grain-overlay::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAElBMVEUAAAAAAAAAAAAAAAAAAAAAAADgKxmiAAAABnRSTlMFBQUFBQVWsNmPAAAAT0lEQVQ4y2NgsGZgYGBmZDBhYBBgZGBgYmZmEGBiYGJgZmRkYGJiZBBgZGJkYGJkYGRgYmBmYGRgZGRiYGJkZGBkZGRkYmJkZAAAIJIFJjqUlsAAAAASUVORK5CYII=);
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.35;
+      contain: strict;
+      will-change: auto;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #2e3138; border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: #090a0c; }
+    ::selection { background: #e6b9794d; color: #efece7; }
+
+    .accent-italic { font-style: italic; font-weight: 500; }
+
+    .gold-gradient { background-image: linear-gradient(135deg, var(--gold-1) 0%, var(--gold-2) 100%); }
+    .gold-text {
+      background-image: linear-gradient(120deg, var(--gold-1) 0%, var(--gold-2) 60%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .gold-border-gradient { border: 1px solid transparent; background:
+      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+      linear-gradient(135deg, var(--gold-1), var(--gold-2)) border-box; }
+
+    .hero-glow {
+      background:
+        radial-gradient(55% 50% at 78% 16%, hsl(42 55% 56% / 0.18), transparent 70%),
+        radial-gradient(45% 40% at 8% 6%, hsl(38 45% 34% / 0.12), transparent 70%);
+    }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      html { scroll-behavior: auto; }
+      .marquee-track, .pulse-dot,
+      .grid-bg, .sweep-line, .corner-bracket, .shimmer { animation: none !important; }
+    }
+
+    .nav-link { position: relative; }
+    .nav-link::after { content: ""; position: absolute; left: 0; bottom: -4px; height: 1px; width: 0; background: hsl(var(--accent)); transition: width 0.4s cubic-bezier(0.16,1,0.3,1); }
+    .nav-link:hover::after { width: 100%; }
+
+    .marquee-track { animation: marquee 36s linear infinite; }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+
+    .accordion-item { transition: background-color 0.5s ease; }
+    .accordion-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .accordion-item.open .accordion-body { grid-template-rows: 1fr; }
+    .accordion-body > div { overflow: hidden; }
+    .accordion-icon { transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .accordion-item.open .accordion-icon { transform: rotate(45deg); }
+
+    .tilt-card { transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), border-color 0.5s ease, background-color 0.5s ease; }
+    .tilt-card:hover { transform: translateY(-6px); border-color: hsl(var(--accent) / 0.4); }
+
+    .pulse-dot { animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    /* Animated CTA background lines */
+    @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 50px 50px; } }
+    @keyframes lineMove { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    @keyframes cornerLineAnimation {
+      0% { stroke-dashoffset: 0; }
+      25% { stroke-dashoffset: 100; }
+      50% { stroke-dashoffset: 200; }
+      75% { stroke-dashoffset: 300; }
+      100% { stroke-dashoffset: 400; }
+    }
+    @keyframes gradientShift { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(30deg); } }
+
+    /* Vertical page-flip: each section hinges on its top edge and tilts back as it leaves the top of the viewport */
+    .page-flip { backface-visibility: hidden; }
+    @media (prefers-reduced-motion: reduce) {
+      .page-flip { transform: none !important; opacity: 1 !important; }
+    }
+
+  </style>
+</head>
+
+<body class="grain-overlay antialiased overflow-x-hidden">
+
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[10000] focus:rounded focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-foreground">Skip to main content</a>
+
+  <!-- ===== NAV ===== -->
+  <header class="fixed inset-x-0 top-0 z-[9000] transition-colors duration-500" id="nav">
+    <div class="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
+      <a href="#" class="group flex items-center gap-2.5" aria-label="Tester.io home">
+        <img src="brand_assets/tester-icon.png" alt="" class="h-8 w-8 transition-transform duration-500 group-hover:rotate-[-8deg]" />
+        <span class="text-[17px] font-bold tracking-tight">Tester<span class="gold-text">.io</span></span>
+      </a>
+
+      <nav class="hidden items-center gap-9 text-[13px] font-semibold text-secondary-foreground md:flex">
+        <a href="#products" class="nav-link transition-colors hover:text-foreground">Devices</a>
+        <a href="#capabilities" class="nav-link transition-colors hover:text-foreground">Ecosystem</a>
+        <a href="product.html" class="nav-link transition-colors hover:text-foreground">Products</a>
+        <a href="#faq" class="nav-link transition-colors hover:text-foreground">Specs</a>
+      </nav>
+
+      <div class="flex items-center gap-5">
+        <a href="#" class="hidden text-[13px] font-semibold text-secondary-foreground transition-colors hover:text-foreground sm:inline">Sign in</a>
+        <a href="product.html" class="gold-gradient hidden items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-bold uppercase tracking-[0.08em] text-accent-foreground shadow-[0_6px_20px_-6px_rgba(230,185,121,0.5)] transition-all duration-300 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] sm:inline-flex">
+          Get Started
+        </a>
+        <button aria-label="Open menu" class="flex h-9 w-9 items-center justify-center rounded-sm border border-border/80 bg-card/60 text-foreground backdrop-blur transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 md:hidden">
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18M3 17h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ===== HERO ===== -->
+    <section class="hero-glow relative overflow-hidden pt-36 md:pt-44">
+      <div class="mx-auto max-w-[1400px] px-6 md:px-10">
+        <p class="reveal mb-8 flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          <span class="pulse-dot h-1.5 w-1.5 rounded-full bg-accent"></span>
+          One platform. Every smart device.
+        </p>
+
+        <h1 class="reveal max-w-[15ch] text-[12vw] font-bold leading-[0.92] tracking-[-0.04em] min-[480px]:text-[13vw] sm:text-[11vw] md:text-[8.5vw] lg:text-[7.4rem]">
+          <span class="block">Precision,</span>
+          <span class="block"><span class="accent-italic font-normal gold-text">Dissected.</span></span>
+        </h1>
+
+        <div class="mt-12 grid gap-10 md:mt-16 md:grid-cols-12 md:items-end">
+          <p class="reveal max-w-md text-base leading-[1.7] text-secondary-foreground md:col-span-5 md:text-lg">
+            Tester.io builds wearables, ambient computers and assistants that speak the same language. Watch, glasses, ring and home, finally in sync, finally understood.
+          </p>
+
+          <div class="reveal md:col-span-7 md:justify-self-end">
+            <div class="flex flex-wrap items-end gap-10 sm:gap-14">
+              <div>
+                <div class="text-5xl font-bold tracking-[-0.03em] sm:text-6xl">6<span class="text-accent">+</span></div>
+                <div class="mt-2 text-[12px] uppercase tracking-[0.2em] text-muted-foreground">Device lines</div>
+              </div>
+              <div>
+                <div class="text-5xl font-bold tracking-[-0.03em] sm:text-6xl">9<span class="text-accent">d</span></div>
+                <div class="mt-2 text-[12px] uppercase tracking-[0.2em] text-muted-foreground">Wearable battery</div>
+              </div>
+              <div>
+                <div class="text-5xl font-bold tracking-[-0.03em] sm:text-6xl">0<span class="text-accent">ms</span></div>
+                <div class="mt-2 text-[12px] uppercase tracking-[0.2em] text-muted-foreground">Cloud latency</div>
+              </div>
+            </div>
+            <div class="mt-8 flex flex-wrap items-center gap-4">
+              <a href="product.html" class="gold-gradient group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.08em] text-accent-foreground shadow-[0_10px_30px_-8px_rgba(230,185,121,0.55)] transition-all duration-300 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98]">
+                Get Started
+                <svg viewBox="0 0 24 24" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <a href="#capabilities" class="inline-flex items-center gap-2 rounded-full border border-accent/50 px-7 py-3.5 text-sm font-bold uppercase tracking-[0.08em] text-foreground transition-all duration-300 hover:bg-accent/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 active:scale-[0.98]">
+                Our Ecosystem
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero product image -->
+        <figure class="reveal relative mt-14 overflow-hidden rounded md:mt-20">
+          <div class="relative w-full overflow-hidden" style="aspect-ratio:16/7;min-height:280px;">
+            <div class="absolute inset-0 bg-[#16120c]"></div>
+            <img src="images/device-watch.jpg" alt="Tester Smart Watch Pro"
+                 class="absolute inset-0 h-full w-full object-cover object-center"
+                 style="mix-blend-mode:luminosity;opacity:0.78;" />
+            <div class="absolute inset-0" style="background:radial-gradient(130% 130% at 65% 30%, hsl(42 60% 55% / 0.52), hsl(38 48% 20% / 0.32) 45%, hsl(220 30% 4% / 0.9) 72%);"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-background via-background/25 to-transparent"></div>
+            <div class="absolute bottom-7 left-8 sm:bottom-10 sm:left-12">
+              <p class="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Flagship · Smart Watch Pro</p>
+              <p class="mt-1 text-lg font-bold tracking-tight gold-text">Precision, Dissected.</p>
+            </div>
+          </div>
+        </figure>
+
+        <!-- Recognition row -->
+        <div class="reveal flex flex-wrap items-center gap-x-8 gap-y-4 border-b border-border/60 py-7 text-[12px] uppercase tracking-[0.2em] text-muted-foreground">
+          <span class="flex items-center gap-2 text-foreground">
+            <svg viewBox="0 0 24 24" class="h-4 w-4 text-accent" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 18.6 6.8 21.4l1-5.8L3.5 8.2l5.9-.9z"/></svg>
+            Best Wearable · 2025
+          </span>
+          <span>Teardown Award</span>
+          <span>Privacy Certified</span>
+          <span>Product Hunt #1</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FEATURED IN MARQUEE ===== -->
+    <section class="relative overflow-hidden py-12">
+      <p class="mb-8 text-center text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Featured in</p>
+      <div class="marquee relative flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
+        <div class="marquee-track flex shrink-0 items-center gap-16 pr-16 text-2xl font-bold tracking-tight text-muted-foreground/70 md:text-3xl">
+          <span>The Verge</span><span class="text-accent/40">·</span><span>Wired</span><span class="text-accent/40">·</span>
+          <span>TechCrunch</span><span class="text-accent/40">·</span><span>Engadget</span><span class="text-accent/40">·</span>
+          <span>iFixit</span><span class="text-accent/40">·</span><span>Hackaday</span><span class="text-accent/40">·</span><span>The Verge</span><span class="text-accent/40">·</span>
+        </div>
+        <div class="marquee-track flex shrink-0 items-center gap-16 pr-16 text-2xl font-bold tracking-tight text-muted-foreground/70 md:text-3xl" aria-hidden="true">
+          <span>The Verge</span><span class="text-accent/40">·</span><span>Wired</span><span class="text-accent/40">·</span>
+          <span>TechCrunch</span><span class="text-accent/40">·</span><span>Engadget</span><span class="text-accent/40">·</span>
+          <span>iFixit</span><span class="text-accent/40">·</span><span>Hackaday</span><span class="text-accent/40">·</span><span>The Verge</span><span class="text-accent/40">·</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CAPABILITIES ===== -->
+    <section id="capabilities" class="relative scroll-mt-24 border-t border-border/60 py-28 md:py-40">
+      <div class="mx-auto max-w-[1400px] px-6 md:px-10">
+        <div class="grid gap-14 md:grid-cols-12 md:gap-10">
+          <div class="reveal md:col-span-4">
+            <p class="mb-6 flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              <span class="h-1.5 w-1.5 rounded-full bg-accent"></span> Capabilities
+            </p>
+            <h2 class="text-4xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-5xl">Everything your devices <span class="accent-italic font-normal gold-text">need.</span></h2>
+            <p class="mt-6 max-w-xs leading-[1.7] text-secondary-foreground">Six devices, one OS, on-device AI, and a privacy model built for how you actually live.</p>
+            <a href="#pricing" class="gold-gradient mt-8 inline-flex w-fit items-center gap-2 rounded-full px-6 py-3 text-sm font-bold uppercase tracking-[0.08em] text-accent-foreground shadow-[0_10px_30px_-8px_rgba(230,185,121,0.55)] transition-[filter,transform] duration-300 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 active:scale-[0.98]">Pre-order <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+          <div class="reveal md:col-span-8">
+            <div class="grid gap-7 sm:grid-cols-2">
+              <div>
+                <h3 class="text-lg font-bold gold-text">Wearable Suite</h3>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Smart Watch Pro</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Smart Ring</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Smart Earbuds</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Smart Glasses</span>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold gold-text">On-Device Intelligence</h3>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Local LLM (7B)</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Neural Co-processor</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Zero Cloud</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">0ms Latency</span>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold gold-text">Health &amp; Sensing</h3>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Continuous Biosensing</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Sleep Stages</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">SpO2 Tracking</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">HRV Analysis</span>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold gold-text">Ecosystem</h3>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Tester OS</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Thread + Matter</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Cross-Device Handoff</span>
+                  <span class="rounded-full border border-border px-3 py-1 text-[11px] text-secondary-foreground">Open Standards</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section id="how" class="relative scroll-mt-24 border-t border-border/60 py-28 md:py-40">
+      <div class="mx-auto max-w-[1400px] px-6 md:px-10">
+        <div class="grid gap-14 md:grid-cols-12 md:gap-10">
+          <div class="reveal md:col-span-4">
+            <p class="mb-6 flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              <span class="h-1.5 w-1.5 rounded-full bg-accent"></span> How it works
+            </p>
+            <h2 class="text-4xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-5xl">From unboxing to <span class="accent-italic font-normal gold-text">in sync.</span></h2>
+            <p class="mt-6 max-w-xs leading-[1.7] text-secondary-foreground">Six steps from first power-on to a connected ecosystem you fully understand.</p>
+            <a href="#faq" class="mt-8 inline-flex w-fit items-center gap-2 rounded-full border border-accent/50 px-6 py-3 text-sm font-bold uppercase tracking-[0.08em] transition-[background-color,color,transform] duration-300 hover:bg-accent/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 active:scale-[0.98]">View specs <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+          <div class="reveal md:col-span-8">
+            <div class="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+              <div class="flex gap-3"><span class="text-[12px] font-bold tabular-nums gold-text">01</span><div><h3 class="text-sm font-bold">Unbox</h3><p class="mt-1 text-[13px] leading-[1.55] text-secondary-foreground">Each device ships with a teardown card: see what's inside before you even pair.</p></div></div>
+              <div class="flex gap-3"><span class="text-[12px] font-bold tabular-nums gold-text">02</span><div><h3 class="text-sm font-bold">Pair</h3><p class="mt-1 text-[13px] leading-[1.55] text-secondary-foreground">Open the Tester app. All devices auto-discover over encrypted local mesh.</p></div></div>
+              <div class="flex gap-3"><span class="text-[12px] font-bold tabular-nums gold-text">03</span><div><h3 class="text-sm font-bold">Customize</h3><p class="mt-1 text-[13px] leading-[1.55] text-secondary-foreground">Set your health goals, ANC preferences, and smart home scenes in one place.</p></div></div>
+              <div class="flex gap-3"><span class="text-[12px] font-bold tabular-nums gold-text">04</span><div><h3 class="text-sm font-bold">Sync</h3><p class="mt-1 text-[13px] leading-[1.55] text-secondary-foreground">Watch, ring and buds write to one health graph. 12ms cross-device handoff.</p></div></div>
+              <div class="flex gap-3"><span class="text-[12px] font-bold tabular-nums gold-text">05</span><div><h3 class="text-sm font-bold">Automate</h3><p class="mt-1 text-[13px] leading-[1.55] text-secondary-foreground">Smart Assistant triggers routines locally. No cloud, no subscription, no latency.</p></div></div>
+              <div class="flex gap-3"><span class="text-[12px] font-bold tabular-nums gold-text">06</span><div><h3 class="text-sm font-bold">Own it</h3><p class="mt-1 text-[13px] leading-[1.55] text-secondary-foreground">Your data lives on your devices. Export, delete, or keep it. Your call.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PRODUCTS ===== -->
+    <section id="products" class="relative scroll-mt-24 border-t border-border/60 py-28 md:py-40">
+      <div class="mx-auto max-w-[1400px] px-6 md:px-10">
+        <div class="reveal mx-auto max-w-[760px] text-center">
+          <p class="mb-6 flex items-center justify-center gap-3 text-[12px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            <span class="h-1.5 w-1.5 rounded-full bg-accent"></span> Products
+          </p>
+          <h2 class="text-4xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-5xl md:text-6xl">The lineup, <span class="accent-italic font-normal gold-text">up close.</span></h2>
+          <p class="mt-6 leading-[1.7] text-secondary-foreground">Six devices. Every component named, every material justified. Explore the full product range.</p>
+          <div class="mt-10">
+            <a href="product.html" class="gold-gradient inline-flex items-center gap-3 rounded-full px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.08em] text-accent-foreground shadow-[0_10px_30px_-8px_rgba(230,185,121,0.55)] transition-[filter,transform] duration-300 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 active:scale-[0.98]">
+              View All Devices
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section id="testimonials" class="relative scroll-mt-24 border-t border-border/60 py-28 md:py-40">
+      <div class="mx-auto max-w-[1400px] px-6 md:px-10">
+        <div class="grid gap-14 md:grid-cols-12 md:gap-10">
+          <div class="reveal md:col-span-4">
+            <p class="mb-6 flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              <span class="h-1.5 w-1.5 rounded-full bg-accent"></span> What people say
+            </p>
+            <h2 class="text-4xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-5xl">Worn by <span class="accent-italic font-normal gold-text">curious minds.</span></h2>
+            <p class="mt-6 max-w-xs leading-[1.7] text-secondary-foreground">Engineers, designers and biohackers who finally understand the hardware on their wrist.</p>
+          </div>
+          <div class="reveal md:col-span-8">
+            <div class="grid gap-4 sm:grid-cols-3">
+              <figure class="flex flex-col rounded-xl border border-border bg-background/40 p-6">
+                <blockquote class="flex-1 text-[14px] leading-[1.6] text-secondary-foreground">"I've worn every flagship watch. Tester's teardown video made me understand why this one actually tracks sleep accurately. First wearable I trust."</blockquote>
+                <figcaption class="mt-5 flex items-center gap-3"><span class="gold-gradient flex h-9 w-9 items-center justify-center rounded-full text-[12px] font-bold text-accent-foreground">MR</span><span><span class="block text-[13px] font-bold">Maya Rao</span><span class="block text-[11px] text-muted-foreground">Software Engineer, SF</span></span></figcaption>
+              </figure>
+              <figure class="flex flex-col rounded-xl border border-border bg-background/40 p-6">
+                <blockquote class="flex-1 text-[14px] leading-[1.6] text-secondary-foreground">"The ring-to-watch handoff during workouts is seamless. And knowing the LLM never leaves my hub, that changed how I think about smart home."</blockquote>
+                <figcaption class="mt-5 flex items-center gap-3"><span class="gold-gradient flex h-9 w-9 items-center justify-center rounded-full text-[12px] font-bold text-accent-foreground">JL</span><span><span class="block text-[13px] font-bold">Jordan Lee</span><span class="block text-[11px] text-muted-foreground">Product Designer, London</span></span></figcaption>
+              </figure>
+              <figure class="flex flex-col rounded-xl border border-border bg-background/40 p-6">
+                <blockquote class="flex-1 text-[14px] leading-[1.6] text-secondary-foreground">"The live translation on the glasses with 34ms latency is real. I stopped reaching for my phone in meetings my second day wearing them."</blockquote>
+                <figcaption class="mt-5 flex items-center gap-3"><span class="gold-gradient flex h-9 w-9 items-center justify-center rounded-full text-[12px] font-bold text-accent-foreground">AK</span><span><span class="block text-[13px] font-bold">Amara Khan</span><span class="block text-[11px] text-muted-foreground">Biohacker, Tokyo</span></span></figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section id="faq" class="relative scroll-mt-24 border-t border-border/60 py-28 md:py-40">
+      <div class="mx-auto max-w-[1400px] px-6 md:px-10">
+        <div class="grid gap-14 md:grid-cols-12 md:gap-10">
+          <div class="reveal md:col-span-4">
+            <p class="mb-6 flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              <span class="h-1.5 w-1.5 rounded-full bg-accent"></span> FAQ
+            </p>
+            <h2 class="text-4xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-5xl">
+              Questions, <span class="accent-italic font-normal gold-text">answered.</span>
+            </h2>
+            <p class="mt-6 max-w-xs leading-[1.7] text-secondary-foreground">Everything else lives in our specs, or ask the team anytime.</p>
+          </div>
+
+          <div class="reveal md:col-span-8">
+            <div class="divide-y divide-border border-y border-border" id="faq-accordion">
+              <div class="accordion-item open">
+                <button class="flex w-full items-center gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                  <h3 class="flex-1 text-lg font-bold tracking-tight md:text-xl">Which platforms does Tester OS support?</h3>
+                  <svg class="accordion-icon h-4 w-4 flex-none text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <div class="accordion-body"><div><p class="max-w-xl pb-6 leading-[1.7] text-secondary-foreground">Tester OS runs on all six Tester devices and integrates with iOS and Android for companion app features. Full standalone mode works without a phone.</p></div></div>
+              </div>
+              <div class="accordion-item">
+                <button class="flex w-full items-center gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                  <h3 class="flex-1 text-lg font-bold tracking-tight md:text-xl">Does any data leave my devices?</h3>
+                  <svg class="accordion-icon h-4 w-4 flex-none text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <div class="accordion-body"><div><p class="max-w-xl pb-6 leading-[1.7] text-secondary-foreground">No, unless you explicitly opt in. All processing, from health tracking to AI assistants, runs on-device. We are privacy certified with a full zero-cloud audit.</p></div></div>
+              </div>
+              <div class="accordion-item">
+                <button class="flex w-full items-center gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                  <h3 class="flex-1 text-lg font-bold tracking-tight md:text-xl">How does cross-device handoff work?</h3>
+                  <svg class="accordion-icon h-4 w-4 flex-none text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <div class="accordion-body"><div><p class="max-w-xl pb-6 leading-[1.7] text-secondary-foreground">All Tester devices broadcast over an encrypted local mesh. When you switch context (e.g., call from watch to glasses), state transfers in under 12ms over Thread 1.3.</p></div></div>
+              </div>
+              <div class="accordion-item">
+                <button class="flex w-full items-center gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                  <h3 class="flex-1 text-lg font-bold tracking-tight md:text-xl">Can I use Tester devices with my existing smart home?</h3>
+                  <svg class="accordion-icon h-4 w-4 flex-none text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <div class="accordion-body"><div><p class="max-w-xl pb-6 leading-[1.7] text-secondary-foreground">Yes. Smart Hub supports Thread 1.3 and Matter, so it works with Apple Home, Google Home, Amazon Alexa and any Matter-compatible sensor.</p></div></div>
+              </div>
+              <div class="accordion-item">
+                <button class="flex w-full items-center gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                  <h3 class="flex-1 text-lg font-bold tracking-tight md:text-xl">What is the teardown program?</h3>
+                  <svg class="accordion-icon h-4 w-4 flex-none text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <div class="accordion-body"><div><p class="max-w-xl pb-6 leading-[1.7] text-secondary-foreground">Every Tester device ships with a layered teardown video showing every component. We publish full repair guides and sell spare parts, because you should own what you own.</p></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA (animated background lines) ===== -->
+    <section id="contact" class="relative flex min-h-[88vh] scroll-mt-24 items-center justify-center overflow-hidden border-t border-border/60 py-32">
+      <!-- faint radial base for depth -->
+      <div class="absolute inset-0 z-0" style="background:radial-gradient(60% 60% at 50% 50%, hsl(42 55% 52% / 0.08), transparent 72%);"></div>
+
+      <!-- animated grid (distant) -->
+      <div class="grid-bg absolute inset-0 z-0 h-full w-full animate-[gridMove_28s_linear_infinite] bg-[length:50px_50px] bg-[linear-gradient(rgba(198,165,89,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(198,165,89,0.05)_1px,transparent_1px)] opacity-80"></div>
+
+      <!-- sweeping gold lines: slow, soft and blurred so they read as distant -->
+      <div class="absolute inset-0 z-[1] h-full w-full overflow-hidden opacity-50 [filter:blur(1.2px)]">
+        <div class="absolute top-[10%] h-[100px] w-full"><div class="relative h-0.5 w-full overflow-hidden"><div class="sweep-line absolute top-0 h-full w-full animate-[lineMove_8s_linear_infinite]" style="background:linear-gradient(90deg,transparent 0%,#c6a559 25%,#e6b979 50%,#c6a559 75%,transparent 100%)"></div></div></div>
+        <div class="absolute top-[30%] h-[100px] w-full"><div class="relative h-0.5 w-full overflow-hidden"><div class="sweep-line absolute top-0 h-full w-full animate-[lineMove_8s_linear_infinite] [animation-delay:3s] [animation-direction:reverse]" style="background:linear-gradient(90deg,transparent 0%,#c6a559 25%,#e6b979 50%,#c6a559 75%,transparent 100%)"></div></div></div>
+        <div class="absolute top-[50%] h-[100px] w-full"><div class="relative h-0.5 w-full overflow-hidden"><div class="sweep-line absolute top-0 h-full w-full animate-[lineMove_8s_linear_infinite] [animation-delay:1.5s]" style="background:linear-gradient(90deg,transparent 0%,#c6a559 25%,#e6b979 50%,#c6a559 75%,transparent 100%)"></div></div></div>
+        <div class="absolute top-[70%] h-[100px] w-full"><div class="relative h-0.5 w-full overflow-hidden"><div class="sweep-line absolute top-0 h-full w-full animate-[lineMove_8s_linear_infinite] [animation-delay:3s] [animation-direction:reverse]" style="background:linear-gradient(90deg,transparent 0%,#c6a559 25%,#e6b979 50%,#c6a559 75%,transparent 100%)"></div></div></div>
+        <div class="absolute top-[90%] h-[100px] w-full"><div class="relative h-0.5 w-full overflow-hidden"><div class="sweep-line absolute top-0 h-full w-full animate-[lineMove_8s_linear_infinite]" style="background:linear-gradient(90deg,transparent 0%,#c6a559 25%,#e6b979 50%,#c6a559 75%,transparent 100%)"></div></div></div>
+      </div>
+
+      <!-- vignette scrim: darkens the centre so the lines never overlap the copy -->
+      <div class="pointer-events-none absolute inset-0 z-[4]" style="background:radial-gradient(46% 42% at 50% 50%, hsl(220 14% 4% / 0.95) 0%, hsl(220 14% 4% / 0.74) 46%, transparent 78%);"></div>
+      <!-- soft warm glow behind the call-to-action -->
+      <div class="pointer-events-none absolute left-1/2 top-1/2 z-[4] h-[320px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] opacity-70 blur-[80px]" style="background:radial-gradient(closest-side, hsl(42 62% 50% / 0.20), transparent);"></div>
+
+      <!-- animated corner brackets (crisp framing, above the scrim) -->
+      <div class="absolute left-1/2 top-1/2 z-[6] hidden h-[100px] w-[300px] -translate-x-1/2 -translate-y-1/2 opacity-70 md:block">
+        <svg class="corner-bracket absolute left-[-150px] top-1/2 h-[60px] w-[120px] -translate-y-1/2 animate-[cornerLineAnimation_6s_linear_infinite] [filter:drop-shadow(0_0_6px_rgba(198,165,89,0.4))]" viewBox="0 0 120 60" stroke="#c6a559" stroke-width="2" fill="none" stroke-dasharray="50"><path d="M120 0 L20 0 Q0 0 0 20 L0 60"/></svg>
+        <svg class="corner-bracket absolute right-[-150px] top-1/2 h-[60px] w-[120px] -translate-y-1/2 scale-x-[-1] animate-[cornerLineAnimation_6s_linear_infinite] [animation-delay:3s] [filter:drop-shadow(0_0_6px_rgba(198,165,89,0.4))]" viewBox="0 0 120 60" stroke="#c6a559" stroke-width="2" fill="none" stroke-dasharray="50"><path d="M120 0 L20 0 Q0 0 0 20 L0 60"/></svg>
+      </div>
+
+      <!-- content -->
+      <div class="relative z-[10] mx-auto max-w-3xl px-6 text-center md:px-10">
+        <p class="reveal mb-8 flex items-center justify-center gap-3 text-[12px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          <span class="pulse-dot h-1.5 w-1.5 rounded-full bg-accent"></span> Products
+        </p>
+        <h2 class="reveal mx-auto max-w-[18ch] text-[12vw] font-bold leading-[0.95] tracking-[-0.04em] sm:text-7xl md:text-[6rem]" style="text-shadow:0 2px 30px rgba(9,10,12,0.85), 0 0 60px rgba(9,10,12,0.6);">
+          Ready to wear the <span class="shimmer accent-italic font-normal gold-text animate-[gradientShift_3s_ease-in-out_infinite_alternate]">future?</span>
+        </h2>
+        <div class="reveal mt-12 flex flex-wrap items-center justify-center gap-4">
+          <a href="product.html" class="gold-gradient group inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm font-bold uppercase tracking-[0.08em] text-accent-foreground shadow-[0_10px_30px_-8px_rgba(230,185,121,0.55)] transition-all duration-300 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98]">
+            View All Devices
+            <svg viewBox="0 0 24 24" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="#capabilities" class="inline-flex items-center gap-2 rounded-full border border-accent/50 px-8 py-4 text-sm font-bold uppercase tracking-[0.08em] text-foreground transition-all duration-300 hover:bg-accent/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 active:scale-[0.98]">
+            Our Ecosystem
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="border-t border-border/60 py-16">
+    <div class="mx-auto max-w-[1400px] px-6 md:px-10">
+      <div class="grid gap-12 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <a href="#" class="flex items-center gap-2.5">
+            <img src="brand_assets/tester-icon.png" alt="" class="h-8 w-8" />
+            <span class="text-[17px] font-bold tracking-tight">Tester<span class="gold-text">.io</span></span>
+          </a>
+          <p class="mt-6 max-w-xs leading-[1.7] text-muted-foreground">Precision engineering, dissected. Six devices. One platform. Yours.</p>
+        </div>
+
+        <nav class="md:col-span-2 md:col-start-6">
+          <h3 class="text-[12px] uppercase tracking-[0.2em] text-muted-foreground">Devices</h3>
+          <ul class="mt-5 space-y-3 text-sm">
+            <li><a href="product/Watch/index.html" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Watch Pro</a></li>
+            <li><a href="product/Ring/index.html" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Smart Ring</a></li>
+            <li><a href="product/Glasses/index.html" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Smart Glasses</a></li>
+            <li><a href="product/Earbuds/index.html" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Smart Earbuds</a></li>
+            <li><a href="product/Assistant/index.html" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Smart Assistant</a></li>
+            <li><a href="product/Hub/index.html" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Smart Hub</a></li>
+          </ul>
+        </nav>
+
+        <nav class="md:col-span-2">
+          <h3 class="text-[12px] uppercase tracking-[0.2em] text-muted-foreground">Company</h3>
+          <ul class="mt-5 space-y-3 text-sm">
+            <li><a href="#" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">About</a></li>
+            <li><a href="#" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Teardowns</a></li>
+            <li><a href="#" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Press</a></li>
+            <li><a href="#" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Careers</a></li>
+            <li><a href="#contact" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Contact</a></li>
+          </ul>
+        </nav>
+
+        <nav class="md:col-span-2">
+          <h3 class="text-[12px] uppercase tracking-[0.2em] text-muted-foreground">Connect</h3>
+          <ul class="mt-5 space-y-3 text-sm">
+            <li><a href="#" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">GitHub</a></li>
+            <li><a href="#" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">X / Twitter</a></li>
+            <li><a href="#" class="nav-link text-secondary-foreground transition-colors hover:text-foreground">Instagram</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="mt-16 flex flex-col gap-6 border-t border-border/60 pt-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 Tester.io. All rights reserved.</p>
+        <p class="tracking-[0.04em]">İstanbul · Cambridge · Dubai</p>
+        <div class="flex gap-6">
+          <a href="#" class="nav-link transition-colors hover:text-foreground">Privacy Policy</a>
+          <a href="#" class="nav-link transition-colors hover:text-foreground">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".reveal").forEach((el, i) => {
+      el.style.transitionDelay = Math.min(i % 4, 3) * 80 + "ms";
+      io.observe(el);
+    });
+
+    // Nav background on scroll
+    const nav = document.getElementById("nav");
+    const onScroll = () => {
+      if (window.scrollY > 24) nav.classList.add("bg-background/80","backdrop-blur-xl","border-b","border-border/60");
+      else nav.classList.remove("bg-background/80","backdrop-blur-xl","border-b","border-border/60");
+    };
+    onScroll(); window.addEventListener("scroll", onScroll, { passive: true });
+
+    // FAQ accordion (single-open)
+    document.querySelectorAll("#faq-accordion").forEach((group) => {
+      const items = group.querySelectorAll(".accordion-item");
+      items.forEach((item) => {
+        item.querySelector("button").addEventListener("click", () => {
+          const isOpen = item.classList.contains("open");
+          items.forEach((i) => i.classList.remove("open"));
+          if (!isOpen) item.classList.add("open");
+        });
+      });
+    });
+
+
+    // Vertical page-flip: as each section scrolls past the top of the viewport it
+    // hinges on its top edge, tilts back in 3D and fades, revealing the next beneath.
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduceMotion) {
+      const sections = Array.from(document.querySelectorAll("main > section"));
+      sections.forEach((s, i) => {
+        s.classList.add("page-flip");
+        s.style.position = "relative";
+        s.style.zIndex = String(sections.length - i); // earlier sections flip above later ones
+      });
+      let ticking = false;
+      const updateFlip = () => {
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        const range = vh * 0.85; // the flip plays over the last ~0.85 viewport of the exit
+        for (const s of sections) {
+          const r = s.getBoundingClientRect();
+          // Once a section is fully above the viewport, clear its transform. Keeping a
+          // rotateX with a hinge far below the element would project it thousands of px
+          // downward and inflate the page's scroll height (huge space below the footer).
+          if (r.bottom <= 0) {
+            s.style.transform = "";
+            s.style.opacity = "";
+            s.style.transformOrigin = "";
+            s.style.willChange = "";
+            continue;
+          }
+          // Flip only while the section is actually leaving through the top: its top
+          // edge has passed the viewport top and its bottom is approaching it. This
+          // keeps tall sections fully readable until they hand off to the next one.
+          let p = 0;
+          if (r.top < 0) {
+            p = (range - r.bottom) / range;
+            p = p < 0 ? 0 : p > 1 ? 1 : p;
+          }
+          if (p <= 0) {
+            s.style.transform = "";
+            s.style.opacity = "";
+            s.style.transformOrigin = "";
+            s.style.willChange = "";
+            continue;
+          }
+          const originY = Math.max(0, -r.top); // hinge on the viewport's top edge
+          const angle = p * 60;          // degrees of backward tilt
+          const opacity = 1 - p * 0.85;  // fade out as it lifts away
+          s.style.transformOrigin = "50% " + originY.toFixed(1) + "px";
+          s.style.transform = "perspective(1500px) rotateX(-" + angle.toFixed(2) + "deg)";
+          s.style.opacity = opacity.toFixed(3);
+          s.style.willChange = "transform, opacity";
+        }
+        ticking = false;
+      };
+      const onScrollFlip = () => {
+        if (!ticking) { ticking = true; requestAnimationFrame(updateFlip); }
+      };
+      window.addEventListener("scroll", onScrollFlip, { passive: true });
+      window.addEventListener("resize", onScrollFlip, { passive: true });
+      updateFlip();
+    }
+  </script>
+</body>
+</html>

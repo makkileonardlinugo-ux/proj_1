@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tau Ceti e — PLANETEX Listing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#000005;--bg-1:#07080f;--bg-2:#0d0f1a;--line:rgba(255,255,255,0.06);--text:#eef0f5;--muted:#7a8499;--faint:#3d4558;--accent:#ffb428;--accent-rgb:255,180,40;--violet:#7b2dff;--spring:cubic-bezier(.16,1,.3,1)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+    #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+    .noise{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px 200px}
+    .scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px)}
+    nav,main,footer{position:relative;z-index:10}
+    @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+    @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+    @keyframes orbit-a{from{transform:rotateX(72deg) rotateZ(0deg)}to{transform:rotateX(72deg) rotateZ(360deg)}}
+    @keyframes orbit-b{from{transform:rotateX(65deg) rotateZ(30deg)}to{transform:rotateX(65deg) rotateZ(390deg)}}
+    @keyframes pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
+    @keyframes bands{from{background-position:0% 50%}to{background-position:200% 50%}}
+    @keyframes bar-fill{from{width:0}to{width:var(--w)}}
+    @keyframes dust{0%{opacity:.15;transform:scale(1)}50%{opacity:.3;transform:scale(1.04)}100%{opacity:.15;transform:scale(1)}}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s var(--spring),transform .7s var(--spring)}.reveal.visible{opacity:1;transform:translateY(0)}
+    #nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:22px 56px;display:flex;align-items:center;justify-content:space-between;transition:background .4s var(--spring),border-color .4s,padding .4s var(--spring);border-bottom:1px solid transparent}
+    #nav.scrolled{background:rgba(0,0,5,.88);-webkit-backdrop-filter:blur(22px); backdrop-filter:blur(22px);border-color:var(--line);padding:13px 56px}
+    .nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px;letter-spacing:-0.02em;color:var(--text)}.nav-logo em{font-style:normal;color:#3fe7c8}
+    .nav-back{display:flex;align-items:center;gap:7px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);transition:color .2s}.nav-back:hover{color:var(--text)}.nav-back:hover svg{transform:translateX(-3px)}.nav-back svg{transition:transform .2s var(--spring)}
+    .nav-cta{padding:9px 22px;background:var(--accent);color:#000;font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:box-shadow .2s,transform .2s;text-decoration:none;border:none}
+    .nav-cta:hover{box-shadow:0 0 22px rgba(var(--accent-rgb),.5);transform:translateY(-1px)}
+    #hero{position:relative;height:400vh}
+    .hero-sticky{position:sticky;top:0;height:100vh;overflow:hidden}
+    #heroCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+    .hero-gradient{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,5,.92) 0%,rgba(0,0,5,.6) 45%,rgba(0,0,5,.1) 100%),linear-gradient(0deg,rgba(0,0,5,.9) 0%,transparent 40%);z-index:1}
+    .hero-scan{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(transparent 45%,rgba(255,180,40,.018) 50%,transparent 55%);background-size:100% 8px;animation:shimmer 4s linear infinite}
+    .hero-content{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;justify-content:flex-end;padding:0 80px 80px}
+    .hero-badges{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+    .badge{padding:4px 12px;border:1px solid rgba(var(--accent-rgb),.3);border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:rgba(var(--accent-rgb),.06)}
+    .hero-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(56px,9vw,124px);font-weight:800;line-height:.88;letter-spacing:-0.055em;margin-bottom:18px;background:linear-gradient(160deg,#ffffff 0%,rgba(255,255,255,.7) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .hero-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;font-weight:500;letter-spacing:.06em;color:var(--muted);margin-bottom:28px;text-transform:uppercase}
+    .hero-meta-sep{color:var(--faint)}
+    .hero-price{font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;letter-spacing:-0.03em;color:var(--accent);margin-bottom:28px}
+    .hero-price span{font-family:'Manrope',sans-serif;font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-top:2px;-webkit-text-fill-color:var(--muted)}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .ticker-wrap{position:relative;z-index:10;background:var(--bg-1);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;overflow:hidden}
+    .ticker-track{display:flex;width:max-content;animation:ticker 36s linear infinite}
+    .ticker-item{display:flex;align-items:center;gap:22px;padding:0 28px;white-space:nowrap;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+    .ticker-item b{color:var(--accent)}.ticker-dot{width:3px;height:3px;border-radius:50%;background:var(--faint);flex-shrink:0}
+    #specs{padding:120px 80px}
+    .specs-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start}
+    .specs-visual{position:sticky;top:100px}
+    .specs-img-wrap{width:100%;aspect-ratio:1;border-radius:20px;overflow:hidden;position:relative;border:1px solid var(--line)}
+    .specs-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+    .specs-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,5,.5),transparent 40%)}
+    .specs-ref{position:absolute;bottom:18px;left:18px;z-index:2;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:rgba(0,0,5,.6);backdrop-filter:blur(8px);padding:5px 12px;border-radius:4px;border:1px solid var(--line)}
+    .sec-label{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+    .sec-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(30px,3.5vw,46px);font-weight:800;letter-spacing:-0.03em;line-height:1.1;margin-bottom:34px}
+    .spec-table{display:flex;flex-direction:column;gap:2px}
+    .spec-row{display:grid;grid-template-columns:1fr auto;align-items:center;padding:12px 15px;border:1px solid transparent;border-radius:8px;opacity:0;transform:translateX(-12px);transition:opacity .5s var(--spring),transform .5s var(--spring),background .2s,border-color .2s}
+    .spec-row.visible{opacity:1;transform:translateX(0)}.spec-row:hover{background:rgba(var(--accent-rgb),.04);border-color:rgba(var(--accent-rgb),.12)}
+    .spec-key{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:8px}
+    .spec-key::before{content:'';width:14px;height:1px;background:var(--accent);opacity:.4;flex-shrink:0}
+    .spec-val{font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:700;letter-spacing:-0.01em;color:var(--text);text-align:right}.spec-val.accent{color:var(--accent)}
+    .spec-divider{height:1px;background:var(--line);margin:7px 0}
+    .compare-wrap{margin-top:36px}.compare-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:18px}
+    .compare-row{margin-bottom:14px}.compare-label{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.04em}
+    .compare-label span{font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:var(--text)}
+    .compare-track{height:4px;background:rgba(255,255,255,.06);border-radius:2px;position:relative}
+    .compare-earth{position:absolute;top:0;left:0;height:100%;background:rgba(255,255,255,.2);border-radius:2px}
+    .compare-planet{position:absolute;top:0;left:0;height:100%;background:var(--accent);border-radius:2px;animation:bar-fill .8s var(--spring) forwards;animation-play-state:paused}.compare-planet.animate{animation-play-state:running}
+    #highlights{padding:100px 80px;background:linear-gradient(180deg,transparent,var(--bg-1) 15%,var(--bg-1) 85%,transparent);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .highlights-hd{max-width:480px;margin-bottom:56px}
+    .highlights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .hl-card{padding:34px 28px;background:var(--bg-2);border:1px solid var(--line);border-radius:16px;position:relative;overflow:hidden;transition:border-color .3s,transform .4s var(--spring),box-shadow .4s}
+    .hl-card:hover{border-color:rgba(var(--accent-rgb),.2);transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+    .hl-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .3s}.hl-card:hover::before{opacity:.4}
+    .hl-icon{width:42px;height:42px;border-radius:10px;background:rgba(var(--accent-rgb),.07);border:1px solid rgba(var(--accent-rgb),.14);display:flex;align-items:center;justify-content:center;margin-bottom:18px;transition:background .3s,border-color .3s}
+    .hl-card:hover .hl-icon{background:rgba(var(--accent-rgb),.14);border-color:rgba(var(--accent-rgb),.3)}
+    .hl-icon svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+    .hl-title{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;letter-spacing:-0.02em;margin-bottom:9px;line-height:1.2}
+    .hl-desc{font-size:13px;line-height:1.68;color:var(--muted)}
+    .hl-stat{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+    .hl-stat b{color:var(--accent);font-size:14px;letter-spacing:.02em}
+    #cinematic{position:relative;height:55vh;min-height:380px;overflow:hidden;background:radial-gradient(ellipse at 50% 50%,rgba(255,160,30,.12) 0%,var(--bg-1) 60%)}
+    .cin-planet{position:absolute;right:15%;top:50%;transform:translateY(-50%);width:320px;height:320px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ffd070,#c08020 26%,#6b4a08 54%,#1a1002);box-shadow:0 0 80px rgba(255,160,30,.48),0 0 160px rgba(255,160,30,.18);opacity:.38}
+    .cin-content{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px}
+    .cin-label{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+    .cin-quote{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(26px,3.8vw,50px);font-weight:800;letter-spacing:-0.04em;line-height:1.1;max-width:680px;background:linear-gradient(90deg,var(--accent) 0%,#ffe090 50%,var(--accent) 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 5s linear infinite}
+    .cin-sub{margin-top:14px;font-size:14px;color:var(--muted);letter-spacing:.04em;max-width:460px;line-height:1.6}
+    #acquisition{padding:80px}
+    .acq-inner{border-radius:24px;padding:80px;position:relative;overflow:hidden;background:var(--bg-1);border:1px solid rgba(var(--accent-rgb),.2);box-shadow:0 0 60px rgba(var(--accent-rgb),.06)}
+    .acq-inner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 0%,rgba(var(--accent-rgb),.09) 0%,transparent 55%),radial-gradient(ellipse at 30% 100%,rgba(192,128,32,.05) 0%,transparent 50%);pointer-events:none}
+    .acq-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;position:relative;z-index:1}
+    .acq-ref{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:12px;display:block}
+    .acq-title{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(30px,3.5vw,50px);font-weight:800;letter-spacing:-0.04em;line-height:1.1;margin-bottom:10px}
+    .acq-sub{font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:30px}
+    .acq-price-row{display:flex;align-items:baseline;gap:12px;margin-bottom:32px}
+    .acq-price{font-family:'Bricolage Grotesque',sans-serif;font-size:54px;font-weight:800;letter-spacing:-0.05em;line-height:1;color:var(--accent)}
+    .acq-price-note{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.04em}
+    .acq-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn-primary{padding:13px 30px;background:var(--accent);color:#000;font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;border:none;border-radius:6px;cursor:pointer;text-decoration:none;display:inline-block;transition:box-shadow .3s,transform .2s var(--spring)}
+    .btn-primary:hover{box-shadow:0 0 30px rgba(var(--accent-rgb),.5),0 8px 20px rgba(var(--accent-rgb),.25);transform:translateY(-2px)}
+    .btn-ghost{padding:13px 26px;background:transparent;color:var(--text);font-family:'Manrope',sans-serif;font-size:14px;font-weight:600;border:1px solid var(--line);border-radius:6px;cursor:pointer;text-decoration:none;display:inline-block;transition:border-color .2s,background .2s,transform .2s}
+    .btn-ghost:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);transform:translateY(-2px)}
+    .acq-includes-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:16px}
+    .acq-includes{display:flex;flex-direction:column;gap:9px}
+    .acq-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);line-height:1.4}
+    .acq-item::before{content:'';width:15px;height:15px;border-radius:50%;flex-shrink:0;background:rgba(var(--accent-rgb),.1) url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 7l2.5 2.5L11 4' stroke='%23ffb428' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/cover;border:1px solid rgba(var(--accent-rgb),.25)}
+    footer{padding:48px 80px 30px;border-top:1px solid var(--line);position:relative;z-index:10}
+    .footer-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px}
+    .footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:18px;border-top:1px solid var(--line)}
+    .footer-bottom p{font-size:12px;color:var(--faint)}.footer-bottom a{color:var(--faint);text-decoration:none;transition:color .2s}.footer-bottom a:hover{color:var(--muted)}
+    .footer-nav{display:flex;gap:26px}.footer-nav a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}.footer-nav a:hover{color:var(--text)}
+    @media(max-width:1024px){.hero-content{padding:0 40px 60px}.specs-layout{grid-template-columns:1fr;gap:40px}.specs-visual{position:relative;top:0}.highlights-grid{grid-template-columns:repeat(2,1fr)}.acq-layout{grid-template-columns:1fr;gap:40px}.acq-inner{padding:48px 36px}}
+    @media(max-width:768px){#nav{padding:18px 24px}#nav.scrolled{padding:12px 24px}#specs,#highlights,#acquisition{padding:64px 24px}.highlights-grid{grid-template-columns:1fr}.acq-inner{padding:32px 22px}footer{padding:36px 24px}.footer-top{flex-direction:column;gap:16px;align-items:flex-start}.footer-nav{flex-wrap:wrap;gap:14px}}
+  </style>
+</head>
+<body>
+<canvas id="stars"></canvas><div class="noise"></div><div class="scanlines"></div>
+<nav id="nav">
+  <a href="../../anything.html" class="nav-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>All Planets</a>
+  <a href="../../anything.html" class="nav-logo"><svg width="20" height="20" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="5" stroke="#3fe7c8" stroke-width="1.5"/><ellipse cx="11" cy="11" rx="10" ry="4" stroke="#3fe7c8" stroke-width="1.2" stroke-dasharray="3 2"/></svg>PLANET<em>EX</em></a>
+  <a href="#acquisition" class="nav-cta">Acquire This World</a>
+</nav>
+<main>
+  <section id="hero">
+  <div class="hero-sticky">
+    <canvas id="heroCanvas"></canvas>
+    <div class="hero-gradient"></div>
+    <div class="hero-scan"></div>
+    <div class="hero-content">
+      <div class="hero-badges">
+        <span class="badge">Desert World</span><span class="badge">CO₂-Ar Atmosphere</span><span class="badge">Certified GPR</span>
+        <span class="badge" style="border-color:rgba(255,180,40,.35);color:#ffb428;background:rgba(255,180,40,.06)">Sun-Like Star</span>
+      </div>
+      <h1 class="hero-title">TAU<br>CETI e</h1>
+      <div class="hero-meta"><span>GPR-TCE-DELTA</span><span class="hero-meta-sep">·</span><span>11.9 light-years</span><span class="hero-meta-sep">·</span><span>Host: Tau Ceti</span></div>
+      <div class="hero-price">CR 2.3B<span>Starting acquisition price</span></div>
+      <div class="hero-actions"><a href="#acquisition" class="btn-primary">Acquire Now</a><a href="#specs" class="btn-ghost">View Specs</a></div>
+    </div>
+  </div>
+  </section>
+
+  <div class="ticker-wrap"><div class="ticker-track">
+    <div class="ticker-item"><b>MASS</b> 3.93 M⊕<div class="ticker-dot"></div></div><div class="ticker-item"><b>DIAMETER</b> 1.55 R⊕<div class="ticker-dot"></div></div><div class="ticker-item"><b>ORBITAL PERIOD</b> 162.9 days<div class="ticker-dot"></div></div><div class="ticker-item"><b>DISTANCE</b> 11.9 ly<div class="ticker-dot"></div></div><div class="ticker-item"><b>CLASS</b> Desert World<div class="ticker-dot"></div></div><div class="ticker-item"><b>HOST STAR</b> Tau Ceti G-type<div class="ticker-dot"></div></div><div class="ticker-item"><b>GRAVITY</b> 1.65g<div class="ticker-dot"></div></div><div class="ticker-item"><b>ATMOSPHERE</b> CO₂-Ar<div class="ticker-dot"></div></div><div class="ticker-item"><b>STATUS</b> AVAILABLE<div class="ticker-dot"></div></div><div class="ticker-item"><b>REF</b> GPR-TCE-DELTA<div class="ticker-dot"></div></div>
+    <div class="ticker-item"><b>MASS</b> 3.93 M⊕<div class="ticker-dot"></div></div><div class="ticker-item"><b>DIAMETER</b> 1.55 R⊕<div class="ticker-dot"></div></div><div class="ticker-item"><b>ORBITAL PERIOD</b> 162.9 days<div class="ticker-dot"></div></div><div class="ticker-item"><b>DISTANCE</b> 11.9 ly<div class="ticker-dot"></div></div><div class="ticker-item"><b>CLASS</b> Desert World<div class="ticker-dot"></div></div><div class="ticker-item"><b>HOST STAR</b> Tau Ceti G-type<div class="ticker-dot"></div></div><div class="ticker-item"><b>GRAVITY</b> 1.65g<div class="ticker-dot"></div></div><div class="ticker-item"><b>ATMOSPHERE</b> CO₂-Ar<div class="ticker-dot"></div></div><div class="ticker-item"><b>STATUS</b> AVAILABLE<div class="ticker-dot"></div></div><div class="ticker-item"><b>REF</b> GPR-TCE-DELTA<div class="ticker-dot"></div></div>
+  </div></div>
+
+  <section id="specs"><div class="specs-layout">
+    <div class="specs-visual reveal">
+      <div class="specs-img-wrap"><img src="../../images/tau-ceti-e.png" alt="Tau Ceti e surface view"><div class="specs-ref">Property Ref: GPR-TCE-DELTA</div></div>
+      <div class="compare-wrap reveal" style="transition-delay:.12s">
+        <div class="compare-title">Comparison vs Earth</div>
+        <div class="compare-row"><div class="compare-label">Mass <span>3.93 M⊕</span></div><div class="compare-track"><div class="compare-earth" style="width:25.4%"></div><div class="compare-planet" style="--w:100%"></div></div></div>
+        <div class="compare-row"><div class="compare-label">Diameter <span>1.55 R⊕</span></div><div class="compare-track"><div class="compare-earth" style="width:64.5%"></div><div class="compare-planet" style="--w:100%"></div></div></div>
+        <div class="compare-row"><div class="compare-label">Orbital Period <span>162.9 days</span></div><div class="compare-track"><div class="compare-earth" style="width:100%"></div><div class="compare-planet" style="--w:44.6%"></div></div></div>
+      </div>
+    </div>
+    <div class="specs-data">
+      <span class="sec-label reveal">Planetary Data</span>
+      <h2 class="sec-title reveal" style="transition-delay:.05s">Full Specifications</h2>
+      <div class="spec-table">
+        <div class="spec-row" style="transition-delay:.05s"><span class="spec-key">Classification</span><span class="spec-val accent">Desert World</span></div>
+        <div class="spec-row" style="transition-delay:.08s"><span class="spec-key">Mass</span><span class="spec-val">3.93 M⊕</span></div>
+        <div class="spec-row" style="transition-delay:.11s"><span class="spec-key">Diameter</span><span class="spec-val">1.55 R⊕</span></div>
+        <div class="spec-row" style="transition-delay:.14s"><span class="spec-key">Surface Gravity</span><span class="spec-val">1.65g</span></div>
+        <div class="spec-row" style="transition-delay:.17s"><span class="spec-key">Orbital Period</span><span class="spec-val">162.9 days</span></div>
+        <div class="spec-row" style="transition-delay:.20s"><span class="spec-key">Orbital Distance</span><span class="spec-val">0.55 AU</span></div>
+        <div class="spec-divider"></div>
+        <div class="spec-row" style="transition-delay:.23s"><span class="spec-key">Host Star</span><span class="spec-val">Tau Ceti</span></div>
+        <div class="spec-row" style="transition-delay:.26s"><span class="spec-key">Star Type</span><span class="spec-val">G8V (Sun-like)</span></div>
+        <div class="spec-row" style="transition-delay:.29s"><span class="spec-key">Distance from Sol</span><span class="spec-val">11.9 ly</span></div>
+        <div class="spec-divider"></div>
+        <div class="spec-row" style="transition-delay:.32s"><span class="spec-key">Atmosphere</span><span class="spec-val">CO₂-Ar thin</span></div>
+        <div class="spec-row" style="transition-delay:.35s"><span class="spec-key">Est. Surface Temp</span><span class="spec-val">+42 to +70°C</span></div>
+        <div class="spec-row" style="transition-delay:.38s"><span class="spec-key">Habitable Zone</span><span class="spec-val">Inner edge</span></div>
+        <div class="spec-divider"></div>
+        <div class="spec-row" style="transition-delay:.41s"><span class="spec-key">Property Ref</span><span class="spec-val">GPR-TCE-DELTA</span></div>
+        <div class="spec-row" style="transition-delay:.44s"><span class="spec-key">Registry Status</span><span class="spec-val accent">Active Listing</span></div>
+        <div class="spec-row" style="transition-delay:.47s"><span class="spec-key">Deed Type</span><span class="spec-val">Full Sovereign</span></div>
+      </div>
+    </div>
+  </div></section>
+
+  <section id="highlights">
+    <div class="highlights-hd"><span class="sec-label reveal">Why This Planet</span><h2 class="sec-title reveal" style="transition-delay:.05s">The Case for Tau Ceti e</h2></div>
+    <div class="highlights-grid">
+      <div class="hl-card reveal" style="transition-delay:.05s">
+        <div class="hl-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg></div>
+        <div class="hl-title">Solar-Analogue Host</div>
+        <p class="hl-desc">Tau Ceti is the most Sun-like star in the PLANETEX catalog at just 11.9 light-years. The familiar G-type spectrum means predictable solar irradiance and Earth-analogous lighting conditions on the surface.</p>
+        <div class="hl-stat">Host Star Type <b>G8V Sun-like</b></div>
+      </div>
+      <div class="hl-card reveal" style="transition-delay:.10s">
+        <div class="hl-icon"><svg viewBox="0 0 24 24"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
+        <div class="hl-title">Ancient Desert Landscape</div>
+        <p class="hl-desc">Tau Ceti e's surface reveals ancient dried river channels, vast amber dune seas, and colossal rocky formations. An unaltered geological record estimated to be over 5.8 billion years old.</p>
+        <div class="hl-stat">Geological Age <b>5.8 Gyr est.</b></div>
+      </div>
+      <div class="hl-card reveal" style="transition-delay:.15s">
+        <div class="hl-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg></div>
+        <div class="hl-title">Five-Planet System</div>
+        <p class="hl-desc">Part of the Tau Ceti five-planet system, offering unprecedented inter-planetary observation opportunities. All five worlds share the most Sun-like star neighborhood within 12 light-years.</p>
+        <div class="hl-stat">System Planets <b>5 worlds</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cinematic">
+    <div class="cin-planet"></div>
+    <div class="cin-content">
+      <div class="cin-label">Desert World Class</div>
+      <div class="cin-quote">"Endless amber dunes, 12 light-years away."</div>
+      <p class="cin-sub">PLANETEX Galactic Property Registry, 2026 Annual Catalog</p>
+    </div>
+  </section>
+
+  <section id="acquisition"><div class="acq-inner"><div class="acq-layout">
+    <div>
+      <span class="acq-ref">GPR-TCE-DELTA · Desert World · Certified</span>
+      <h2 class="acq-title reveal">The golden world<br>next door.</h2>
+      <p class="acq-sub reveal" style="transition-delay:.05s">At 11.9 light-years and orbiting the closest Sun-like star, Tau Ceti e offers unmatched familiarity and an ancient, dramatic desert landscape with 5.8-billion-year geology.</p>
+      <div class="acq-price-row reveal" style="transition-delay:.1s"><div class="acq-price">CR 2.3B</div><div class="acq-price-note">Starting price<br>Custom terms available</div></div>
+      <div class="acq-actions reveal" style="transition-delay:.15s"><a href="#" class="btn-primary">Acquire Now</a><a href="#" class="btn-ghost">Request Full Dossier</a></div>
+    </div>
+    <div>
+      <div class="acq-includes-title reveal">What's Included</div>
+      <div class="acq-includes reveal" style="transition-delay:.05s">
+        <div class="acq-item">Full Sovereign Property Deed</div>
+        <div class="acq-item">Exclusive Naming Rights (planet + features)</div>
+        <div class="acq-item">Geological Survey Report (5.8 Gyr record)</div>
+        <div class="acq-item">Tau Ceti System Overview Report</div>
+        <div class="acq-item">Galactic Property Registry Certification</div>
+        <div class="acq-item">Priority Deed Transfer (48 hours)</div>
+        <div class="acq-item">Dedicated Acquisition Manager</div>
+        <div class="acq-item">500-Year PLANETEX Guarantee</div>
+      </div>
+    </div>
+  </div></div></section>
+</main>
+<footer>
+  <div class="footer-top">
+    <a href="../../anything.html" class="nav-logo" style="text-decoration:none"><svg width="20" height="20" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="5" stroke="#3fe7c8" stroke-width="1.5"/><ellipse cx="11" cy="11" rx="10" ry="4" stroke="#3fe7c8" stroke-width="1.2" stroke-dasharray="3 2"/></svg>PLANET<em>EX</em></a>
+    <nav class="footer-nav"><a href="../../anything.html">All Planets</a><a href="../../anything.html#pricing">Pricing</a><a href="#">Contact</a><a href="#">Legal</a></nav>
+  </div>
+  <div class="footer-bottom"><p>2026 PLANETEX Corp. All rights reserved across all registered star systems.</p><p><a href="#">Galactic Property Registry</a> · <a href="#">GPR-TCE-DELTA</a></p></div>
+</footer>
+<script>
+  const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');let stars=[],frame=0,mx=0,my=0;
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+  function initStars(){stars=[];const n=Math.floor(canvas.width*canvas.height/3800);for(let i=0;i<n;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.1+0.2,a:Math.random()*.6+.15,sp:Math.random()*.014+.003,off:Math.random()*Math.PI*2,px:Math.random()*.025+.004,col:Math.random()<.025?0:Math.random()<.018?1:-1})}
+  function drawStars(){ctx.clearRect(0,0,canvas.width,canvas.height);frame+=.01;const cx=canvas.width/2,cy=canvas.height/2,dx=(mx-cx)*.4,dy=(my-cy)*.4;stars.forEach(s=>{const tw=Math.sin(frame*s.sp*55+s.off)*.22+.78,px=s.x+dx*s.px,py=s.y+dy*s.px;ctx.beginPath();ctx.arc(px,py,s.r,0,Math.PI*2);ctx.fillStyle=s.col===0?`rgba(255,180,40,${.4*tw})`:s.col===1?`rgba(63,231,200,${.3*tw})`:`rgba(255,255,255,${s.a*tw})`;ctx.fill()});requestAnimationFrame(drawStars)}
+  window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});window.addEventListener('resize',()=>{resize();initStars()});resize();initStars();drawStars();
+  const nav=document.getElementById('nav');window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>30),{passive:true});
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.1,rootMargin:'0px 0px -32px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  const specObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');specObs.unobserve(e.target)}})},{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+  document.querySelectorAll('.spec-row').forEach(el=>specObs.observe(el));
+  const barObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.compare-planet').forEach(b=>b.classList.add('animate'));barObs.unobserve(e.target)}})},{threshold:.3});
+  const cw=document.querySelector('.compare-wrap');if(cw)barObs.observe(cw);
+  // HERO FRAME SCRUB
+  (function(){
+    var FRAME_COUNT=122,FRAME_PATH='../../frames/tau-ceti-e/frame_';
+    var hero=document.getElementById('hero'),canvas=document.getElementById('heroCanvas');
+    if(!hero||!canvas)return;
+    var ctx=canvas.getContext('2d'),images=new Array(FRAME_COUNT),loaded=0,current=-1,dpr=window.devicePixelRatio||1;
+    function resize(){canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;ctx.scale(dpr,dpr);draw(current<0?0:current);}
+    function draw(idx){var img=images[idx];if(!img||!img.complete||!img.naturalWidth)return;var cw=canvas.clientWidth,ch=canvas.clientHeight,iw=img.naturalWidth,ih=img.naturalHeight,sc=Math.max(cw/iw,ch/ih)*1.04,dw=iw*sc,dh=ih*sc;ctx.clearRect(0,0,cw,ch);ctx.drawImage(img,(cw-dw)/2,(ch-dh)/2,dw,dh);}
+    function getP(){var r=hero.getBoundingClientRect(),t=hero.offsetHeight-window.innerHeight;return t<=0?0:Math.min(1,Math.max(0,-r.top/t));}
+    var raf=false;
+    function onScroll(){if(!raf){raf=true;requestAnimationFrame(function(){raf=false;var idx=Math.min(FRAME_COUNT-1,Math.floor(getP()*(FRAME_COUNT-1)));if(idx!==current){current=idx;draw(idx);}});}}
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',resize);
+    resize();
+    for(var i=0;i<FRAME_COUNT;i++){(function(n){var img=new Image();img.onload=function(){loaded++;if(loaded===1){current=0;draw(0);}};img.src=FRAME_PATH+(String(n+1).padStart(4,'0'))+'.jpg';images[n]=img;})(i);}
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products · Tester.io</title>
+  <link rel="icon" type="image/png" href="brand_assets/tester-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0a0c10;
+      --bg-elev:   #0f1117;
+      --line:      rgba(255,255,255,0.08);
+      --text:      #f2f4f5;
+      --muted:     #8b9197;
+      --faint:     #5a5f65;
+      --accent:    #c6a559;
+      --accent-2:  #e6b979;
+      --accent-glow: rgba(198,165,89,0.35);
+      --font-display: "Montserrat", sans-serif;
+      --font-body: "Montserrat", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Native smooth scrolling for anchor links; offset so targets clear the fixed nav */
+    html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--accent); color: #0a0c10; }
+
+    /* Atmospheric base layers */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(60% 40% at 18% 0%, rgba(198,165,89,0.10), transparent 70%),
+        radial-gradient(50% 45% at 92% 12%, rgba(230,185,121,0.08), transparent 72%),
+        radial-gradient(70% 60% at 50% 110%, rgba(198,165,89,0.06), transparent 70%);
+    }
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.045;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+    main, header, footer { position: relative; z-index: 1; }
+
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+    .display { font-family: var(--font-display); letter-spacing: -0.035em; line-height: 1.0; }
+    .eyebrow {
+      font-size: 0.72rem; letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600;
+    }
+
+    /* ---------- Navigation ---------- */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 28px;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease, padding 0.4s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .nav.scrolled {
+      background: rgba(5,5,6,0.72);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      backdrop-filter: blur(16px) saturate(140%);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 28px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; color: var(--text); text-decoration: none; }
+    .brand-icon { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; box-shadow: 0 0 18px -4px var(--accent-glow), 0 2px 8px rgba(0,0,0,.5); display: block; }
+    .brand-em { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 34px; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;
+      position: relative; transition: color 0.3s ease;
+    }
+    .nav-links a::after {
+      content: ""; position: absolute; left: 0; bottom: -6px; height: 1.5px; width: 0;
+      background: var(--accent); transition: width 0.35s cubic-bezier(.16,1,.3,1);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 2px; }
+    .nav-cta {
+      padding: 9px 18px; border-radius: 999px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+      color: var(--text) !important; font-weight: 600 !important; font-size: 0.85rem !important;
+      transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+    }
+    .nav-cta::after { display: none; }
+    .nav-cta:hover { border-color: var(--accent); background: rgba(198,165,89,0.08); transform: translateY(-1px); }
+
+    /* ---------- Hero ---------- */
+    .hero { position: relative; min-height: 100vh; display: flex; align-items: center; overflow: hidden; }
+    .hero-video {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; z-index: 0;
+      filter: grayscale(0.2) contrast(1.05) brightness(0.62);
+    }
+    .hero-veil {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        /* fade left edge + readability scrim */
+        linear-gradient(90deg, #000 0%, rgba(0,0,0,0.6) 45%, rgba(0,0,0,0.25) 75%, rgba(0,0,0,0.45) 100%),
+        /* fade top and bottom edges into pure black so the video melts into the page */
+        linear-gradient(0deg, #000 1%, transparent 32%, transparent 72%, rgba(0,0,0,0.85) 100%),
+        /* feather the right edge too */
+        radial-gradient(120% 120% at 50% 50%, transparent 55%, #000 100%);
+    }
+    .hero-veil::after {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(70% 80% at 75% 50%, rgba(198,165,89,0.10), transparent 60%);
+      mix-blend-mode: screen;
+    }
+    .hero-inner { position: relative; z-index: 2; max-width: 720px; }
+    .hero h1 { font-size: clamp(3rem, 8vw, 6.6rem); font-weight: 700; margin: 22px 0 24px; }
+    .hero h1 .grad { background: linear-gradient(120deg, var(--accent), #f4d89a 60%, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p.lede { font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--muted); max-width: 540px; margin-bottom: 38px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+    .scroll-hint {
+      position: absolute; bottom: 30px; left: 28px; z-index: 2;
+      display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: 0.78rem;
+      letter-spacing: 0.18em; text-transform: uppercase;
+    }
+    .scroll-hint .bar { width: 1px; height: 38px; background: linear-gradient(var(--accent), transparent); animation: drop 1.8s ease-in-out infinite; transform-origin: top; }
+    @keyframes drop { 0%,100% { transform: scaleY(0.4); opacity: 0.4; } 50% { transform: scaleY(1); opacity: 1; } }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font-body); font-weight: 600; font-size: 0.95rem;
+      padding: 14px 26px; border-radius: 999px; cursor: pointer; text-decoration: none;
+      border: 1px solid transparent;
+      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), box-shadow 0.4s ease, background 0.4s ease;
+    }
+    .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0a0c10;
+      box-shadow: 0 12px 34px -10px var(--accent-glow), 0 2px 8px -2px rgba(0,0,0,0.6);
+    }
+    .btn-primary .arrow { transition: transform 0.4s cubic-bezier(.34,1.56,.64,1); }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 48px -10px var(--accent-glow), 0 6px 14px -3px rgba(0,0,0,0.6); }
+    .btn-primary:hover .arrow { transform: translateX(5px); }
+    .btn-primary:active { transform: translateY(-1px); }
+    .btn-ghost { background: transparent; border-color: var(--line); color: var(--text); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* ---------- Section scaffolding ---------- */
+    section.block { padding: 130px 0; }
+    .section-head { max-width: 640px; margin-bottom: 64px; }
+    .section-head h2 { font-size: clamp(2.2rem, 4.5vw, 3.6rem); font-weight: 700; margin: 16px 0 18px; }
+    .section-head p { color: var(--muted); font-size: 1.05rem; }
+
+    /* ---------- Features ---------- */
+    .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+    .feature {
+      position: relative; padding: 34px 32px; border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+      border: 1px solid var(--line); overflow: hidden;
+      transition: transform 0.5s cubic-bezier(.16,1,.3,1), border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+    .feature::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0; transition: opacity 0.5s ease;
+    }
+    .feature:hover { transform: translateY(-6px); border-color: rgba(198,165,89,0.35); box-shadow: 0 24px 50px -24px rgba(0,0,0,0.8); }
+    .feature:hover::before { opacity: 1; }
+    .feature .icon {
+      width: 52px; height: 52px; border-radius: 14px; margin-bottom: 22px;
+      display: grid; place-items: center;
+      background: rgba(198,165,89,0.10); border: 1px solid rgba(198,165,89,0.22);
+      color: var(--accent);
+    }
+    .feature h3 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .feature p { color: var(--muted); font-size: 0.96rem; }
+
+    /* ---------- CTA ---------- */
+    .cta {
+      position: relative; text-align: center; padding: 120px 0;
+      border-radius: 28px; overflow: hidden;
+      background:
+        radial-gradient(70% 120% at 50% 0%, rgba(198,165,89,0.14), transparent 60%),
+        linear-gradient(180deg, var(--bg-elev), #060708);
+      border: 1px solid var(--line);
+    }
+    .cta::before {
+      content: ""; position: absolute; inset: 0; opacity: 0.5;
+      background: radial-gradient(50% 80% at 50% 120%, var(--accent-glow), transparent 60%);
+      pointer-events: none;
+    }
+    .cta-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+    .cta h2 { font-family: var(--font-display); font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 700; letter-spacing: -0.035em; line-height: 1.02; margin-bottom: 20px; }
+    .cta p { color: var(--muted); font-size: 1.1rem; margin-bottom: 36px; }
+
+    /* ---------- Footer ---------- */
+    footer {
+      border-top: 1px solid var(--line); padding: 56px 0 44px; margin-top: 40px;
+    }
+    .foot-grid { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+    .foot-grid .copy { color: var(--faint); font-size: 0.85rem; }
+    .socials { display: flex; gap: 14px; }
+    .socials a {
+      width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+      color: var(--muted); border: 1px solid var(--line);
+      transition: color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
+    }
+    .socials a:hover { color: var(--accent); border-color: rgba(198,165,89,0.4); background: rgba(198,165,89,0.06); transform: translateY(-3px); }
+    .socials a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    /* ---------- Reveal animations (CSS transitions, toggled by a tiny IntersectionObserver) ----------
+       Hidden state only applies when JS is active (.js on <html>), so content is
+       never stuck invisible if scripts fail. Direction varies per data-anim. */
+    .reveal { transition: opacity 0.9s cubic-bezier(.16,1,.3,1), transform 0.9s cubic-bezier(.16,1,.3,1); }
+    .js .reveal { opacity: 0; transform: translateY(40px); will-change: transform, opacity; }
+    .js .reveal[data-anim="left"]  { transform: translateX(-70px); }
+    .js .reveal[data-anim="right"] { transform: translateX(70px); }
+    .js .reveal[data-anim="up"]    { transform: translateY(60px); }
+    .js .reveal[data-anim="scale"] { transform: scale(0.92); }
+    .js .reveal.in { opacity: 1; transform: none; }
+    /* Stagger grouped items as they enter */
+    .js .feature:nth-child(2) { transition-delay: 0.09s; }
+    .js .feature:nth-child(3) { transition-delay: 0.18s; }
+    .js .feature:nth-child(4) { transition-delay: 0.27s; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 860px) {
+      .nav-links { gap: 18px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .feature-grid { grid-template-columns: 1fr; }
+      section.block { padding: 90px 0; }
+      .hero-veil { background: linear-gradient(180deg, rgba(5,5,6,0.5), rgba(5,5,6,0.85)), linear-gradient(0deg, var(--bg), transparent 55%); }
+    }
+    @media (max-width: 480px) {
+      section.block { padding: 56px 0; }
+      .section-head { margin-bottom: 40px; }
+      .wrap { padding: 0 18px; }
+      .hero-inner { padding: 0 4px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { animation: none !important; transition: none !important; }
+      .js .reveal { opacity: 1 !important; transform: none !important; }
+    }
+
+    /* ---------- Contact ---------- */
+    .contact { padding: 130px 0; background: var(--bg); }
+    .contact h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      color: var(--text);
+      margin: 12px 0 16px;
+    }
+    .contact .lede { margin-bottom: 0; }
+    .contact-form {
+      margin-top: 40px;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      padding: 14px 18px;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      outline: none;
+      resize: none;
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder { color: var(--faint); }
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .contact-form .btn-primary { align-self: flex-start; }
+    .subscribe-label {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--muted); font-size: 0.9rem; cursor: pointer;
+    }
+    .subscribe-label input[type="checkbox"] {
+      width: 16px; height: 16px; flex-shrink: 0;
+      accent-color: var(--accent); cursor: pointer;
+    }
+    @media (max-width: 580px) {
+      .field-group { grid-template-columns: 1fr; }
+      .contact { padding: 90px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <header class="nav" id="nav">
+    <a href="#top" class="brand"><img src="brand_assets/tester-icon.png" class="brand-icon" alt="Tester.io logo" />Tester<span style="background:linear-gradient(90deg,#c6a559,#e6b979);-webkit-background-clip:text;background-clip:text;color:transparent;">.io</span></a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#contact">Contact</a>
+      <a href="product/Watch/index.html">Dissection</a>
+      <a href="product/Watch/index.html">Product</a>
+      <a href="product/Watch/index.html" class="nav-cta">View product &rarr;</a>
+    </nav>
+  </header>
+
+  <main id="top">
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero">
+      <video class="hero-video" autoplay muted loop playsinline preload="auto">
+        <source src="videos/Smart Watch Dissection.mp4" type="video/mp4" />
+      </video>
+      <div class="hero-veil"></div>
+      <div class="wrap">
+        <div class="hero-inner">
+          <span class="eyebrow reveal" data-anim="fade">Tester Smart Watch Pro</span>
+          <h1 class="display reveal" data-anim="fade">Precision you can<br /><span class="grad">see through.</span></h1>
+          <p class="lede reveal" data-anim="fade">Every layer engineered, every sensor exposed. A flagship wearable built to be understood, not just worn.</p>
+          <div class="hero-actions reveal" data-anim="fade">
+            <a href="product/Watch/index.html" class="btn btn-primary">Watch the dissection <span class="arrow">&rarr;</span></a>
+            <a href="#features" class="btn btn-ghost">Explore features</a>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-hint"><span class="bar"></span>Scroll to explore</div>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section class="contact" id="contact">
+      <div class="wrap">
+        <span class="eyebrow reveal" data-anim="fade">Get in touch</span>
+        <h2 class="display reveal" data-anim="fade">Let's talk.</h2>
+        <p class="lede reveal" data-anim="fade">Have a question or want to pre-order? Drop us a line and we'll get back to you.</p>
+        <form class="contact-form reveal" data-anim="fade" id="contactForm" novalidate>
+          <div class="field-group">
+            <input type="text"  name="name"    placeholder="Your name"  autocomplete="name"  required />
+            <input type="email" name="email"   placeholder="Your email" autocomplete="email" required />
+          </div>
+          <textarea name="message" placeholder="Your message" rows="5" required></textarea>
+          <label class="subscribe-label">
+            <input type="checkbox" name="subscribed" value="true" />
+            Subscribe to newsletter updates
+          </label>
+          <button type="submit" class="btn btn-primary">
+            Send message <span class="arrow">&rarr;</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===================== FEATURES ===================== -->
+    <section class="block" id="features">
+      <div class="wrap">
+        <div class="section-head reveal" data-anim="fade">
+          <span class="eyebrow">Engineered to the micron</span>
+          <h2 class="display">Built from the inside out</h2>
+          <p>Four systems working in concert. Each one refined until there was nothing left to remove.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature reveal" data-anim="left">
+            <div class="icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 6 4-12 2 6h6"/></svg>
+            </div>
+            <h3>Continuous Biosensing</h3>
+            <p>Medical-grade optical array samples heart rhythm, SpO2 and skin temperature 100x per second, day and night.</p>
+          </article>
+
+          <article class="feature reveal" data-anim="right">
+            <div class="icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 6h4M12 17h.01"/></svg>
+            </div>
+            <h3>9-Day Battery Cell</h3>
+            <p>A re-architected silicon-anode cell delivers over a week of always-on tracking on a single 40-minute charge.</p>
+          </article>
+
+          <article class="feature reveal" data-anim="left">
+            <div class="icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </div>
+            <h3>Sapphire Micro-Display</h3>
+            <p>A 2,000-nit LTPO panel under scratch-proof sapphire, refreshing from 1Hz to 120Hz to sip power intelligently.</p>
+          </article>
+
+          <article class="feature reveal" data-anim="right">
+            <div class="icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.3"/></svg>
+            </div>
+            <h3>Dual-Band Precision GPS</h3>
+            <p>L1 + L5 satellite positioning locks your route to within a meter, even between city towers and tree cover.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TESTER TECH ===================== -->
+    <section class="block" id="tester-tech" style="padding-top:0;">
+      <div class="wrap">
+        <div class="section-head reveal" data-anim="fade">
+          <span class="eyebrow">Under the hood</span>
+          <h2 class="display">Tester Tech</h2>
+          <p>The platform behind the Pro: the sensors, silicon, and software that make every reading you can trust possible.</p>
+        </div>
+        <a href="TesterTech.html" class="btn btn-primary reveal" data-anim="fade" style="font-size:1.02rem; padding:16px 32px;">Explore Tester Tech <span class="arrow">&rarr;</span></a>
+      </div>
+    </section>
+
+    <!-- ===================== PLANETEX ===================== -->
+    <section class="block" id="planetex" style="padding-top:0;">
+      <div class="wrap">
+        <div class="section-head reveal" data-anim="fade">
+          <span class="eyebrow">A new frontier</span>
+          <h2 class="display">Planetex</h2>
+          <p>Precision engineering doesn't stop at your wrist. Planetex is the next chapter, a platform where ownership, exploration and technology converge beyond anything you've worn before.</p>
+        </div>
+        <a href="anything.html" class="btn btn-primary reveal" data-anim="fade" style="font-size:1.02rem; padding:16px 32px;">Explore Planetex <span class="arrow">&rarr;</span></a>
+      </div>
+    </section>
+
+    <!-- ===================== SIGHT ===================== -->
+    <section class="block" id="sight" style="padding-top:0;">
+      <div class="wrap">
+        <div class="section-head reveal" data-anim="fade">
+          <span class="eyebrow">Visual engineering</span>
+          <h2 class="display">Sight</h2>
+          <p>A frame-by-frame look at the mechanics behind the lens. Watch precision engineering unfold in motion, one scroll at a time.</p>
+        </div>
+        <a href="Sight.html" class="btn btn-primary reveal" data-anim="fade" style="font-size:1.02rem; padding:16px 32px;">Explore Sight <span class="arrow">&rarr;</span></a>
+      </div>
+    </section>
+
+    <!-- ===================== CALL TO ACTION ===================== -->
+    <section class="block" style="padding-top:40px;">
+      <div class="wrap">
+        <div class="cta reveal" data-anim="scale">
+          <div class="cta-inner">
+            <span class="eyebrow">Ready when you are</span>
+            <h2 style="margin-top:18px;">Wear the watch you can finally understand.</h2>
+            <p>Pre-order the Tester Smart Watch Pro today and see the engineering most brands keep hidden.</p>
+            <a href="product/Watch/index.html" class="btn btn-primary" style="font-size:1.02rem; padding:16px 32px;">Pre-order the Pro <span class="arrow">&rarr;</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <a href="#top" class="brand"><img src="brand_assets/tester-icon.png" class="brand-icon" alt="Tester.io logo" />Tester<span style="background:linear-gradient(90deg,#c6a559,#e6b979);-webkit-background-clip:text;background-clip:text;color:transparent;">.io</span></a>
+        <div class="socials">
+          <a href="#" aria-label="X / Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 2H21l-6.5 7.4L22 22h-6.8l-4.7-6.2L4.9 22H2l7-8L2 2h6.9l4.3 5.7L18.2 2zm-1.2 18h1.5L7.1 3.9H5.5L17 20z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3V9z" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 1 0 3.5a2.5 2.5 0 0 1 4.98 0zM0 8h5v16H0V8zm7.5 0H12v2.2h.07c.63-1.2 2.16-2.46 4.43-2.46 4.74 0 5.5 3.12 5.5 7.18V24h-5v-7.4c0-1.76-.03-4-2.45-4-2.45 0-2.83 1.92-2.83 3.9V24h-5V8z"/></svg></a>
+        </div>
+      </div>
+      <p class="copy" style="margin-top:28px;">&copy; 2026 Tester.io. All rights reserved. <a href="index.html" style="color:var(--muted);text-decoration:none;">Back to home &rarr;</a></p>
+    </div>
+  </footer>
+
+  <!-- ===================== SCRIPT (minimal vanilla JS, no libraries) ===================== -->
+  <script>
+    // Mark JS active so reveal hidden-states apply (no-JS users see all content).
+    document.documentElement.classList.add("js");
+
+    // ---- Nav: solid/blurred background once scrolled ----
+    var nav = document.getElementById("nav");
+    function onScroll() { nav.classList.toggle("scrolled", window.scrollY > 40); }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    // ---- Scroll-triggered reveals via IntersectionObserver ----
+    var reveals = document.querySelectorAll(".reveal");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) {
+      reveals.forEach(function (el) { el.classList.add("in"); });
+    } else {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+      reveals.forEach(function (el) { io.observe(el); });
+    }
+
+    // ---- Contact form: POST to Express backend → Supabase ----
+    var form = document.getElementById("contactForm");
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var btn = form.querySelector("button[type=submit]");
+        btn.textContent = "Sending…";
+        btn.disabled = true;
+        var data = {};
+        new FormData(form).forEach(function (v, k) { data[k] = v; });
+        fetch("http://localhost:3001/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (r) {
+            if (r.ok) { window.location.href = "thankyou.html"; }
+            else { throw new Error(r.error); }
+          })
+          .catch(function (err) {
+            btn.textContent = "Send message →";
+            btn.disabled = false;
+            alert("Could not send: " + (err.message || "make sure server.js is running"));
+          });
+      });
+    }
+  </script>
+</body>
+</html>

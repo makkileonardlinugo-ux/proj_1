@@ -1,0 +1,32 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3fe7c8"/>
+      <stop offset="100%" stop-color="#19a78f"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="200" rx="50" fill="url(#bg)"/>
+  <!-- Subtle inner border for depth -->
+  <rect x="2" y="2" width="196" height="196" rx="49" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="3"/>
+
+  <!-- T lettermark: horizontal crossbar -->
+  <line x1="52" y1="72" x2="148" y2="72" stroke="#04130f" stroke-width="22" stroke-linecap="round"/>
+  <!-- T lettermark: vertical stem -->
+  <line x1="100" y1="72" x2="100" y2="148" stroke="#04130f" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Circuit trace nodes at T endpoints — slightly larger than stroke for precision tech look -->
+  <circle cx="52" cy="72" r="16" fill="#04130f"/>
+  <circle cx="148" cy="72" r="16" fill="#04130f"/>
+  <circle cx="100" cy="148" r="16" fill="#04130f"/>
+
+  <!-- Tiny highlight dots at node centers for depth -->
+  <circle cx="52" cy="72" r="5" fill="rgba(63,231,200,0.35)"/>
+  <circle cx="148" cy="72" r="5" fill="rgba(63,231,200,0.35)"/>
+  <circle cx="100" cy="148" r="5" fill="rgba(63,231,200,0.35)"/>
+</svg>

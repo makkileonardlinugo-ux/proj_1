@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tester Smart Earbuds â€” Tester Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../../brand_assets/tester-icon.png" />
+  <style>
+    :root {
+      --bg: #0a0c10; --bg-elev: #0f1117; --line: rgba(255,255,255,0.08);
+      --text: #f2f4f5; --muted: #8b9197; --faint: #5a5f65;
+      --accent: #c6a559; --accent-2: #e6b979; --accent-glow: rgba(198,165,89,0.35);
+      --font-display: "Montserrat", sans-serif;
+      --font-body: "Montserrat", sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); line-height: 1.7; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; overflow-x: hidden; }
+    ::selection { background: var(--accent); color: #0a0c10; }
+    body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(55% 40% at 12% 0%, rgba(198,165,89,0.09), transparent 70%), radial-gradient(50% 45% at 95% 8%, rgba(230,185,121,0.07), transparent 72%); }
+    main, header, footer { position: relative; z-index: 1; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+    .display { font-family: var(--font-display); letter-spacing: -0.035em; line-height: 1.0; }
+    .eyebrow { font-size: 0.72rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+
+    /* Nav */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; transition: background .4s ease, backdrop-filter .4s ease, border-color .4s ease, padding .4s ease; border-bottom: 1px solid transparent; }
+    .nav.scrolled { background: rgba(0,0,0,0.72); -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);  border-bottom: 1px solid var(--line); padding: 13px 28px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; text-decoration: none; color: var(--text); }
+    .brand-icon { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; box-shadow: 0 0 18px -4px var(--accent-glow), 0 2px 8px rgba(0,0,0,.5); display: block; }
+    .brand-em { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 30px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 500; position: relative; transition: color .3s ease; }
+    .nav-links a::after { content: ""; position: absolute; left: 0; bottom: -6px; height: 1.5px; width: 0; background: var(--accent); transition: width .35s cubic-bezier(.16,1,.3,1); }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 2px; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-body); font-weight: 600; font-size: .95rem; padding: 14px 26px; border-radius: 999px; cursor: pointer; text-decoration: none; border: 1px solid transparent; transition: transform .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s ease, background .4s ease, color .3s ease; }
+    .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #0a0c10; box-shadow: 0 12px 34px -10px var(--accent-glow), 0 2px 8px -2px rgba(0,0,0,.6); }
+    .btn-primary .arrow { transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 48px -10px var(--accent-glow); }
+    .btn-primary:hover .arrow { transform: translateX(5px); }
+    .btn-primary:active { transform: translateY(-1px); }
+    .btn-ghost { background: transparent; border-color: var(--line); color: var(--text); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* Hero */
+    .phero { padding: 168px 0 70px; }
+    .phero .eyebrow { display: block; margin-bottom: 18px; }
+    .phero h1 { font-size: clamp(2.6rem, 7vw, 5.4rem); font-weight: 700; margin-bottom: 22px; }
+    .phero h1 .grad { background: linear-gradient(120deg, var(--accent), #f4d89a 60%, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .phero p { color: var(--muted); font-size: clamp(1.02rem, 1.5vw, 1.22rem); max-width: 560px; margin-bottom: 34px; }
+    .phero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* Scroll-scrub dissection */
+    .scrub-intro { text-align: center; max-width: 620px; margin: 0 auto 8px; padding: clamp(20px, 5vh, 40px) clamp(16px, 4vw, 28px) 0; }
+    .scrub-intro h2 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; margin: 14px 0 14px; }
+    .scrub-intro p { color: var(--muted); }
+    .scrub-hint { color: var(--faint); font-size: .76rem; letter-spacing: .2em; text-transform: uppercase; margin-top: 18px; display: inline-flex; align-items: center; gap: 10px; }
+    .scrub-hint .ln { width: 30px; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); }
+    .scrub-track { position: relative; height: 420vh; }
+    .scrub-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; background: var(--scrub-bg, #000); }
+    #frames { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+    .scrub-scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, #000 0%, transparent 24%, transparent 74%, #000 100%), linear-gradient(60deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.25) 34%, transparent 58%); }
+    .scrub-ui { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+    .caption { position: absolute; left: 5vw; bottom: 12vh; max-width: 360px; opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s cubic-bezier(.16,1,.3,1); }
+    .caption.active { opacity: 1; transform: translateY(0); }
+    .caption .tag { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 12px; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+    .caption .tag .num { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: rgba(198,165,89,.12); border: 1px solid rgba(198,165,89,.3); font-size: .72rem; }
+    .caption h3 { font-family: var(--font-display); font-size: clamp(1.6rem, 3vw, 2.3rem); font-weight: 600; letter-spacing: -.02em; margin-bottom: 8px; }
+    .caption p { color: var(--muted); font-size: .98rem; }
+    .scrub-progress { position: absolute; top: 50%; right: 4vw; transform: translateY(-50%); width: 3px; height: 180px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+    .scrub-progress span { position: absolute; top: 0; left: 0; width: 100%; height: 0%; background: linear-gradient(var(--accent), var(--accent-2)); border-radius: 3px; }
+    #frame-loader { position: absolute; inset: 0; z-index: 5; background: #000; display: grid; place-items: center; transition: opacity .6s ease; }
+    #frame-loader.done { opacity: 0; pointer-events: none; }
+    #frame-loader .pct { font-family: var(--font-display); font-size: 2.4rem; font-weight: 600; color: var(--accent); letter-spacing: -.03em; }
+    #frame-loader .lbl { color: var(--faint); font-size: .74rem; letter-spacing: .24em; text-transform: uppercase; margin-top: 8px; }
+
+    /* Full video */
+    .video-frame { position: relative; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 40px 90px -40px rgba(0,0,0,.9); background: #000; max-width: 900px; margin: 0 auto; }
+    .video-frame::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: 22px; box-shadow: inset 0 0 120px -40px var(--accent-glow); }
+    .video-frame video { display: block; width: 100%; height: auto; }
+
+    /* Specs */
+    .block { padding: 110px 0; }
+    .section-head { max-width: 620px; margin-bottom: 52px; }
+    .section-head h2 { font-size: clamp(2rem, 4.2vw, 3.2rem); font-weight: 700; margin: 14px 0 14px; }
+    .section-head p { color: var(--muted); }
+    .specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .spec { padding: 26px 24px; border-radius: 18px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)); border: 1px solid var(--line); transition: transform .5s cubic-bezier(.16,1,.3,1), border-color .5s ease; }
+    .spec:hover { transform: translateY(-5px); border-color: rgba(198,165,89,.32); }
+    .spec .num { font-family: var(--font-display); font-size: clamp(1.4rem,4vw,2.1rem); font-weight: 700; letter-spacing: -.03em; color: var(--text); }
+    .spec .num .u { font-size: 1rem; color: var(--accent); margin-left: 3px; }
+    .spec .lbl { color: var(--muted); font-size: .9rem; margin-top: 6px; }
+
+    /* CTA */
+    .cta { position: relative; text-align: center; padding: 100px 0; border-radius: 28px; overflow: hidden; background: radial-gradient(70% 120% at 50% 0%, rgba(198,165,89,.14), transparent 60%), linear-gradient(180deg, var(--bg-elev), #060708); border: 1px solid var(--line); }
+    .cta-inner { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; }
+    .cta h2 { font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 700; letter-spacing: -.035em; line-height: 1.04; margin: 16px 0 18px; }
+    .cta p { color: var(--muted); font-size: 1.06rem; margin-bottom: 32px; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--line); padding: 52px 0 44px; margin-top: 30px; }
+    .foot-grid { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 22px; }
+    .socials { display: flex; gap: 12px; }
+    .socials a { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; color: var(--muted); border: 1px solid var(--line); transition: color .3s ease, border-color .3s ease, transform .3s ease, background .3s ease; }
+    .socials a:hover { color: var(--accent); border-color: rgba(198,165,89,.4); background: rgba(198,165,89,.06); transform: translateY(-3px); }
+
+    /* Reveal */
+    .reveal { transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1); }
+    .js .reveal { opacity: 0; transform: translateY(40px); will-change: transform, opacity; }
+    .js .reveal.in { opacity: 1; transform: none; }
+    .js .spec:nth-child(2) { transition-delay: .08s; }
+    .js .spec:nth-child(3) { transition-delay: .16s; }
+    .js .spec:nth-child(4) { transition-delay: .24s; }
+
+    @media (max-width: 900px) { .specs { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 760px) {
+      .nav-links { gap: 16px; }
+      .nav-links a:not(.btn) { display: none; }
+      .phero { padding: 110px 0 36px; }
+      .phero p { font-size: 1rem; max-width: 100%; }
+      .scrub-intro { padding-top: clamp(16px, 3vh, 24px); }
+      .block { padding: clamp(48px, 8vh, 72px) 0; }
+      .scrub-track { height: 300vh; }
+      .caption { left: 6vw; right: 6vw; bottom: 8vh; max-width: none; }
+      .scrub-progress { display: none; }
+      .cta { padding: clamp(48px, 8vh, 72px) 16px; border-radius: 18px; }
+      .specs { grid-template-columns: repeat(2, 1fr); }
+      .brand { min-height: 44px; }
+      .btn { min-height: 44px; }
+      .socials a { width: 44px; height: 44px; }
+      .device-teardown { min-height: 44px; }
+    }
+    @media (max-width: 480px) {
+      .scrub-track { height: 180vh; }
+      .specs { grid-template-columns: 1fr; }
+      .block { padding: 60px 0; }
+      .phero { padding: 90px 0 32px; }
+      .wrap { padding: 0 18px; }
+      .section-head { margin-bottom: 36px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { animation: none !important; }
+      .js .reveal { opacity: 1 !important; transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="nav" id="nav">
+    <a href="../../index.html" class="brand"><img src="../../brand_assets/tester-icon.png" class="brand-icon" alt="Tester.io logo" />Tester<span style="background:linear-gradient(90deg,#c6a559,#e6b979);-webkit-background-clip:text;background-clip:text;color:transparent;">.io</span></a>
+    <nav class="nav-links">
+      <a href="../../index.html">Home</a>
+      <a href="../../TesterTech.html">All Devices</a>
+      <a href="#dissection">Dissection</a>
+      <a href="#specs">Specs</a>
+      <!-- <a href="#preorder" class="btn btn-ghost" style="padding:9px 18px; font-size:.85rem;">Pre-order</a> -->
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="phero">
+      <div class="wrap">
+        <span class="eyebrow reveal">Adaptive audio</span>
+        <h1 class="display reveal">Sound that reads<br /><span class="grad">your body.</span></h1>
+        <p class="reveal">Adaptive noise cancellation that reads your heart rate and motion to tune sound to the moment. 32 hours total. Zero compromises.</p>
+        <div class="phero-actions reveal">
+          <a href="#dissection" class="btn btn-primary">Watch the dissection <span class="arrow">&darr;</span></a>
+          <a href="#specs" class="btn btn-ghost">Jump to specs</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISSECTION VIDEO -->
+    <div class="scrub-intro">
+      <span class="eyebrow">Product teardown</span>
+      <h2 class="display">Smart Earbuds Dissection</h2>
+      <p>The housing splits to show the 10mm driver, ANC microphone array and SoC that fits inside a case smaller than a matchbox.</p>
+      <span class="scrub-hint"><span class="ln"></span>Assembly to components<span class="ln"></span></span>
+    </div>
+
+    <section class="scrub-track" id="dissection">
+      <div class="scrub-sticky">
+        <canvas id="frames"></canvas>
+        <div class="scrub-scrim"></div>
+        <div class="scrub-ui">
+          <div class="caption" data-from="0.04" data-to="0.35">
+            <span class="tag"><span class="num">01</span> Audio</span>
+            <h3 class="display">10mm driver</h3>
+            <p>A custom-tuned dynamic driver with beryllium-coated diaphragm delivers 5Hz to 40kHz frequency response inside a 10mm form factor.</p>
+          </div>
+
+          <div class="caption" data-from="0.38" data-to="0.68">
+            <span class="tag"><span class="num">02</span> ANC</span>
+            <h3 class="display">6-mic array</h3>
+            <p>Three outward and three inward microphones form a hybrid ANC system that samples 50,000 times per second to cancel up to 40dB of noise.</p>
+          </div>
+
+          <div class="caption" data-from="0.70" data-to="0.99">
+            <span class="tag"><span class="num">03</span> Core</span>
+            <h3 class="display">Biosensing SoC</h3>
+            <p>The main chip reads heart rate from your ear canal and adjusts EQ and ANC depth in real time based on your activity level.</p>
+          </div>
+        </div>
+        <div class="scrub-progress"><span id="scrubBar"></span></div>
+        <div id="frame-loader"><div style="text-align:center"><div class="pct" id="loaderPct">0%</div><div class="lbl">Loading teardown</div></div></div>
+      </div>
+    </section>
+
+    <!-- SPECS -->
+    <section class="block" id="specs">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">By the numbers</span>
+          <h2 class="display">Specifications</h2>
+          <p>What the teardown reveals, quantified.</p>
+        </div>
+        <div class="specs">
+          <div class="spec reveal">
+            <div class="num">32<span class="u">hr</span></div>
+            <div class="lbl">Total battery life</div>
+          </div>
+
+          <div class="spec reveal">
+            <div class="num">40<span class="u">dB</span></div>
+            <div class="lbl">ANC depth</div>
+          </div>
+
+          <div class="spec reveal">
+            <div class="num">10<span class="u">mm</span></div>
+            <div class="lbl">Driver diameter</div>
+          </div>
+
+          <div class="spec reveal">
+            <div class="num">6<span class="u">mics</span></div>
+            <div class="lbl">Hybrid ANC array</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FULL VIDEO -->
+    <section class="block" style="padding-top:0;">
+      <div class="wrap">
+        <div class="section-head reveal" style="text-align:center; margin:0 auto 48px;">
+          <span class="eyebrow">Prefer to watch?</span>
+          <h2 class="display">The full teardown</h2>
+          <p style="margin:0 auto;">The complete footage, with playback controls.</p>
+        </div>
+        <div class="video-frame reveal">
+          <video controls preload="metadata" playsinline>
+            <source src="../../videos/product-reveal-earbuds.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="block" id="preorder" style="display:none; padding-top:0;">
+      <div class="wrap">
+        <div class="cta reveal">
+          <div class="cta-inner">
+            <span class="eyebrow">Ready when you are</span>
+            <h2>Hear what matters. Pre-order the Tester Smart Earbuds.</h2>
+            <p>Adaptive ANC, biometric heart rate and spatial audio, engineered to tune itself to your body.</p>
+            <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+              <a href="#preorder" class="btn btn-primary" style="font-size:1.02rem; padding:16px 32px;">Pre-order <span class="arrow">&rarr;</span></a>
+              <a href="../../TesterTech.html" class="btn btn-ghost" style="font-size:1.02rem; padding:16px 32px;">See all devices</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <a href="../../index.html" class="brand"><img src="../../brand_assets/tester-icon.png" class="brand-icon" alt="Tester.io logo" />Tester<span style="background:linear-gradient(90deg,#c6a559,#e6b979);-webkit-background-clip:text;background-clip:text;color:transparent;">.io</span></a>
+        <div class="socials">
+          <a href="#" aria-label="X / Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 2H21l-6.5 7.4L22 22h-6.8l-4.7-6.2L4.9 22H2l7-8L2 2h6.9l4.3 5.7L18.2 2zm-1.2 18h1.5L7.1 3.9H5.5L17 20z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3V9z" fill="currentColor" stroke="none"/></svg></a>
+        </div>
+      </div>
+      <p style="color:var(--faint);font-size:.85rem;margin-top:26px;">&copy; 2026 Tester Smart Watch Pro. <a href="../../index.html" style="color:var(--muted);text-decoration:none;">Back to home &rarr;</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.documentElement.classList.add("js");
+    var nav = document.getElementById("nav");
+    function navScroll() { nav.classList.toggle("scrolled", window.scrollY > 40); }
+    navScroll();
+    window.addEventListener("scroll", navScroll, { passive: true });
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".reveal").forEach(function(el) { io.observe(el); });
+
+    var FRAME_COUNT = 121;
+    var framePath = function (i) { return "../../frames/earbuds/frame_" + String(i + 1).padStart(4, "0") + ".jpg"; };
+
+    var canvas = document.getElementById("frames");
+    var ctx = canvas.getContext("2d");
+    var track = document.getElementById("dissection");
+    var bar = document.getElementById("scrubBar");
+    var loaderEl = document.getElementById("frame-loader");
+    var pctEl = document.getElementById("loaderPct");
+    var captions = Array.prototype.slice.call(document.querySelectorAll(".caption"));
+
+    var images = new Array(FRAME_COUNT);
+    var loaded = 0, ready = false, currentFrame = -1;
+    var FILL_SCALE = 1.04;
+    var sticky = document.querySelector(".scrub-sticky");
+    var bgColor = "#000";
+    var sampled = false;
+
+    function sampleBgColor(img) {
+      try {
+        var c = document.createElement("canvas");
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        var cx = c.getContext("2d");
+        cx.drawImage(img, 0, 0);
+        var w = img.naturalWidth, h = img.naturalHeight;
+        var pts = [[3,3],[w-4,3],[3,h-4],[w-4,h-4],[(w>>1),3],[(w>>1),h-4]];
+        var r = 0, g = 0, b = 0;
+        pts.forEach(function (p) { var d = cx.getImageData(p[0], p[1], 1, 1).data; r += d[0]; g += d[1]; b += d[2]; });
+        var n = pts.length;
+        return "rgb(" + Math.round(r/n) + "," + Math.round(g/n) + "," + Math.round(b/n) + ")";
+      } catch (e) { return null; }
+    }
+
+    function sizeCanvas() {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function drawFrame(index) {
+      var img = images[index];
+      if (!img || !img.complete || !img.naturalWidth) return;
+      var cw = canvas.clientWidth, ch = canvas.clientHeight;
+      var iw = img.naturalWidth, ih = img.naturalHeight;
+      var scale = (cw / ch >= 1.2)
+        ? Math.max(cw / iw, ch / ih) * FILL_SCALE
+        : (cw / iw) * FILL_SCALE;
+      var dw = iw * scale, dh = ih * scale;
+      var dx = (cw - dw) / 2, dy = (ch - dh) / 2;
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }
+
+    function progress() {
+      var rect = track.getBoundingClientRect();
+      var total = track.offsetHeight - window.innerHeight;
+      if (total <= 0) return 0;
+      var p = (-rect.top) / total;
+      return Math.min(1, Math.max(0, p));
+    }
+
+    function render() {
+      var p = progress();
+      var idx = Math.min(FRAME_COUNT - 1, Math.floor(p * (FRAME_COUNT - 1)));
+      if (idx !== currentFrame) { currentFrame = idx; drawFrame(idx); }
+      if (bar) bar.style.height = (p * 100) + "%";
+      captions.forEach(function (c) {
+        var from = parseFloat(c.dataset.from), to = parseFloat(c.dataset.to);
+        c.classList.toggle("active", p >= from && p <= to);
+      });
+    }
+
+    var ticking = false;
+    function onScrollOrResize() {
+      if (!ready) return;
+      if (!ticking) { ticking = true; requestAnimationFrame(function () { render(); ticking = false; }); }
+    }
+
+    function preload() {
+      function load(i) {
+        var img = new Image();
+        img.onload = img.onerror = function () {
+          loaded++;
+          var pct = Math.round((loaded / FRAME_COUNT) * 100);
+          if (pctEl) pctEl.textContent = pct + "%";
+          var midIdx = Math.floor(FRAME_COUNT * 0.5);
+          if (!sampled && images[midIdx] && images[midIdx].complete && images[midIdx].naturalWidth) {
+            sampled = true;
+            var col = sampleBgColor(images[midIdx]);
+            if (col) { bgColor = col; if (sticky) sticky.style.setProperty("--scrub-bg", col); }
+          }
+          if (images[0] && images[0].complete && currentFrame === -1) { sizeCanvas(); render(); }
+          if (loaded >= FRAME_COUNT && !ready) {
+            ready = true;
+            loaderEl.classList.add("done");
+            sizeCanvas(); render();
+          }
+        };
+        img.src = framePath(i);
+        images[i] = img;
+      }
+      for (var i = 0; i < FRAME_COUNT; i++) load(i);
+    }
+
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", function () { sizeCanvas(); render(); }, { passive: true });
+    sizeCanvas();
+    preload();
+  </script>
+</body>
+</html>
+
+
+
+

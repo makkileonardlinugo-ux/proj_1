@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sight · Tester.io</title>
+  <link rel="icon" type="image/png" href="brand_assets/tester-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:          #000000;
+      --bg-elev:     #0a0a0a;
+      --line:        rgba(255,255,255,0.08);
+      --text:        #f2f4f5;
+      --muted:       #8b9197;
+      --faint:       #5a5f65;
+      --accent:      #c6a559;
+      --accent-2:    #e6b979;
+      --accent-glow: rgba(198,165,89,0.35);
+      --font:        "Montserrat", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 28px;
+      border-bottom: 1px solid transparent;
+      transition: background 0.3s, border-color 0.3s, padding 0.3s;
+    }
+    .nav.scrolled {
+      background: rgba(0,0,0,0.92);
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+      border-color: var(--line);
+      padding: 14px 28px;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--muted); text-decoration: none;
+      font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: var(--text); }
+    .back-btn svg { transition: transform 0.2s; }
+    .back-btn:hover svg { transform: translateX(-3px); }
+    .brand {
+      display: flex; align-items: center; gap: 9px;
+      text-decoration: none; color: var(--text);
+      font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em;
+    }
+    .brand-icon { width: 28px; height: 28px; border-radius: 6px; }
+
+    /* SCROLL SCRUB */
+    .scrub-track {
+      position: relative;
+      height: 500vh;
+    }
+    .scrub-sticky {
+      position: sticky; top: 0;
+      height: 100vh; overflow: hidden;
+      background: #000000;
+    }
+    #frames-bg {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: auto; height: 90vh;
+      max-width: 90vw;
+      object-fit: contain; z-index: 0;
+    }
+    #frames {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: block; z-index: 1;
+      mask-image: radial-gradient(ellipse 75% 80% at 50% 50%, black 40%, transparent 78%);
+      -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 50%, black 40%, transparent 78%);
+    }
+    .scrub-scrim {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 18%, transparent 80%, rgba(0,0,0,0.7) 100%);
+    }
+    .scrub-progress {
+      position: absolute; top: 50%; right: 4vw;
+      transform: translateY(-50%);
+      width: 3px; height: 180px;
+      background: rgba(255,255,255,.08);
+      border-radius: 3px; overflow: hidden; z-index: 3;
+    }
+    .scrub-progress span {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 0%;
+      background: linear-gradient(var(--accent), var(--accent-2));
+      border-radius: 3px;
+    }
+    #frame-loader {
+      position: absolute; inset: 0; z-index: 5;
+      background: rgba(0,0,0,0.75);
+      display: grid; place-items: center;
+      transition: opacity 0.6s ease;
+    }
+    #frame-loader.done { opacity: 0; pointer-events: none; }
+    #frame-loader .pct {
+      font-size: 2.4rem; font-weight: 600;
+      color: var(--accent); letter-spacing: -.03em;
+    }
+    #frame-loader .lbl {
+      color: var(--faint); font-size: .74rem;
+      letter-spacing: .24em; text-transform: uppercase; margin-top: 8px;
+    }
+
+    @media (max-width: 760px) {
+      .scrub-track { height: 350vh; }
+      .scrub-progress { display: none; }
+    }
+    @media (max-width: 480px) {
+      .scrub-track { height: 220vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="nav" id="nav">
+    <a href="javascript:history.back()" class="back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back
+    </a>
+    <a href="index.html" class="brand">
+      <img src="brand_assets/tester-icon.png" class="brand-icon" alt="Tester.io" />
+      Tester<span style="background:linear-gradient(90deg,#c6a559,#e6b979);-webkit-background-clip:text;background-clip:text;color:transparent;">.io</span>
+    </a>
+  </header>
+
+  <main>
+    <section class="scrub-track" id="sight-scrub">
+      <div class="scrub-sticky">
+        <img id="frames-bg" src="frames/sight/frame_0001.jpg" alt="" aria-hidden="true" />
+        <canvas id="frames"></canvas>
+        <div class="scrub-scrim"></div>
+        <div class="scrub-progress"><span id="scrubBar"></span></div>
+        <div id="frame-loader">
+          <div style="text-align:center">
+            <div class="pct" id="loaderPct">0%</div>
+            <div class="lbl">Loading</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Nav scroll effect
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function() {
+      nav.classList.toggle('scrolled', window.scrollY > 30);
+    }, { passive: true });
+
+    // ----- Config -----
+    var FRAME_COUNT = 241;
+    var FRAME_PATH  = 'frames/sight/frame_';
+    var FRAME_EXT   = '.jpg';
+    var BATCH_SIZE  = 20;
+
+    // ----- Elements -----
+    var track    = document.getElementById('sight-scrub');
+    var canvas   = document.getElementById('frames');
+    var bar      = document.getElementById('scrubBar');
+    var loaderEl = document.getElementById('frame-loader');
+    var pctEl    = document.getElementById('loaderPct');
+    var ctx      = canvas.getContext('2d');
+
+    // ----- State -----
+    var images      = new Array(FRAME_COUNT);
+    var currentFrame = 0;   // set by scroll handler
+    var drawnFrame   = -1;  // last frame drawn by rAF
+    var progress     = 0;
+
+    function pad(n) { return String(n).padStart(4, '0'); }
+
+    function sizeCanvas() {
+      var dpr = window.devicePixelRatio || 1;
+      canvas.width  = canvas.offsetWidth  * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+    }
+
+    function drawFrame(idx) {
+      var img = images[idx];
+      if (!img || !img.complete) return;
+      var dpr = window.devicePixelRatio || 1;
+      var cw = canvas.width, ch = canvas.height;
+      var iw = img.naturalWidth, ih = img.naturalHeight;
+      // Contain within 90% of physical canvas pixels (viewport-relative, HiDPI-aware)
+      var maxH = ch * 0.90;
+      var maxW = cw * 0.90;
+      var scale = Math.min(maxW / iw, maxH / ih);
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.drawImage(img, (cw - iw * scale) / 2, (ch - ih * scale) / 2, iw * scale, ih * scale);
+    }
+
+    // rAF render loop — only draws when frame changed
+    function tick() {
+      if (currentFrame !== drawnFrame) {
+        drawFrame(currentFrame);
+        drawnFrame = currentFrame;
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Scroll handler — only calculates state, never draws
+    window.addEventListener('scroll', function() {
+      var rect   = track.getBoundingClientRect();
+      var trackH = track.offsetHeight - window.innerHeight;
+      progress     = Math.max(0, Math.min(1, -rect.top / trackH));
+      currentFrame = Math.min(Math.floor(progress * FRAME_COUNT), FRAME_COUNT - 1);
+
+      // Subtle rotation on scroll
+      var rotation = -3 + progress * 8;
+      canvas.style.transform = 'rotate(' + rotation + 'deg)';
+
+      if (bar) bar.style.height = (progress * 100) + '%';
+    }, { passive: true });
+
+    sizeCanvas();
+    window.addEventListener('resize', function() {
+      sizeCanvas();
+      drawnFrame = -1;
+    }, { passive: true });
+
+    // Batched preloader — 20 frames at a time
+    var loadedCount = 0;
+
+    function loadFrame(frameIdx) {
+      return new Promise(function(resolve) {
+        var img = new Image();
+        img.onload = img.onerror = function() {
+          images[frameIdx] = img;
+          loadedCount++;
+          if (pctEl) pctEl.textContent = Math.round((loadedCount / FRAME_COUNT) * 100) + '%';
+          resolve();
+        };
+        img.src = FRAME_PATH + pad(frameIdx + 1) + FRAME_EXT;
+      });
+    }
+
+    async function preload() {
+      for (var i = 0; i < FRAME_COUNT; i += BATCH_SIZE) {
+        var batch = [];
+        for (var j = i; j < Math.min(i + BATCH_SIZE, FRAME_COUNT); j++) {
+          batch.push(loadFrame(j));
+        }
+        await Promise.all(batch);
+      }
+      loaderEl.classList.add('done');
+      tick();
+    }
+
+    preload();
+  </script>
+
+</body>
+</html>

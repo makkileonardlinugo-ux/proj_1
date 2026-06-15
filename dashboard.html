@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · Tester.io</title>
+  <link rel="icon" type="image/png" href="brand_assets/tester-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:          #0a0c10;
+      --bg-elev:     #0f1117;
+      --bg-card:     #13161e;
+      --line:        rgba(255,255,255,0.07);
+      --text:        #f2f4f5;
+      --muted:       #8b9197;
+      --faint:       #3e4248;
+      --accent:      #c6a559;
+      --accent-2:    #e6b979;
+      --accent-glow: rgba(198,165,89,0.25);
+      --green:       #4ade80;
+      --green-bg:    rgba(74,222,128,0.08);
+      --red:         #f87171;
+      --red-bg:      rgba(248,113,113,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Montserrat", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* Atmospheric bg */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(55% 35% at 10% 0%, rgba(198,165,89,0.07), transparent 70%),
+        radial-gradient(45% 40% at 95% 5%,  rgba(230,185,121,0.05), transparent 70%);
+    }
+
+    /* ── Layout ── */
+    .shell { position: relative; z-index: 1; display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: var(--bg-elev);
+      border-right: 1px solid var(--line);
+      padding: 28px 0;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0;
+    }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 22px 28px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 700; font-size: 1rem; letter-spacing: -0.02em;
+      text-decoration: none; color: var(--text);
+    }
+    .sidebar-brand img { width: 26px; height: 26px; border-radius: 7px; }
+    .sidebar-brand span { color: var(--accent); }
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px;
+      font-size: 0.88rem; font-weight: 500; color: var(--muted);
+      text-decoration: none; cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .nav-item.active { background: rgba(198,165,89,0.10); color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-section-label {
+      padding: 16px 12px 6px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--faint);
+    }
+    .sidebar-footer {
+      padding: 16px 22px;
+      border-top: 1px solid var(--line);
+      font-size: 0.78rem; color: var(--faint);
+    }
+
+    /* ── Main ── */
+    .main { margin-left: 220px; flex: 1; padding: 36px 40px; }
+
+    /* ── Page header ── */
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; }
+    .page-header p  { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+
+    /* ── Stat cards ── */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px 24px;
+    }
+    .stat-card .label {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+    }
+    .stat-card .value {
+      font-size: 2.2rem; font-weight: 700; letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .stat-card .sub {
+      font-size: 0.8rem; color: var(--muted); margin-top: 6px;
+    }
+    .stat-card.accent  .value { color: var(--accent); }
+    .stat-card.green   .value { color: var(--green); }
+
+    /* ── Table card ── */
+    .table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .table-header h2 { font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; }
+    .table-header .count {
+      font-size: 0.78rem; color: var(--muted);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      border-radius: 999px; padding: 3px 10px;
+    }
+    .refresh-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+      color: var(--muted); font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left; padding: 12px 24px;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+    }
+    tbody tr { border-bottom: 1px solid var(--line); transition: background 0.15s ease; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    tbody td { padding: 14px 24px; font-size: 0.88rem; color: var(--text); vertical-align: middle; }
+    .td-muted { color: var(--muted); font-size: 0.82rem; }
+    .td-message { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 0.74rem; font-weight: 600;
+    }
+    .badge-yes { background: var(--green-bg); color: var(--green); }
+    .badge-no  { background: rgba(255,255,255,0.05); color: var(--faint); }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* ── Empty / loading states ── */
+    .state-row td {
+      text-align: center; padding: 48px 24px;
+      color: var(--muted); font-size: 0.9rem;
+    }
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid var(--line); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Product selector buttons ── */
+    .prod-btn {
+      padding: 7px 10px; font-size: 0.78rem; font-weight: 600;
+      background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+      color: var(--muted); cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s;
+      font-family: inherit;
+    }
+    .prod-btn:hover { border-color: var(--accent); color: var(--text); }
+    .prod-btn.selected { border-color: var(--accent); background: rgba(198,165,89,0.1); color: var(--accent); }
+
+    /* ── Button spinner ── */
+    .btn-spinner {
+      display: inline-block; width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.25); border-top-color: currentColor;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; flex-shrink: 0;
+    }
+    .btn-spinner-dark {
+      border-color: rgba(0,0,0,0.2); border-top-color: #0a0c10;
+    }
+    .btn-primary:disabled, .btn-secondary:disabled {
+      opacity: 0.55; cursor: not-allowed; transform: none;
+    }
+
+    /* ── Login screen ── */
+    .login-screen {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+    }
+    .login-screen::before {
+      content: "";
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(55% 45% at 50% 50%, rgba(198,165,89,0.07), transparent 70%);
+    }
+    .login-card {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 400px;
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 40px;
+    }
+    .login-card .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 1rem; letter-spacing: -0.02em;
+      margin-bottom: 28px;
+    }
+    .login-card .brand img { width: 26px; height: 26px; border-radius: 7px; }
+    .login-card .brand span { color: var(--accent); }
+    .login-card h2 {
+      font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .login-card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 28px; }
+    .login-field { margin-bottom: 16px; }
+    .login-field label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .login-field input {
+      width: 100%; background: var(--bg-elev);
+      border: 1px solid var(--line); border-radius: 10px;
+      color: var(--text); font-family: inherit; font-size: 0.95rem;
+      padding: 12px 16px; outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .login-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .login-btn {
+      width: 100%; margin-top: 8px;
+      padding: 13px; border-radius: 999px; border: none; cursor: pointer;
+      font-family: inherit; font-size: 0.95rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0a0c10;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .login-error {
+      margin-top: 14px; padding: 10px 14px; border-radius: 8px;
+      background: var(--red-bg); border: 1px solid rgba(248,113,113,0.2);
+      color: var(--red); font-size: 0.84rem; text-align: center;
+      display: none;
+    }
+
+    /* ── Composer ── */
+    .composer { max-width: 860px; }
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block; font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .field input {
+      width: 100%; background: var(--bg-card);
+      border: 1px solid var(--line); border-radius: 10px;
+      color: var(--text); font-family: inherit; font-size: 0.93rem;
+      padding: 12px 16px; outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* ── Rich editor ── */
+    .editor-wrap {
+      border: 1px solid var(--line); border-radius: 12px;
+      overflow: hidden; background: var(--bg-card);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .editor-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .editor-toolbar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 2px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--line);
+    }
+    .editor-toolbar select {
+      background: transparent; border: 1px solid var(--line);
+      border-radius: 6px; color: var(--muted); font-family: inherit;
+      font-size: 0.78rem; padding: 4px 6px; cursor: pointer; outline: none;
+    }
+    .editor-toolbar select:hover { border-color: var(--accent); color: var(--text); }
+    .toolbar-btn {
+      width: 30px; height: 30px; border-radius: 6px; border: none;
+      background: transparent; color: var(--muted); cursor: pointer;
+      display: grid; place-items: center; font-size: 0.85rem; font-weight: 600;
+      font-family: inherit;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .toolbar-btn:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .toolbar-btn.active { background: rgba(198,165,89,0.15); color: var(--accent); }
+    .toolbar-sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
+    .toolbar-color {
+      width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--line);
+      padding: 3px; cursor: pointer; background: transparent;
+    }
+    .editor-body {
+      min-height: 380px; padding: 24px 28px;
+      color: #1a1a1a; background: #ffffff;
+      font-family: Arial, sans-serif; font-size: 15px; line-height: 1.7;
+      outline: none; overflow-y: auto;
+    }
+    .editor-body:empty::before {
+      content: attr(data-placeholder);
+      color: #aaa; pointer-events: none;
+    }
+    .editor-body img { max-width: 100%; height: auto; border-radius: 4px; }
+    .editor-body a { color: #c6a559; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 999px; border: none; cursor: pointer;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0a0c10;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 999px; cursor: pointer;
+      font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      background: transparent; border: 1px solid var(--line); color: var(--muted);
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .toast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 200;
+      padding: 12px 20px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 600;
+      background: var(--bg-card); border: 1px solid var(--line);
+      color: var(--text); box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: none; }
+    .toast.success { border-color: rgba(74,222,128,0.3); color: var(--green); }
+    .toast.error   { border-color: rgba(248,113,113,0.3); color: var(--red); }
+
+    /* ── Saved newsletters list ── */
+    .nl-card {
+      background: var(--bg-card); border: 1px solid var(--line);
+      border-radius: 14px; padding: 22px 26px;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+      transition: border-color 0.2s ease;
+    }
+    .nl-card:hover { border-color: rgba(198,165,89,0.3); }
+    .nl-card + .nl-card { margin-top: 12px; }
+    .nl-card-info h3 { font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .nl-card-info p  { font-size: 0.83rem; color: var(--muted); }
+    .nl-card-actions { display: flex; gap: 10px; flex-shrink: 0; align-items: center; }
+    .nl-badge-sent   { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 600; background: var(--green-bg); color: var(--green); }
+    .nl-badge-draft  { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 600; background: rgba(255,255,255,0.05); color: var(--muted); }
+    .nl-empty { text-align: center; padding: 60px 0; color: var(--muted); font-size: 0.9rem; }
+
+    /* ── Schedule form controls ── */
+    /* AI generation panel */
+    .ai-panel {
+      background: linear-gradient(135deg, rgba(198,165,89,0.07) 0%, transparent 60%);
+      border: 1px solid rgba(198,165,89,0.22);
+      border-radius: 14px;
+      padding: 22px 28px;
+      margin-bottom: 22px;
+    }
+    .ai-prompt {
+      width: 100%; box-sizing: border-box;
+      background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+      color: var(--text); font-family: inherit; font-size: 0.9rem;
+      padding: 12px 16px; resize: vertical; min-height: 72px;
+      outline: none; line-height: 1.6;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .ai-prompt:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    /* Email preview panel */
+    .nl-preview-panel {
+      border: 1px solid var(--line); border-radius: 12px;
+      overflow: hidden; margin-bottom: 20px;
+    }
+    .sched-toggle-btn {
+      padding: 8px 14px; border-radius: 8px;
+      border: 1px solid var(--line); background: var(--bg);
+      color: var(--muted); font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    }
+    .sched-toggle-btn:hover  { border-color: var(--accent); color: var(--text); }
+    .sched-toggle-btn.active { border-color: var(--accent); background: rgba(198,165,89,0.10); color: var(--accent); }
+    .sched-day-btn {
+      width: 40px; height: 36px; border-radius: 8px; border: 1px solid var(--line);
+      background: var(--bg); color: var(--muted); font-family: inherit;
+      font-size: 0.76rem; font-weight: 700; cursor: pointer; text-align: center;
+      transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    }
+    .sched-day-btn:hover  { border-color: var(--accent); color: var(--text); }
+    .sched-day-btn.active { border-color: var(--accent); background: rgba(198,165,89,0.10); color: var(--accent); }
+    .sched-input {
+      background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px;
+      color: var(--text); font-family: inherit; font-size: 0.93rem;
+      padding: 10px 16px; outline: none; color-scheme: dark;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sched-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .sched-del-btn {
+      background: none; border: 1px solid var(--line); border-radius: 6px;
+      color: var(--red); font-size: 0.78rem; font-weight: 600;
+      padding: 4px 10px; cursor: pointer; font-family: inherit;
+      transition: border-color 0.15s ease;
+    }
+    .sched-del-btn:hover { border-color: var(--red); }
+    .db-filter-btn {
+      padding: 3px 9px; border-radius: 6px; border: 1px solid var(--line);
+      background: var(--bg); color: var(--muted); font-family: inherit;
+      font-size: 0.72rem; font-weight: 600; cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    }
+    .db-filter-btn:hover  { border-color: var(--accent); color: var(--text); }
+    .db-filter-btn.active { border-color: var(--accent); background: rgba(198,165,89,0.10); color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1100px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 760px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 24px 18px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Login screen ── -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="brand">
+      <img src="brand_assets/tester-icon.png" alt="Tester.io" />
+      Tester<span>.io</span>
+    </div>
+    <h2>Dashboard login</h2>
+    <p>Enter your credentials to continue.</p>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="loginUser" autocomplete="username" placeholder="admin" required />
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••••••" required />
+      </div>
+      <button type="submit" class="login-btn">Sign in</button>
+      <div class="login-error" id="loginError">Incorrect username or password.</div>
+    </form>
+  </div>
+</div>
+
+<div class="shell" id="dashShell" style="display:none;">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <a href="product.html" class="sidebar-brand">
+      <img src="brand_assets/tester-icon.png" alt="Tester.io" />
+      Tester<span>.io</span>
+    </a>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" id="nav-overview" onclick="showView('overview')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a class="nav-item" href="product.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Product page
+      </a>
+      <a class="nav-item" href="TesterTech.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Tester Tech
+      </a>
+
+      <div class="nav-section-label">Morning Briefing</div>
+      <a class="nav-item" id="nav-briefing" onclick="showView('briefing')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Send briefing
+      </a>
+      <a class="nav-item" id="nav-schedule" onclick="showView('schedule')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>
+        Scheduled emails
+      </a>
+
+      <div class="nav-section-label">Newsletter</div>
+      <a class="nav-item" id="nav-compose" onclick="showView('compose')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        New newsletter
+      </a>
+      <a class="nav-item" id="nav-saved" onclick="showView('saved')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Saved newsletters
+      </a>
+    </nav>
+    <div class="sidebar-footer">Tester.io &copy; 2026</div>
+  </aside>
+
+  <!-- ── Main content ── -->
+  <main class="main">
+    <div id="view-overview">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+      <p>Form submissions and subscriber data from Supabase.</p>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats">
+      <div class="stat-card accent">
+        <div class="label">Total submissions</div>
+        <div class="value" id="stat-total">—</div>
+        <div class="sub">All time</div>
+      </div>
+      <div class="stat-card green">
+        <div class="label">Subscribers</div>
+        <div class="value" id="stat-subscribed">—</div>
+        <div class="sub">Opted in</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Not subscribed</div>
+        <div class="value" id="stat-unsubscribed">—</div>
+        <div class="sub">Opted out</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Emailed</div>
+        <div class="value" id="stat-emailed">—</div>
+        <div class="sub">Follow-ups sent</div>
+      </div>
+    </div>
+
+    <!-- Submissions table -->
+    <div class="table-card">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <h2>Submissions</h2>
+          <span class="count" id="table-count">loading…</span>
+        </div>
+        <button class="refresh-btn" onclick="loadData()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Message</th>
+            <th>Subscribed</th>
+            <th>Last emailed</th>
+            <th>Submitted</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr class="state-row">
+            <td colspan="6"><span class="spinner"></span> Loading submissions…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </div><!-- end view-overview -->
+
+    <!-- ── Compose view ── -->
+    <div id="view-compose" style="display:none;">
+      <div class="page-header">
+        <h1>New newsletter</h1>
+        <p>Generate a draft with Groq AI or write from scratch, then send to your subscribers.</p>
+      </div>
+      <div class="composer">
+
+        <!-- AI Generation panel -->
+        <div class="ai-panel">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent);flex-shrink:0;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);">Generate with Groq AI</span>
+          </div>
+          <textarea id="ai-prompt" class="ai-prompt" placeholder="Describe the email you want — e.g. &quot;Announce the Smart Watch Pro launch, highlight the ECG sensor and 9-day battery, add a pre-order CTA&quot;"></textarea>
+          <div style="display:flex;align-items:center;gap:14px;margin-top:12px;">
+            <button id="btn-generate" class="btn-primary" style="padding:10px 22px;" onclick="generateEmail()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Generate
+            </button>
+            <span id="gen-status" style="font-size:0.82rem;color:var(--muted);"></span>
+          </div>
+        </div>
+
+        <!-- Subject + preview text (two-column) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="field">
+            <label>Subject line</label>
+            <input type="text" id="nl-subject" placeholder="e.g. Smart Watch Pro is here" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label>Preview text <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint);">(inbox snippet)</span></label>
+            <input type="text" id="nl-preview" placeholder="Short teaser shown in inbox…" autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- Body editor -->
+        <div class="field">
+          <label>Body</label>
+          <div class="editor-wrap">
+            <div class="editor-toolbar">
+              <!-- Format -->
+              <button class="toolbar-btn" onclick="execCmd('bold')"          title="Bold"><b>B</b></button>
+              <button class="toolbar-btn" onclick="execCmd('italic')"        title="Italic"><i>I</i></button>
+              <button class="toolbar-btn" onclick="execCmd('underline')"     title="Underline"><u>U</u></button>
+              <div class="toolbar-sep"></div>
+              <!-- Alignment -->
+              <button class="toolbar-btn" onclick="execCmd('justifyLeft')"   title="Align left">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+              </button>
+              <button class="toolbar-btn" onclick="execCmd('justifyCenter')" title="Align center">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+              </button>
+              <button class="toolbar-btn" onclick="execCmd('justifyRight')"  title="Align right">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
+              </button>
+              <div class="toolbar-sep"></div>
+              <!-- Font controls -->
+              <select id="tb-font" onchange="execCmd('fontName',this.value)" title="Font" style="background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-family:inherit;font-size:0.76rem;padding:3px 6px;cursor:pointer;outline:none;">
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Trebuchet MS">Trebuchet</option>
+                <option value="Courier New">Courier</option>
+              </select>
+              <select id="tb-size" onchange="execCmd('fontSize',this.value)" title="Size" style="background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-family:inherit;font-size:0.76rem;padding:3px 6px;cursor:pointer;outline:none;">
+                <option value="1">Small</option>
+                <option value="2">Normal</option>
+                <option value="3" selected>Medium</option>
+                <option value="4">Large</option>
+                <option value="5">XL</option>
+              </select>
+              <div class="toolbar-sep"></div>
+              <!-- Lists -->
+              <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="Bullets">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="Numbered">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="2" y="8" font-size="7" fill="currentColor" stroke="none">1</text><text x="2" y="14" font-size="7" fill="currentColor" stroke="none">2</text><text x="2" y="20" font-size="7" fill="currentColor" stroke="none">3</text></svg>
+              </button>
+              <div class="toolbar-sep"></div>
+              <!-- Colors -->
+              <input type="color" class="toolbar-color" value="#000000" title="Text color"   onchange="execCmd('foreColor',this.value)" />
+              <input type="color" class="toolbar-color" value="#ffffff" title="Highlight"    onchange="execCmd('hiliteColor',this.value)" />
+              <div class="toolbar-sep"></div>
+              <!-- Link, image, clear -->
+              <button class="toolbar-btn" onclick="insertLink()" title="Link">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </button>
+              <button class="toolbar-btn" onclick="insertImage()" title="Image">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </button>
+              <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="Clear" style="font-size:0.72rem;">Tx</button>
+              <!-- Preview toggle (right-aligned) -->
+              <div style="margin-left:auto;">
+                <button id="btn-preview-toggle" onclick="togglePreview()" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);font-size:0.76rem;font-family:inherit;cursor:pointer;transition:border-color 0.15s,color 0.15s;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  Preview
+                </button>
+              </div>
+            </div>
+            <div id="nl-body" class="editor-body" contenteditable="true"
+                 data-placeholder="Write your newsletter here, or generate one with Groq above…"
+                 onkeydown="handleTab(event)"></div>
+          </div>
+        </div>
+
+        <!-- Email preview panel (hidden until toggled) -->
+        <div id="nl-preview-panel" class="nl-preview-panel" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--bg-card);">
+            <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">Email preview</span>
+            <button onclick="togglePreview()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.82rem;font-family:inherit;padding:0;">Close</button>
+          </div>
+          <div style="padding:32px 20px;background:var(--bg);display:flex;justify-content:center;">
+            <div id="nl-preview-frame" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.5);font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:#1a1a1a;"></div>
+          </div>
+        </div>
+
+        <!-- Recipient selector -->
+        <div style="margin-bottom:20px;padding:22px 24px;background:var(--bg-card);border:1px solid var(--line);border-radius:12px;" data-recip-ctx="newsletter">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Send to</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <button class="sched-toggle-btn recip-toggle active" data-val="all"      onclick="selectRecipientType('newsletter',this)">All subscribers</button>
+            <button class="sched-toggle-btn recip-toggle"        data-val="custom"   onclick="selectRecipientType('newsletter',this)">Custom email</button>
+            <button class="sched-toggle-btn recip-toggle"        data-val="selected" onclick="selectRecipientType('newsletter',this)">From database</button>
+          </div>
+          <div class="recip-custom" style="display:none;">
+            <input class="sched-input" type="email" id="recip-custom-newsletter" placeholder="someone@example.com" style="width:100%;max-width:400px;" />
+          </div>
+          <div class="recip-db" style="display:none;border:1px solid var(--line);border-radius:8px;padding:8px 12px;"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="btn-row">
+          <button id="btn-save-draft" class="btn-primary" onclick="saveNewsletter()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save draft
+          </button>
+          <button id="btn-save-send" class="btn-secondary" onclick="saveAndSend()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Save &amp; send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Saved newsletters view ── -->
+    <div id="view-saved" style="display:none;">
+      <div class="page-header">
+        <h1>Saved newsletters</h1>
+        <p>All drafted and sent newsletters.</p>
+      </div>
+      <div id="nl-list"><p class="nl-empty">Loading…</p></div>
+    </div>
+
+    <!-- ── Morning Briefing view ── -->
+    <div id="view-briefing" style="display:none">
+      <div class="page-header">
+        <h1>Morning Briefing</h1>
+        <p>Send an AI-written briefing or product spotlight. Choose who receives it each time.</p>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:860px;">
+
+        <!-- Daily Briefing card -->
+        <div class="table-card" style="padding:28px;">
+          <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:10px;">Daily Briefing</div>
+          <div style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:8px;">Morning Briefing</div>
+          <p style="color:var(--muted); font-size:0.84rem; line-height:1.65; margin-bottom:22px;">
+            Groq generates today's focus areas, tech highlights, a productivity tip, and an inspiring quote — delivered instantly.
+          </p>
+          <!-- Recipient selector: briefing -->
+          <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--line);" data-recip-ctx="briefing">
+            <div style="font-size:0.65rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Send to</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <button class="sched-toggle-btn recip-toggle active" data-val="all"      onclick="selectRecipientType('briefing',this)">All subscribers</button>
+              <button class="sched-toggle-btn recip-toggle"        data-val="custom"   onclick="selectRecipientType('briefing',this)">Custom email</button>
+              <button class="sched-toggle-btn recip-toggle"        data-val="selected" onclick="selectRecipientType('briefing',this)">From database</button>
+            </div>
+            <div class="recip-custom" style="display:none; margin-bottom:10px;">
+              <input class="sched-input" type="email" id="recip-custom-briefing" placeholder="someone@example.com" style="width:100%;" />
+            </div>
+            <div class="recip-db" style="display:none; border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-bottom:10px;"></div>
+          </div>
+
+          <button id="btn-briefing" class="btn-secondary" onclick="sendBriefing()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send now
+          </button>
+        </div>
+
+        <!-- Product Spotlight card -->
+        <div class="table-card" style="padding:28px;">
+          <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:10px;">Product Spotlight</div>
+          <div style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:8px;">Choose a product</div>
+          <p style="color:var(--muted); font-size:0.84rem; line-height:1.65; margin-bottom:16px;">
+            Groq writes a product pitch, specs breakdown, and CTA for any Tester.io device.
+          </p>
+
+          <div style="font-size:0.65rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Devices</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px;">
+            <button class="prod-btn" data-key="watch"     onclick="selectProduct(this)">Watch</button>
+            <button class="prod-btn" data-key="glasses"   onclick="selectProduct(this)">Glasses</button>
+            <button class="prod-btn" data-key="assistant" onclick="selectProduct(this)">Assistant</button>
+            <button class="prod-btn" data-key="earbuds"   onclick="selectProduct(this)">Earbuds</button>
+            <button class="prod-btn" data-key="ring"      onclick="selectProduct(this)">Ring</button>
+            <button class="prod-btn" data-key="hub"       onclick="selectProduct(this)">Hub</button>
+          </div>
+          <div style="font-size:0.65rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Planets</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:18px;">
+            <button class="prod-btn" data-key="kepler-452b"  onclick="selectProduct(this)">Kepler-452b</button>
+            <button class="prod-btn" data-key="trappist-1e"  onclick="selectProduct(this)">TRAPPIST-1e</button>
+            <button class="prod-btn" data-key="gliese-667cc" onclick="selectProduct(this)">Gliese 667Cc</button>
+            <button class="prod-btn" data-key="hd-40307g"    onclick="selectProduct(this)">HD 40307g</button>
+            <button class="prod-btn" data-key="tau-ceti-e"   onclick="selectProduct(this)">Tau Ceti e</button>
+            <button class="prod-btn" data-key="wolf-1061c"   onclick="selectProduct(this)">Wolf 1061c</button>
+          </div>
+
+          <!-- Recipient selector: product -->
+          <div style="margin-top:4px; padding-top:16px; border-top:1px solid var(--line);" data-recip-ctx="product">
+            <div style="font-size:0.65rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Send to</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <button class="sched-toggle-btn recip-toggle active" data-val="all"      onclick="selectRecipientType('product',this)">All subscribers</button>
+              <button class="sched-toggle-btn recip-toggle"        data-val="custom"   onclick="selectRecipientType('product',this)">Custom email</button>
+              <button class="sched-toggle-btn recip-toggle"        data-val="selected" onclick="selectRecipientType('product',this)">From database</button>
+            </div>
+            <div class="recip-custom" style="display:none; margin-bottom:10px;">
+              <input class="sched-input" type="email" id="recip-custom-product" placeholder="someone@example.com" style="width:100%;" />
+            </div>
+            <div class="recip-db" style="display:none; border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-bottom:10px;"></div>
+          </div>
+
+          <button id="btn-product" class="btn-secondary" onclick="sendProductEmail()" disabled style="opacity:0.4;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send spotlight
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared log -->
+      <div id="briefing-log" style="display:none; margin-top:20px; max-width:860px; padding:16px 20px; background:var(--bg); border:1px solid var(--line); border-radius:10px; font-size:0.82rem; color:var(--muted); white-space:pre-wrap; line-height:1.6;"></div>
+    </div>
+
+    <!-- ── Scheduled Emails view ── -->
+    <div id="view-schedule" style="display:none;">
+      <div class="page-header">
+        <h1>Scheduled Emails</h1>
+        <p>Automate briefings and product spotlights on a recurring or one-time schedule.</p>
+      </div>
+
+      <!-- Create schedule card -->
+      <div style="max-width:860px; margin-bottom:24px;">
+        <div class="table-card" style="padding:28px 32px;">
+          <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:20px;">Create Schedule</div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+
+            <!-- Left: label + type + product -->
+            <div>
+              <div class="field">
+                <label>Label</label>
+                <input class="sched-input" type="text" id="sched-label" placeholder="e.g. Daily morning briefing" style="width:100%;" autocomplete="off" />
+              </div>
+
+              <div class="field">
+                <label>Email type</label>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button class="sched-toggle-btn active" data-val="briefing" onclick="selectSchedType(this)">Morning Briefing</button>
+                  <button class="sched-toggle-btn" data-val="product" onclick="selectSchedType(this)">Product Spotlight</button>
+                </div>
+              </div>
+
+              <div id="sched-product-section" style="display:none;">
+                <div class="field">
+                  <label style="margin-bottom:6px;">Devices</label>
+                  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+                    <button class="prod-btn" data-key="watch"     onclick="selectSchedProduct(this)">Watch</button>
+                    <button class="prod-btn" data-key="glasses"   onclick="selectSchedProduct(this)">Glasses</button>
+                    <button class="prod-btn" data-key="assistant" onclick="selectSchedProduct(this)">Assistant</button>
+                    <button class="prod-btn" data-key="earbuds"   onclick="selectSchedProduct(this)">Earbuds</button>
+                    <button class="prod-btn" data-key="ring"      onclick="selectSchedProduct(this)">Ring</button>
+                    <button class="prod-btn" data-key="hub"       onclick="selectSchedProduct(this)">Hub</button>
+                  </div>
+                  <label style="margin-bottom:6px;">Planets</label>
+                  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+                    <button class="prod-btn" data-key="kepler-452b"  onclick="selectSchedProduct(this)">Kepler-452b</button>
+                    <button class="prod-btn" data-key="trappist-1e"  onclick="selectSchedProduct(this)">TRAPPIST-1e</button>
+                    <button class="prod-btn" data-key="gliese-667cc" onclick="selectSchedProduct(this)">Gliese 667Cc</button>
+                    <button class="prod-btn" data-key="hd-40307g"    onclick="selectSchedProduct(this)">HD 40307g</button>
+                    <button class="prod-btn" data-key="tau-ceti-e"   onclick="selectSchedProduct(this)">Tau Ceti e</button>
+                    <button class="prod-btn" data-key="wolf-1061c"   onclick="selectSchedProduct(this)">Wolf 1061c</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: frequency + time -->
+            <div>
+              <div class="field">
+                <label>Frequency</label>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button class="sched-toggle-btn active" data-val="daily"  onclick="selectFreq(this)">Daily</button>
+                  <button class="sched-toggle-btn"        data-val="weekly" onclick="selectFreq(this)">Weekly</button>
+                  <button class="sched-toggle-btn"        data-val="once"   onclick="selectFreq(this)">One-time</button>
+                </div>
+              </div>
+
+              <div id="sched-day-row" class="field" style="display:none;">
+                <label>Day of week</label>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <button class="sched-day-btn" data-val="0" onclick="selectDay(this)">Sun</button>
+                  <button class="sched-day-btn" data-val="1" onclick="selectDay(this)">Mon</button>
+                  <button class="sched-day-btn" data-val="2" onclick="selectDay(this)">Tue</button>
+                  <button class="sched-day-btn" data-val="3" onclick="selectDay(this)">Wed</button>
+                  <button class="sched-day-btn" data-val="4" onclick="selectDay(this)">Thu</button>
+                  <button class="sched-day-btn" data-val="5" onclick="selectDay(this)">Fri</button>
+                  <button class="sched-day-btn" data-val="6" onclick="selectDay(this)">Sat</button>
+                </div>
+              </div>
+
+              <div id="sched-time-row" class="field">
+                <label>Send at (local time)</label>
+                <input class="sched-input" type="time" id="sched-time" value="08:00" />
+              </div>
+
+              <div id="sched-datetime-row" class="field" style="display:none;">
+                <label>Send at (date + time, local)</label>
+                <input class="sched-input" type="datetime-local" id="sched-datetime" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Recipient selector: sched -->
+          <div style="margin-top:24px; padding-top:24px; border-top:1px solid var(--line);" data-recip-ctx="sched">
+            <div style="font-size:0.65rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Send to</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <button class="sched-toggle-btn recip-toggle active" data-val="all"      onclick="selectRecipientType('sched',this)">All subscribers</button>
+              <button class="sched-toggle-btn recip-toggle"        data-val="custom"   onclick="selectRecipientType('sched',this)">Custom email</button>
+              <button class="sched-toggle-btn recip-toggle"        data-val="selected" onclick="selectRecipientType('sched',this)">From database</button>
+            </div>
+            <div class="recip-custom" style="display:none; margin-bottom:10px;">
+              <input class="sched-input" type="email" id="recip-custom-sched" placeholder="someone@example.com" style="width:100%;" />
+            </div>
+            <div class="recip-db" style="display:none; border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-bottom:10px;"></div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <button id="btn-add-schedule" class="btn-primary" onclick="createSchedule()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Add schedule
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Schedules table -->
+      <div class="table-card" style="max-width:860px;">
+        <div class="table-header">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <h2>Active Schedules</h2>
+            <span class="count" id="sched-count">—</span>
+          </div>
+          <button class="refresh-btn" onclick="loadSchedules()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Label</th>
+              <th>Type</th>
+              <th>Frequency</th>
+              <th>Recipients</th>
+              <th>Next run</th>
+              <th>Last run</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="sched-tbody">
+            <tr class="state-row"><td colspan="8">Navigate here to load schedules.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+  var SESSION_KEY = 'dashboard_auth';
+
+  function handleLogin(e) {
+    e.preventDefault();
+    var u = document.getElementById('loginUser').value.trim();
+    var p = document.getElementById('loginPass').value;
+    var btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true;
+    fetch('http://localhost:3001/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p }),
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(r) {
+        if (r.ok) {
+          sessionStorage.setItem(SESSION_KEY, '1');
+          showDashboard();
+        } else {
+          document.getElementById('loginError').style.display = 'block';
+          btn.disabled = false;
+        }
+      })
+      .catch(function() {
+        document.getElementById('loginError').textContent = 'Could not reach server.';
+        document.getElementById('loginError').style.display = 'block';
+        btn.disabled = false;
+      });
+  }
+
+  function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashShell').style.display  = 'flex';
+  }
+
+  // Auto-login if session still active
+  if (sessionStorage.getItem(SESSION_KEY) === '1') { showDashboard(); }
+</script>
+
+<script type="module">
+  function formatDate(iso) {
+    if (!iso) return '<span class="td-muted">—</span>';
+    const d = new Date(iso);
+    return `<span class="td-muted">${d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}</span>`;
+  }
+
+  window.loadData = async function () {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '<tr class="state-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr>';
+
+    let data;
+    try {
+      const res = await fetch('http://localhost:3001/submissions');
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+      data = json.data;
+    } catch (err) {
+      tbody.innerHTML = `<tr class="state-row"><td colspan="6" style="color:var(--red);">Error: ${err.message}</td></tr>`;
+      return;
+    }
+
+    // Stats
+    const total       = data.length;
+    const subscribed  = data.filter(r => r.subscribed).length;
+    const emailed     = data.filter(r => r.last_emailed_at).length;
+
+    document.getElementById('stat-total').textContent        = total;
+    document.getElementById('stat-subscribed').textContent   = subscribed;
+    document.getElementById('stat-unsubscribed').textContent = total - subscribed;
+    document.getElementById('stat-emailed').textContent      = emailed;
+    document.getElementById('table-count').textContent       = `${total} row${total !== 1 ? 's' : ''}`;
+
+    if (total === 0) {
+      tbody.innerHTML = '<tr class="state-row"><td colspan="6">No submissions yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.map(r => `
+      <tr>
+        <td style="font-weight:600;">${r.name ?? '—'}</td>
+        <td class="td-muted">${r.email ?? '—'}</td>
+        <td class="td-message" title="${(r.message ?? '').replace(/"/g,'&quot;')}">${r.message ?? '—'}</td>
+        <td>
+          ${r.subscribed
+            ? '<span class="badge badge-yes"><span class="badge-dot"></span>Yes</span>'
+            : '<span class="badge badge-no"><span class="badge-dot"></span>No</span>'}
+        </td>
+        <td>${formatDate(r.last_emailed_at)}</td>
+        <td>${formatDate(r.created_at)}</td>
+      </tr>
+    `).join('');
+  };
+
+  loadData();
+
+  // ── View switching ────────────────────────────────────────────────────────
+  window.showView = function(view) {
+    ['overview','compose','saved','briefing','schedule'].forEach(v => {
+      document.getElementById(`view-${v}`).style.display = v === view ? 'block' : 'none';
+      const nav = document.getElementById(`nav-${v}`);
+      if (nav) nav.classList.toggle('active', v === view);
+    });
+    if (view === 'saved')    loadNewsletters();
+    if (view === 'schedule') loadSchedules();
+  };
+
+  // ── Morning Briefing ──────────────────────────────────────────────────────
+  var selectedProduct = null;
+
+  window.selectProduct = function(btn) {
+    document.querySelectorAll('.prod-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedProduct = btn.dataset.key;
+    var sendBtn = document.getElementById('btn-product');
+    sendBtn.disabled = false;
+    sendBtn.style.opacity = '1';
+  };
+
+  window.sendProductEmail = async function() {
+    if (!selectedProduct) return;
+    const recip = getRecipientPayload('product');
+    if (!recip) {
+      if (recipientState.product.type === 'custom')   { showToast('Enter a recipient email.', 'error'); return; }
+      if (recipientState.product.type === 'selected') { showToast('Select at least one subscriber.', 'error'); return; }
+    }
+
+    const btn = document.getElementById('btn-product');
+    const log = document.getElementById('briefing-log');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span>Generating…';
+    log.style.display = 'none';
+
+    try {
+      const r = await fetch('http://localhost:3001/briefing/product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product: selectedProduct, ...recip }),
+      });
+      const json = await r.json();
+      log.style.display = 'block';
+      if (json.ok) {
+        log.style.color = 'var(--green)';
+        log.textContent = json.output || 'Product spotlight sent!';
+        showToast('Product spotlight sent!', 'success');
+      } else {
+        log.style.color = 'var(--red)';
+        log.textContent = json.error || 'Something went wrong.';
+        showToast('Failed to send.', 'error');
+      }
+    } catch (e) {
+      log.style.display = 'block';
+      log.style.color = 'var(--red)';
+      log.textContent = 'Could not reach server: ' + e.message;
+      showToast('Server error.', 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send spotlight`;
+  };
+
+  window.sendBriefing = async function() {
+    const recip = getRecipientPayload('briefing');
+    if (!recip) {
+      if (recipientState.briefing.type === 'custom')   { showToast('Enter a recipient email.', 'error'); return; }
+      if (recipientState.briefing.type === 'selected') { showToast('Select at least one subscriber.', 'error'); return; }
+    }
+
+    const btn = document.getElementById('btn-briefing');
+    const log = document.getElementById('briefing-log');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span>Generating &amp; sending…';
+    log.style.display = 'none';
+
+    try {
+      const r = await fetch('http://localhost:3001/briefing/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(recip),
+      });
+      const json = await r.json();
+      log.style.display = 'block';
+      if (json.ok) {
+        log.style.color = 'var(--green)';
+        log.textContent = json.output || 'Briefing sent successfully.';
+        showToast('Morning briefing sent!', 'success');
+      } else {
+        log.style.color = 'var(--red)';
+        log.textContent = json.error || 'Something went wrong.';
+        showToast('Failed to send briefing.', 'error');
+      }
+    } catch (e) {
+      log.style.display = 'block';
+      log.style.color = 'var(--red)';
+      log.textContent = 'Could not reach server: ' + e.message;
+      showToast('Server error.', 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send now`;
+  };
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => { t.className = 'toast'; }, 3500);
+  }
+
+  // ── Save newsletter ───────────────────────────────────────────────────────
+  window.saveNewsletter = async function(andSend = false) {
+    const subject      = document.getElementById('nl-subject').value.trim();
+    const preview_text = document.getElementById('nl-preview').value.trim();
+    const body         = document.getElementById('nl-body').innerHTML.trim();
+
+    if (!subject || !body) { showToast('Subject and body are required.', 'error'); return; }
+    if (andSend) {
+      if (recipientState.newsletter.type === 'custom' && !document.getElementById('recip-custom-newsletter').value.trim())
+        { showToast('Enter a recipient email.', 'error'); return; }
+      if (recipientState.newsletter.type === 'selected' && !recipientState.newsletter.emails.length)
+        { showToast('Select at least one subscriber.', 'error'); return; }
+    }
+
+    const btnDraft  = document.getElementById('btn-save-draft');
+    const btnSend   = document.getElementById('btn-save-send');
+    const origDraft = btnDraft.innerHTML;
+    const origSend  = btnSend.innerHTML;
+
+    btnDraft.disabled = true;
+    btnSend.disabled  = true;
+    if (andSend) {
+      btnSend.innerHTML = '<span class="btn-spinner"></span>Sending…';
+    } else {
+      btnDraft.innerHTML = '<span class="btn-spinner btn-spinner-dark"></span>Saving…';
+    }
+
+    try {
+      const res  = await fetch('http://localhost:3001/newsletters', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject, preview_text, body }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+
+      if (andSend) {
+        const recip = getRecipientPayload('newsletter') || { recipient_type: 'all' };
+        const sr = await fetch(`http://localhost:3001/newsletters/${json.data.id}/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(recip),
+        });
+        const sj = await sr.json();
+        showToast(`Sent to ${sj.sent} subscriber${sj.sent !== 1 ? 's' : ''}.`);
+      } else {
+        showToast('Draft saved.');
+      }
+
+      document.getElementById('nl-subject').value   = '';
+      document.getElementById('nl-preview').value   = '';
+      document.getElementById('nl-body').innerHTML  = '';
+      showView('saved');
+    } catch (err) {
+      showToast(err.message, 'error');
+      btnDraft.innerHTML = origDraft;
+      btnSend.innerHTML  = origSend;
+      btnDraft.disabled  = false;
+      btnSend.disabled   = false;
+    }
+  };
+
+  window.saveAndSend = () => saveNewsletter(true);
+
+  // ── Groq AI email generation ───────────────────────────────────────────────
+  window.generateEmail = async function() {
+    const prompt = document.getElementById('ai-prompt').value.trim();
+    if (!prompt) { showToast('Enter a prompt first.', 'error'); return; }
+    const btn    = document.getElementById('btn-generate');
+    const status = document.getElementById('gen-status');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner btn-spinner-dark"></span>Generating…';
+    status.textContent = '';
+    try {
+      const r = await fetch('http://localhost:3001/newsletters/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error);
+      if (j.subject)      document.getElementById('nl-subject').value  = j.subject;
+      if (j.preview_text) document.getElementById('nl-preview').value  = j.preview_text;
+      if (j.html)         document.getElementById('nl-body').innerHTML = j.html;
+      status.textContent = 'Draft ready — edit above.';
+      status.style.color = 'var(--green, #4caf50)';
+      showToast('Email generated.');
+    } catch (e) {
+      status.textContent = e.message;
+      status.style.color = 'var(--red, #f44336)';
+      showToast(e.message, 'error');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate';
+  };
+
+  // ── Email preview toggle ───────────────────────────────────────────────────
+  var _isPreviewMode = false;
+  window.togglePreview = function() {
+    _isPreviewMode = !_isPreviewMode;
+    const panel      = document.getElementById('nl-preview-panel');
+    const frame      = document.getElementById('nl-preview-frame');
+    const toggleBtn  = document.getElementById('btn-preview-toggle');
+    if (_isPreviewMode) {
+      frame.innerHTML = document.getElementById('nl-body').innerHTML;
+      panel.style.display = 'block';
+      toggleBtn.style.color        = 'var(--accent)';
+      toggleBtn.style.borderColor  = 'var(--accent)';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      panel.style.display = 'none';
+      toggleBtn.style.color       = '';
+      toggleBtn.style.borderColor = '';
+    }
+  };
+
+  // ── Send existing newsletter ──────────────────────────────────────────────
+  window.sendNewsletter = async function(id, btn) {
+    const origHTML  = btn.innerHTML;
+    btn.disabled    = true;
+    btn.innerHTML   = '<span class="btn-spinner"></span>Sending…';
+    try {
+      const res = await fetch(`http://localhost:3001/newsletters/${id}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient_type: 'all' }),
+      });
+      const json = await res.json();
+      showToast(`Sent to ${json.sent} subscriber${json.sent !== 1 ? 's' : ''}.`);
+      loadNewsletters();
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.disabled  = false;
+      btn.innerHTML = origHTML;
+    }
+  };
+
+  // ── Load saved newsletters ────────────────────────────────────────────────
+  async function loadNewsletters() {
+    const container = document.getElementById('nl-list');
+    container.innerHTML = '<p class="nl-empty">Loading…</p>';
+    try {
+      const res  = await fetch('http://localhost:3001/newsletters');
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+
+      if (!json.data.length) {
+        container.innerHTML = '<p class="nl-empty">No newsletters saved yet.</p>';
+        return;
+      }
+
+      container.innerHTML = json.data.map(nl => `
+        <div class="nl-card">
+          <div class="nl-card-info">
+            <h3>${nl.subject}</h3>
+            <p>${nl.preview_text || 'No preview text'} &nbsp;·&nbsp; ${formatDate2(nl.created_at)}</p>
+          </div>
+          <div class="nl-card-actions">
+            ${nl.sent_at
+              ? `<span class="nl-badge-sent"><span style="width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block;"></span>Sent ${formatDate2(nl.sent_at)}</span>`
+              : `<button class="btn-secondary" style="padding:8px 16px;font-size:0.82rem;" onclick="sendNewsletter('${nl.id}', this)">Send</button>`}
+          </div>
+        </div>
+      `).join('');
+    } catch (err) {
+      // Table not created yet — show friendly empty state
+      container.innerHTML = `
+        <div class="nl-empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" style="color:var(--faint);margin-bottom:14px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <p style="font-weight:600;color:var(--muted);margin-bottom:6px;">No newsletters yet</p>
+          <p style="font-size:0.82rem;">Create your first one using <a onclick="showView('compose')" style="color:var(--accent);cursor:pointer;">New newsletter</a>.</p>
+        </div>`;
+    }
+  }
+
+  // ── Rich editor helpers ───────────────────────────────────────────────────
+  window.execCmd = function(cmd, value = null) {
+    document.getElementById('nl-body').focus();
+    document.execCommand(cmd, false, value);
+  };
+
+  window.insertLink = function() {
+    const url = prompt('Enter URL:');
+    if (url) execCmd('createLink', url);
+  };
+
+  window.insertImage = function() {
+    const url = prompt('Enter image URL:');
+    if (url) execCmd('insertImage', url);
+  };
+
+  window.handleTab = function(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      execCmd('insertHTML', '&nbsp;&nbsp;&nbsp;&nbsp;');
+    }
+  };
+
+  function formatDate2(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  // ── Recipient selection ───────────────────────────────────────────────────────
+
+  var recipientState = {
+    briefing:   { type: 'all', emails: [] },
+    product:    { type: 'all', emails: [] },
+    sched:      { type: 'all', emails: [] },
+    newsletter: { type: 'all', emails: [] },
+  };
+
+  window.selectRecipientType = function(ctx, btn) {
+    const container = btn.closest(`[data-recip-ctx="${ctx}"]`);
+    container.querySelectorAll('.recip-toggle').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    recipientState[ctx].type   = btn.dataset.val;
+    recipientState[ctx].emails = [];
+    container.querySelector('.recip-custom').style.display = btn.dataset.val === 'custom'   ? '' : 'none';
+    const dbEl = container.querySelector('.recip-db');
+    dbEl.style.display = btn.dataset.val === 'selected' ? '' : 'none';
+    if (btn.dataset.val === 'selected') loadDbSubscribers(ctx, dbEl);
+  };
+
+  // Subscriber cache and active filter per context
+  var dbCache        = { briefing: null, product: null, sched: null, newsletter: null };
+  var dbActiveFilter = { briefing: 'week', product: 'week', sched: 'week', newsletter: 'week' };
+
+  function getFilteredSubs(ctx) {
+    const subs   = dbCache[ctx] || [];
+    const filter = dbActiveFilter[ctx];
+    const now    = new Date();
+
+    if (filter === 'today') {
+      const todayStr = now.toDateString();
+      return subs.filter(s => new Date(s.created_at).toDateString() === todayStr);
+    }
+    if (filter === 'week') {
+      const ws  = new Date(now);
+      const day = ws.getDay();
+      ws.setDate(ws.getDate() - (day === 0 ? 6 : day - 1)); // back to Monday
+      ws.setHours(0, 0, 0, 0);
+      return subs.filter(s => new Date(s.created_at) >= ws);
+    }
+    if (filter === 'month') {
+      return subs.filter(s => {
+        const d = new Date(s.created_at);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      });
+    }
+    return subs; // 'all'
+  }
+
+  function renderDbList(ctx, container) {
+    const f      = dbActiveFilter[ctx];
+    const items  = getFilteredSubs(ctx);
+    const labels = { today: 'Today', week: 'This week', month: 'This month', all: 'All time' };
+
+    const filterBar = `
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--line);">
+        ${['today','week','month','all'].map(k => `
+          <button class="db-filter-btn${k === f ? ' active' : ''}"
+                  onclick="applyDbFilter('${ctx}','${k}',this)">${labels[k]}</button>
+        `).join('')}
+      </div>`;
+
+    const rows = !items.length
+      ? `<p style="color:var(--muted);font-size:0.82rem;margin:6px 0;">No subscribers joined in this period.</p>`
+      : items.map(s => {
+          const dateStr = new Date(s.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+          return `
+            <label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:0.83rem;color:var(--text);">
+              <input type="checkbox" value="${s.email}"
+                     onchange="updateSelectedEmails('${ctx}', this.closest('.recip-db'))"
+                     style="accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;" />
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.email}</span>
+              ${s.name ? `<span style="color:var(--faint);font-size:0.74rem;flex-shrink:0;">${s.name}</span>` : ''}
+              <span style="color:var(--faint);font-size:0.73rem;flex-shrink:0;">${dateStr}</span>
+            </label>`;
+        }).join('');
+
+    container.innerHTML = filterBar + `<div style="max-height:110px;overflow-y:auto;">${rows}</div>`;
+  }
+
+  async function loadDbSubscribers(ctx, container) {
+    container.innerHTML = '<span style="color:var(--muted);font-size:0.82rem;">Loading…</span>';
+    try {
+      const r = await fetch('http://localhost:3001/submissions');
+      const j = await r.json();
+      dbCache[ctx] = (j.data || []).filter(s => s.subscribed);
+      renderDbList(ctx, container);
+    } catch (e) {
+      container.innerHTML = `<span style="color:var(--red);font-size:0.82rem;">Error: ${e.message}</span>`;
+    }
+  }
+
+  window.applyDbFilter = function(ctx, filter, btn) {
+    dbActiveFilter[ctx]        = filter;
+    recipientState[ctx].emails = []; // reset selection when filter changes
+    renderDbList(ctx, btn.closest('.recip-db'));
+  };
+
+  window.updateSelectedEmails = function(ctx, container) {
+    recipientState[ctx].emails = [...container.querySelectorAll('input:checked')].map(i => i.value);
+  };
+
+  function getRecipientPayload(ctx) {
+    const state = recipientState[ctx];
+    if (state.type === 'custom') {
+      const email = (document.getElementById(`recip-custom-${ctx}`) || {}).value?.trim();
+      if (!email) return null;
+      return { recipient_type: 'custom', recipient_emails: [email] };
+    }
+    if (state.type === 'selected') {
+      if (!state.emails.length) return null;
+      return { recipient_type: 'selected', recipient_emails: state.emails };
+    }
+    return { recipient_type: 'all' };
+  }
+
+  // ── Scheduled Emails ─────────────────────────────────────────────────────────
+
+  var schedType    = 'briefing';
+  var schedFreq    = 'daily';
+  var schedProduct = null;
+  var schedDay     = null;
+
+  window.selectSchedType = function(btn) {
+    document.querySelectorAll('.sched-toggle-btn[data-val="briefing"], .sched-toggle-btn[data-val="product"]')
+      .forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    schedType = btn.dataset.val;
+    document.getElementById('sched-product-section').style.display = schedType === 'product' ? 'block' : 'none';
+  };
+
+  window.selectFreq = function(btn) {
+    document.querySelectorAll('.sched-toggle-btn[data-val="daily"], .sched-toggle-btn[data-val="weekly"], .sched-toggle-btn[data-val="once"]')
+      .forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    schedFreq = btn.dataset.val;
+    document.getElementById('sched-day-row').style.display      = schedFreq === 'weekly' ? ''     : 'none';
+    document.getElementById('sched-time-row').style.display     = schedFreq === 'once'   ? 'none' : '';
+    document.getElementById('sched-datetime-row').style.display = schedFreq === 'once'   ? ''     : 'none';
+  };
+
+  window.selectSchedProduct = function(btn) {
+    document.querySelectorAll('#sched-product-section .prod-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    schedProduct = btn.dataset.key;
+  };
+
+  window.selectDay = function(btn) {
+    document.querySelectorAll('.sched-day-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    schedDay = parseInt(btn.dataset.val, 10);
+  };
+
+  window.createSchedule = async function() {
+    const label = document.getElementById('sched-label').value.trim();
+    if (!label)                                    { showToast('Enter a label.', 'error'); return; }
+    if (schedType === 'product' && !schedProduct)  { showToast('Select a product.', 'error'); return; }
+    if (schedFreq === 'weekly'  && schedDay === null) { showToast('Select a day of the week.', 'error'); return; }
+
+    const btn = document.getElementById('btn-add-schedule');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner btn-spinner-dark"></span>Creating…';
+
+    const recip = getRecipientPayload('sched');
+    if (!recip) {
+      if (recipientState.sched.type === 'custom')   { showToast('Enter a recipient email.', 'error'); btn.disabled = false; btn.innerHTML = restoreAddBtn(); return; }
+      if (recipientState.sched.type === 'selected') { showToast('Select at least one subscriber.', 'error'); btn.disabled = false; btn.innerHTML = restoreAddBtn(); return; }
+    }
+
+    const body = {
+      label,
+      type:            schedType,
+      product_key:     schedProduct,
+      schedule_type:   schedFreq,
+      recipient_type:  recip?.recipient_type  || 'all',
+      recipient_emails: recip?.recipient_emails || null,
+    };
+
+    if (schedFreq === 'once') {
+      const dt = document.getElementById('sched-datetime').value;
+      if (!dt) { showToast('Pick a date and time.', 'error'); btn.disabled = false; btn.innerHTML = restoreAddBtn(); return; }
+      body.run_once_at = new Date(dt).toISOString();
+    } else {
+      const [h, m] = document.getElementById('sched-time').value.split(':').map(Number);
+      body.send_hour   = h;
+      body.send_minute = m;
+      if (schedFreq === 'weekly') body.send_weekday = schedDay;
+    }
+
+    try {
+      const r = await fetch('http://localhost:3001/schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error);
+      showToast('Schedule created!', 'success');
+      document.getElementById('sched-label').value = '';
+      loadSchedules();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = restoreAddBtn();
+  };
+
+  function restoreAddBtn() {
+    return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Add schedule`;
+  }
+
+  window.deleteSchedule = async function(id, btn) {
+    btn.disabled    = true;
+    btn.textContent = '…';
+    try {
+      const r = await fetch(`http://localhost:3001/schedules/${id}`, { method: 'DELETE' });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error);
+      showToast('Schedule removed.', 'success');
+      loadSchedules();
+    } catch (e) {
+      showToast(e.message, 'error');
+      btn.disabled    = false;
+      btn.textContent = 'Delete';
+    }
+  };
+
+  const SCHED_PRODUCTS = {
+    watch: 'Watch', glasses: 'Glasses', assistant: 'Assistant',
+    earbuds: 'Earbuds', ring: 'Ring', hub: 'Hub',
+    'kepler-452b': 'Kepler-452b', 'trappist-1e': 'TRAPPIST-1e',
+    'gliese-667cc': 'Gliese 667Cc', 'hd-40307g': 'HD 40307g',
+    'tau-ceti-e': 'Tau Ceti e', 'wolf-1061c': 'Wolf 1061c',
+  };
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  window.loadSchedules = async function() {
+    const tbody = document.getElementById('sched-tbody');
+    tbody.innerHTML = '<tr class="state-row"><td colspan="8"><span class="spinner"></span> Loading…</td></tr>';
+
+    try {
+      const r = await fetch('http://localhost:3001/schedules');
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error);
+
+      const data = j.data;
+      document.getElementById('sched-count').textContent = `${data.length} schedule${data.length !== 1 ? 's' : ''}`;
+
+      if (!data.length) {
+        tbody.innerHTML = '<tr class="state-row"><td colspan="8">No schedules yet. Create one above.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(s => {
+        const typeLabel = s.type === 'product'
+          ? `${SCHED_PRODUCTS[s.product_key] || s.product_key} spotlight`
+          : 'Morning Briefing';
+
+        let freqLabel;
+        const hh = String(s.send_hour   ?? 8).padStart(2, '0');
+        const mm = String(s.send_minute ?? 0).padStart(2, '0');
+        if      (s.schedule_type === 'once')   freqLabel = 'One-time';
+        else if (s.schedule_type === 'daily')  freqLabel = `Daily at ${hh}:${mm}`;
+        else                                   freqLabel = `${DAYS[s.send_weekday]} at ${hh}:${mm}`;
+
+        const fmt    = iso => iso ? new Date(iso).toLocaleString() : '—';
+        const status = s.is_active
+          ? '<span class="badge badge-yes"><span class="badge-dot"></span>Active</span>'
+          : '<span class="badge badge-no"><span class="badge-dot"></span>Done</span>';
+
+        const recipLabel = s.recipient_type === 'all'
+          ? 'All subscribers'
+          : s.recipient_type === 'custom' || s.recipient_type === 'selected'
+            ? (s.recipient_emails || []).join(', ') || s.recipient_type
+            : 'Default';
+
+        return `
+          <tr>
+            <td style="font-weight:600;">${s.label}</td>
+            <td class="td-muted">${typeLabel}</td>
+            <td class="td-muted">${freqLabel}</td>
+            <td class="td-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${recipLabel}">${recipLabel}</td>
+            <td class="td-muted">${fmt(s.next_run)}</td>
+            <td class="td-muted">${s.last_run ? fmt(s.last_run) : 'Never'}</td>
+            <td>${status}</td>
+            <td><button class="sched-del-btn" onclick="deleteSchedule('${s.id}', this)">Delete</button></td>
+          </tr>`;
+      }).join('');
+    } catch (e) {
+      const isNoTable = e.message.includes('schema cache') || e.message.includes('relation') || e.message.includes('does not exist');
+      tbody.innerHTML = isNoTable
+        ? '<tr class="state-row"><td colspan="8">No active schedules.</td></tr>'
+        : `<tr class="state-row"><td colspan="8" style="color:var(--red);">Error: ${e.message}</td></tr>`;
+      document.getElementById('sched-count').textContent = '0 schedules';
+    }
+  };
+</script>
+</body>
+</html>

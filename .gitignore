@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+morning-briefing/node_modules/
+
+# Credentials - never commit
+.env
+morning-briefing/.env
+
+# Dev scripts (contain hardcoded keys or are local-only tools)
+scripts/
+
+# Claude AI dev instructions
+CLAUDE.md
+
+# Local dev docs
+docs/
+
+# Local backups
+backup/
+
+# Test infrastructure
+tests/
+test-results/
+playwright.config.mjs
+
+# Dev screenshots
+temporary_screenshots/
+
+# Log files
+*.log
+
+# Internal documents
+*.docx
