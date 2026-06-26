@@ -118,12 +118,12 @@
       font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
       color: rgba(192,82,74,0.55);
     }
-    .ph-photo-inner {
-      width: 100%; height: 100%; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 10px;
+    .ph-photo img {
+      width: 100%; height: 100%; object-fit: cover; object-position: top center;
+      display: block; filter: grayscale(1) contrast(1.08) brightness(0.95);
+      transition: filter 0.5s;
     }
-    .ph-initials { font-size: 5rem; font-weight: 700; letter-spacing: -0.05em; color: rgba(192,82,74,0.20); line-height: 1; }
-    .ph-label { font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(192,82,74,0.40); }
+    .ph-photo:hover img { filter: grayscale(0.6) contrast(1.1) brightness(0.95); }
     .ph-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid rgba(192,82,74,0.22); }
     .ph-stat { padding: 14px 16px; background: var(--bg-card); transition: background 0.25s; }
     .ph-stat:hover { background: var(--accent-lo); }
@@ -355,7 +355,7 @@
 
   <!-- NAV -->
   <header class="nav" id="nav">
-    <a href="../index.html" class="brand">
+    <a href="resume.html" class="brand">
       <svg class="brand-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="splatter logo">
         <path d="M17 7 C21 6 25 9 25 13 C26 15 27 18 24 20 C22 23 18 25 15 24 C12 25 8 22 8 19 C6 16 6 13 9 11 C11 8 14 8 17 7 Z" fill="#c0524a"/>
         <path d="M24 10 L28 7" stroke="#c0524a" stroke-width="1.8" stroke-linecap="round"/>
@@ -366,14 +366,6 @@
       </svg>
       m.linugo
     </a>
-    <nav class="nav-links">
-      <a href="../index.html">home</a>
-      <a href="../about.html">about</a>
-      <a href="M.linugo_resume.pdf" download class="nav-download">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 3v13M5 14l7 7 7-7"/><path d="M3 21h18"/></svg>
-        Download_PDF
-      </a>
-    </nav>
   </header>
 
   <main>
@@ -386,10 +378,7 @@
           <!-- LEFT: photo + stats -->
           <div class="ph-left">
             <div class="ph-photo">
-              <div class="ph-photo-inner">
-                <span class="ph-initials">ML</span>
-                <span class="ph-label">// profile</span>
-              </div>
+              <img src="../a4e8bf59-06cb-47d8-af9e-c58ebac479ce.jpg" alt="Makki Leonard Linugo" />
             </div>
             <div class="ph-stats">
               <div class="ph-stat"><div class="ph-stat-n">5+</div><div class="ph-stat-l">Yrs_Exp</div></div>
@@ -658,11 +647,6 @@
 
   <footer>
     <p>&copy; 2026 Makki Leonard Linugo &mdash; m.linugo</p>
-    <div style="display:flex;gap:20px;">
-      <a href="../index.html">home</a>
-      <a href="../about.html">about</a>
-      <a href="M.linugo_resume.pdf" download>download_pdf</a>
-    </div>
   </footer>
 
   <script>
