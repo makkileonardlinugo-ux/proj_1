@@ -38,8 +38,15 @@ temporary_screenshots/
 # Generated HTML artifacts
 images/generated/
 
-# Video reels (too large for GitHub)
-videos/reels/
+# Video reel raw frames (too large for GitHub — mp4 files are fine)
+videos/reels/anything/
+videos/reels/dashboard/
+videos/reels/index/
+videos/reels/moodboard/
+videos/reels/product/
+videos/reels/sight/
+videos/reels/trendfinder/
+videos/reels/youtube/
 
 # Server output logs
 serve-err.txt
