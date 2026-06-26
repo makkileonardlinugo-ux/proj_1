@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume / Makki Leonard Linugo</title>
+  <link rel="icon" href="../brand_assets/nano-banana-icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #000;
+      --bg-elev:   #0a0a0a;
+      --bg-card:   #111;
+      --line:      rgba(255,255,255,0.09);
+      --line-hi:   rgba(255,255,255,0.28);
+      --text:      #fff;
+      --muted:     #888;
+      --faint:     #444;
+      --accent:    #c0524a;
+      --accent-hi: #d4635c;
+      --accent-lo: rgba(192,82,74,0.14);
+      --mono:      "Space Mono", "Courier New", monospace;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--accent); color: #fff; }
+
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    body::after {
+      content: "";
+      position: fixed; top: -120px; right: -120px; z-index: 0; pointer-events: none;
+      width: 520px; height: 520px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(192,82,74,0.06) 0%, transparent 70%);
+    }
+    main, header, footer, section { position: relative; z-index: 1; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 28px; }
+
+    /* ---------- NAV ---------- */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 28px;
+      transition: background 0.4s, border-color 0.4s, padding 0.4s;
+      border-bottom: 1px solid transparent;
+    }
+    .nav.scrolled {
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 28px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-weight: 700; font-size: 0.95rem;
+      letter-spacing: 0.04em; color: var(--text); text-decoration: none;
+    }
+    .brand-logo { display: block; flex-shrink: 0; width: 22px; height: 22px; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.82rem; font-weight: 400;
+      letter-spacing: 0.06em; position: relative; transition: color 0.25s;
+    }
+    .nav-links a::after {
+      content: ""; position: absolute; left: 0; bottom: -4px; height: 1px; width: 0;
+      background: var(--accent); transition: width 0.3s cubic-bezier(.16,1,.3,1);
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+    .nav-download {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 16px; border: 1px solid var(--line-hi);
+      color: #fff; font-family: var(--mono); font-size: 0.8rem;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.25s, border-color 0.25s, color 0.25s;
+    }
+    .nav-download:hover { background: var(--accent-lo); border-color: var(--accent); color: var(--accent); }
+    .nav-download::after { display: none !important; }
+
+    /* ---------- PAGE HEADER ---------- */
+    .page-header { border-bottom: 1px solid var(--line); }
+    .page-header-inner {
+      display: grid; grid-template-columns: 240px 1fr; gap: 60px;
+      align-items: start; padding: 140px 0 64px;
+    }
+
+    /* Photo + stats column */
+    .ph-left { display: flex; flex-direction: column; gap: 16px; }
+    .ph-photo {
+      width: 100%; aspect-ratio: 3/4; position: relative;
+      border: 1px solid rgba(192,82,74,0.35); overflow: hidden;
+      background: var(--bg-card);
+    }
+    .ph-photo::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+      background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.55));
+    }
+    .ph-photo::before {
+      content: 'CAM_PROFILE'; position: absolute; top: 9px; left: 11px; z-index: 3;
+      font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(192,82,74,0.55);
+    }
+    .ph-photo-inner {
+      width: 100%; height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px;
+    }
+    .ph-initials { font-size: 5rem; font-weight: 700; letter-spacing: -0.05em; color: rgba(192,82,74,0.20); line-height: 1; }
+    .ph-label { font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(192,82,74,0.40); }
+    .ph-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid rgba(192,82,74,0.22); }
+    .ph-stat { padding: 14px 16px; background: var(--bg-card); transition: background 0.25s; }
+    .ph-stat:hover { background: var(--accent-lo); }
+    .ph-stat-n { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--accent); }
+    .ph-stat-l { font-size: 0.6rem; color: var(--faint); letter-spacing: 0.16em; text-transform: uppercase; margin-top: 4px; }
+
+    /* Right column */
+    .ph-right { padding-top: 24px; }
+
+    @media (max-width: 760px) {
+      .page-header-inner {
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding-top: 100px;
+        padding-bottom: 48px;
+      }
+
+      /* Photo: full-width, shorter portrait, centered */
+      .ph-left {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        align-items: start;
+        margin-bottom: 32px;
+      }
+      .ph-photo {
+        aspect-ratio: 3/4;
+        width: 100%;
+        border-radius: 0;
+      }
+      .ph-stats {
+        align-self: stretch;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 1fr);
+        gap: 1px;
+        height: 100%;
+      }
+      .ph-stat { padding: 12px 14px; }
+      .ph-stat-n { font-size: 1.2rem; }
+
+      /* Right: center text on mobile */
+      .ph-right { padding-top: 0; }
+      .page-boot { justify-content: flex-start; }
+      .page-name { font-size: clamp(2.4rem, 10vw, 4rem); }
+      .page-actions { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .btn-dl, .btn-back { width: 100%; justify-content: center; }
+    }
+    .page-boot {
+      font-size: 0.72rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .page-boot::before { content: ">"; color: var(--accent); }
+    .page-name {
+      font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 700;
+      line-height: 0.92; letter-spacing: -0.03em; text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .page-name .ln2 { display: block; color: var(--muted); font-weight: 400; }
+    .page-cursor {
+      display: inline-block; width: 0.55em; height: 0.82em;
+      background: var(--accent); margin-left: 4px; vertical-align: text-bottom;
+      animation: blink 1.1s step-end infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .page-role {
+      font-size: 0.8rem; color: var(--accent); letter-spacing: 0.10em;
+      text-transform: uppercase; font-style: italic; margin-bottom: 32px;
+    }
+    .page-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .btn-dl {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-weight: 700; font-size: 0.8rem;
+      padding: 11px 22px; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--accent); border: 1px solid var(--accent); color: #fff;
+      text-decoration: none;
+      transition: background 0.25s, border-color 0.25s, transform 0.3s;
+    }
+    .btn-dl:hover { background: var(--accent-hi); border-color: var(--accent-hi); transform: translateY(-1px); }
+    .btn-dl:active { transform: scale(0.97); }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 0.8rem; font-weight: 400;
+      color: var(--muted); text-decoration: none; letter-spacing: 0.06em;
+      transition: color 0.25s;
+    }
+    .btn-back:hover { color: var(--accent); }
+
+    /* ---------- SECTIONS ---------- */
+    section.block { padding: 88px 0; }
+    .divider { height: 1px; background: var(--line); }
+    .section-tag {
+      font-size: 0.68rem; letter-spacing: 0.26em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .section-tag::before { content: "//"; color: rgba(192,82,74,0.45); }
+    .section-title { font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; margin-bottom: 10px; line-height: 1.05; }
+    .section-sub { font-size: 0.85rem; color: var(--muted); max-width: 440px; margin-bottom: 52px; font-style: italic; }
+
+    /* ---------- TIMELINE (COLLAPSIBLE) ---------- */
+    .timeline { display: flex; flex-direction: column; position: relative; }
+    .timeline::before {
+      content: ""; position: absolute; left: 10px; top: 6px; bottom: 0; width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(192,82,74,0.4) 8%, rgba(192,82,74,0.4) 92%, transparent);
+    }
+    .tl-item {
+      display: grid; grid-template-columns: 36px 1fr; gap: 0 22px;
+      padding-bottom: 20px;
+      opacity: 0; transform: translateX(-10px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .tl-item.visible { opacity: 1; transform: translateX(0); }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-dot-col { display: flex; flex-direction: column; align-items: center; padding-top: 16px; }
+    .tl-dot {
+      width: 20px; height: 20px; border: 1px solid rgba(192,82,74,0.45);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      background: var(--bg); z-index: 1;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .tl-item:hover .tl-dot { border-color: var(--accent); background: var(--accent-lo); }
+    .tl-dot-inner { width: 6px; height: 6px; background: var(--accent); }
+    .tl-content { background: var(--bg-card); border: 1px solid var(--line); transition: border-color 0.25s; margin-bottom: 16px; }
+    .tl-content:has(.tl-toggle[aria-expanded="true"]) { border-color: rgba(192,82,74,0.50); }
+    .tl-toggle {
+      width: 100%; background: none; border: none; color: inherit;
+      font-family: var(--mono); cursor: pointer; text-align: left;
+      padding: 22px 26px; display: block; transition: background 0.2s;
+    }
+    .tl-toggle:hover { background: var(--accent-lo); }
+    .tl-toggle:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+    .tl-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+    .tl-role { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .tl-header-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .tl-date { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.12em; border: 1px solid var(--line); padding: 3px 10px; white-space: nowrap; font-style: italic; }
+    .toggle-icon { font-size: 0.82rem; color: var(--faint); font-family: var(--mono); transition: color 0.2s; }
+    .tl-toggle[aria-expanded="true"] .toggle-icon { color: var(--accent); }
+    .tl-toggle:hover .toggle-icon { color: var(--accent); }
+    .tl-company { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.10em; text-transform: uppercase; }
+    .tl-body { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+    .tl-body.open { max-height: 900px; }
+    .tl-body-inner { padding: 0 26px 22px; border-top: 1px solid var(--line); }
+    .tl-bullets { list-style: none; display: flex; flex-direction: column; gap: 6px; padding-top: 14px; }
+    .tl-bullets li { font-size: 0.82rem; color: var(--muted); padding-left: 16px; position: relative; line-height: 1.7; }
+    .tl-bullets li::before { content: "-"; position: absolute; left: 0; color: var(--accent); }
+
+    /* ---------- EDUCATION (COLLAPSIBLE) ---------- */
+    .edu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .edu-card { background: var(--bg-card); transition: background 0.25s; opacity: 0; transform: translateY(16px); }
+    .edu-card.visible { opacity: 1; transform: translateY(0); transition: opacity 0.5s ease, transform 0.5s ease, background 0.25s; }
+    .edu-card:hover { background: var(--accent-lo); }
+    .edu-toggle {
+      width: 100%; background: none; border: none; color: inherit;
+      font-family: var(--mono); cursor: pointer; text-align: left;
+      padding: 28px 26px 24px; display: block;
+    }
+    .edu-toggle:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+    .edu-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .edu-level { font-size: 0.65rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .edu-school { font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: -0.01em; line-height: 1.2; }
+    .edu-toggle .toggle-icon { margin-top: 3px; flex-shrink: 0; }
+    .edu-toggle[aria-expanded="true"] .toggle-icon { color: var(--accent); }
+    .edu-toggle:hover .toggle-icon { color: var(--accent); }
+    .edu-body { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .edu-body.open { max-height: 200px; }
+    .edu-body-inner { padding: 0 26px 26px; border-top: 1px solid var(--line); }
+    .edu-degree { font-size: 0.82rem; color: var(--muted); font-style: italic; padding-top: 14px; margin-bottom: 10px; }
+    .edu-year { font-size: 0.68rem; color: var(--accent); letter-spacing: 0.14em; }
+
+    /* ---------- SKILLS ---------- */
+    .skills-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 56px 72px; }
+    .skill-group-label { font-size: 0.68rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+    .skill-list { display: flex; flex-direction: column; gap: 20px; }
+    .skill-item { display: flex; flex-direction: column; gap: 8px; opacity: 0; transform: translateX(-8px); transition: opacity 0.4s ease, transform 0.4s ease; }
+    .skill-item.visible { opacity: 1; transform: translateX(0); }
+    .skill-label-row { display: flex; justify-content: space-between; font-size: 0.78rem; }
+    .skill-pct { color: var(--accent); font-style: italic; font-variant-numeric: tabular-nums; }
+    .skill-bar { height: 2px; background: rgba(192,82,74,0.18); position: relative; }
+    .skill-fill { height: 100%; width: 0; position: relative; overflow: visible; transition: width 1.1s cubic-bezier(0.16, 1, 0.3, 1); }
+    .skill-fill::before { content: ''; position: absolute; inset: 0; background: var(--accent); }
+    .skill-fill::after {
+      content: ''; position: absolute; right: -1px; top: -4px; bottom: -4px; width: 3px;
+      background: var(--accent);
+      box-shadow: 0 0 10px 3px rgba(192,82,74,0.9), 0 0 22px 7px rgba(192,82,74,0.45);
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .skill-fill.glowing::after { opacity: 1; }
+    .skill-fill.done::after { opacity: 0; transition: opacity 0.4s; }
+    @keyframes bar-flicker { 0% { opacity:1; } 15% { opacity:0.3; } 30% { opacity:1; } 55% { opacity:0.6; } 70% { opacity:1; } 85% { opacity:0.8; } 100% { opacity:1; } }
+    .skill-fill.flicker { animation: bar-flicker 0.5s ease forwards; }
+    @keyframes scan-sweep { 0% { left:-30px; opacity:0; } 10% { opacity:1; } 90% { opacity:1; } 100% { left:110%; opacity:0; } }
+    .skill-bar::after { content:''; position:absolute; top:-3px; left:-30px; bottom:-3px; width:30px; background:linear-gradient(90deg,transparent,rgba(192,82,74,0.7),transparent); pointer-events:none; opacity:0; }
+    .skill-bar.sweep::after { animation: scan-sweep 0.55s ease forwards; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill-tag {
+      padding: 6px 13px; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      border: 1px solid var(--line); color: var(--muted);
+      opacity: 0; transform: scale(0.88) translateY(6px);
+      transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.25s, color 0.25s, background 0.25s;
+    }
+    @keyframes tag-glitch { 0% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0 0% 0 0); } }
+    .skill-tag.visible { animation: tag-glitch 0.25s ease forwards; opacity: 1; transform: scale(1) translateY(0); }
+    .skill-tag:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lo); }
+
+    /* ---------- FOOTER ---------- */
+    footer {
+      border-top: 1px solid var(--line); padding: 28px 28px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    footer p { font-size: 0.72rem; color: var(--faint); letter-spacing: 0.08em; }
+    footer a {
+      color: var(--faint); text-decoration: none; font-size: 0.72rem;
+      letter-spacing: 0.08em; transition: color 0.2s;
+    }
+    footer a:hover { color: var(--accent); }
+
+    /* ---------- COMMON ---------- */
+    .fade-up { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 860px) {
+      .edu-grid { grid-template-columns: 1fr; }
+      .skills-layout { grid-template-columns: 1fr; gap: 40px; }
+      .nav-links a:not(.nav-download) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <a href="../index.html" class="brand">
+      <svg class="brand-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="splatter logo">
+        <path d="M17 7 C21 6 25 9 25 13 C26 15 27 18 24 20 C22 23 18 25 15 24 C12 25 8 22 8 19 C6 16 6 13 9 11 C11 8 14 8 17 7 Z" fill="#c0524a"/>
+        <path d="M24 10 L28 7" stroke="#c0524a" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M9 11 L6 7" stroke="#c0524a" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="29" cy="14" r="1.4" fill="#c0524a"/>
+        <circle cx="5" cy="20" r="1" fill="#c0524a"/>
+        <path d="M16 24 C15.5 25.5 15 28 16 31" stroke="#c0524a" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      m.linugo
+    </a>
+    <nav class="nav-links">
+      <a href="../index.html">home</a>
+      <a href="../about.html">about</a>
+      <a href="M.linugo_resume.pdf" download class="nav-download">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 3v13M5 14l7 7 7-7"/><path d="M3 21h18"/></svg>
+        Download_PDF
+      </a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="wrap">
+        <div class="page-header-inner">
+
+          <!-- LEFT: photo + stats -->
+          <div class="ph-left">
+            <div class="ph-photo">
+              <div class="ph-photo-inner">
+                <span class="ph-initials">ML</span>
+                <span class="ph-label">// profile</span>
+              </div>
+            </div>
+            <div class="ph-stats">
+              <div class="ph-stat"><div class="ph-stat-n">5+</div><div class="ph-stat-l">Yrs_Exp</div></div>
+              <div class="ph-stat"><div class="ph-stat-n">04</div><div class="ph-stat-l">Companies</div></div>
+              <div class="ph-stat"><div class="ph-stat-n">BA</div><div class="ph-stat-l">Psych</div></div>
+              <div class="ph-stat"><div class="ph-stat-n">ERP</div><div class="ph-stat-l">Certified</div></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: name, role, actions -->
+          <div class="ph-right">
+            <p class="page-boot">RESUME.EXE</p>
+            <h1 class="page-name">
+              Makki
+              <span class="ln2">Leonard</span>
+              Linugo<span class="page-cursor" aria-hidden="true"></span>
+            </h1>
+            <p class="page-role">Healthcare Advisor &nbsp;/&nbsp; Operations Specialist &nbsp;/&nbsp; Tech Enthusiast</p>
+            <div class="page-actions">
+              <a href="M.linugo_resume.pdf" download class="btn-dl">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M12 3v13M5 14l7 7 7-7"/><path d="M3 21h18"/></svg>
+                Download_Resume
+              </a>
+              <a href="../about.html" class="btn-back">&larr; back_to_portfolio</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <section class="block" id="experience">
+      <div class="wrap">
+        <p class="section-tag fade-up">01 CAREER_HISTORY</p>
+        <h2 class="section-title fade-up">Work_Experience</h2>
+        <p class="section-sub fade-up">Click any role to expand details.</p>
+
+        <div class="timeline">
+
+          <div class="tl-item">
+            <div class="tl-dot-col"><div class="tl-dot"><div class="tl-dot-inner"></div></div></div>
+            <div class="tl-content">
+              <button class="tl-toggle" aria-expanded="false" aria-controls="tl-body-1">
+                <div class="tl-header">
+                  <span class="tl-role">Advisor I - Healthcare</span>
+                  <div class="tl-header-right">
+                    <span class="tl-date">Jul 2024 - Mar 2026</span>
+                    <span class="toggle-icon" aria-hidden="true">[+]</span>
+                  </div>
+                </div>
+                <p class="tl-company">// Concentrix Corporation</p>
+              </button>
+              <div class="tl-body" id="tl-body-1" role="region">
+                <div class="tl-body-inner">
+                  <ul class="tl-bullets">
+                    <li>Delivered personalized support to members on healthcare inquiries, insurance benefits, claims, and coverage options.</li>
+                    <li>Guided members through complex policy details, ensuring clarity on plan eligibility and available services.</li>
+                    <li>Managed high-volume inbound calls with a professional, empathetic approach, achieving high member satisfaction scores.</li>
+                    <li>Coordinated with internal teams to escalate and resolve complex cases efficiently.</li>
+                    <li>Consistently met or exceeded targets for call handling time, accuracy, and customer satisfaction.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot-col"><div class="tl-dot"><div class="tl-dot-inner"></div></div></div>
+            <div class="tl-content">
+              <button class="tl-toggle" aria-expanded="false" aria-controls="tl-body-2">
+                <div class="tl-header">
+                  <span class="tl-role">Production Staff</span>
+                  <div class="tl-header-right">
+                    <span class="tl-date">Jul 2021 - May 2024</span>
+                    <span class="toggle-icon" aria-hidden="true">[+]</span>
+                  </div>
+                </div>
+                <p class="tl-company">// Philkostat</p>
+              </button>
+              <div class="tl-body" id="tl-body-2" role="region">
+                <div class="tl-body-inner">
+                  <ul class="tl-bullets">
+                    <li>Managed data entry and inventory records across multiple product categories using an Enterprise Resource Planning (ERP) system.</li>
+                    <li>Processed export documentation and registered shipping entries with high accuracy.</li>
+                    <li>Monitored and reconciled product lot numbers to ensure precise inventory tracking and disposition.</li>
+                    <li>Modified basic ERP configurations to streamline operational workflows and data management.</li>
+                    <li>Oversaw product packaging operations, verifying quality standards prior to shipment.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot-col"><div class="tl-dot"><div class="tl-dot-inner"></div></div></div>
+            <div class="tl-content">
+              <button class="tl-toggle" aria-expanded="false" aria-controls="tl-body-3">
+                <div class="tl-header">
+                  <span class="tl-role">Machine Operator</span>
+                  <div class="tl-header-right">
+                    <span class="tl-date">Jan 2021 - Jun 2021</span>
+                    <span class="toggle-icon" aria-hidden="true">[+]</span>
+                  </div>
+                </div>
+                <p class="tl-company">// Daiwa Seiko Philippines</p>
+              </button>
+              <div class="tl-body" id="tl-body-3" role="region">
+                <div class="tl-body-inner">
+                  <ul class="tl-bullets">
+                    <li>Operated precision machinery and used measuring instruments (calipers, gauges) to verify product specifications.</li>
+                    <li>Maintained strict quality and safety standards while collaborating with the team to optimize workflow.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot-col"><div class="tl-dot"><div class="tl-dot-inner"></div></div></div>
+            <div class="tl-content">
+              <button class="tl-toggle" aria-expanded="false" aria-controls="tl-body-4">
+                <div class="tl-header">
+                  <span class="tl-role">Production Operator</span>
+                  <div class="tl-header-right">
+                    <span class="tl-date">Jul 2020 - Dec 2020</span>
+                    <span class="toggle-icon" aria-hidden="true">[+]</span>
+                  </div>
+                </div>
+                <p class="tl-company">// Panasonic Philippines</p>
+              </button>
+              <div class="tl-body" id="tl-body-4" role="region">
+                <div class="tl-body-inner">
+                  <ul class="tl-bullets">
+                    <li>Assembled components on a production line, meeting quality standards and daily output targets.</li>
+                    <li>Trained new employees on assembly procedures and safety practices.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- EDUCATION -->
+    <section class="block" id="education">
+      <div class="wrap">
+        <p class="section-tag fade-up">02 ACADEMIC_BACKGROUND</p>
+        <h2 class="section-title fade-up">Education</h2>
+        <p class="section-sub fade-up">Click a school to expand details.</p>
+
+        <div class="edu-grid">
+          <div class="edu-card" style="transition-delay:0s">
+            <button class="edu-toggle" aria-expanded="false" aria-controls="edu-body-1">
+              <p class="edu-level">Tertiary Education</p>
+              <div class="edu-header-row">
+                <h3 class="edu-school">Trimex Colleges</h3>
+                <span class="toggle-icon" aria-hidden="true">[+]</span>
+              </div>
+            </button>
+            <div class="edu-body" id="edu-body-1" role="region">
+              <div class="edu-body-inner">
+                <p class="edu-degree">Bachelor of Arts in Psychology</p>
+                <p class="edu-year">2020 &ndash; 2024</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="edu-card" style="transition-delay:0.08s">
+            <button class="edu-toggle" aria-expanded="false" aria-controls="edu-body-2">
+              <p class="edu-level">Senior High School</p>
+              <div class="edu-header-row">
+                <h3 class="edu-school">Queen Anne School</h3>
+                <span class="toggle-icon" aria-hidden="true">[+]</span>
+              </div>
+            </button>
+            <div class="edu-body" id="edu-body-2" role="region">
+              <div class="edu-body-inner">
+                <p class="edu-degree">Senior High School Diploma</p>
+                <p class="edu-year">2017 &ndash; 2019</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="edu-card" style="transition-delay:0.16s">
+            <button class="edu-toggle" aria-expanded="false" aria-controls="edu-body-3">
+              <p class="edu-level">High School</p>
+              <div class="edu-header-row">
+                <h3 class="edu-school">Mary's Ville Academy</h3>
+                <span class="toggle-icon" aria-hidden="true">[+]</span>
+              </div>
+            </button>
+            <div class="edu-body" id="edu-body-3" role="region">
+              <div class="edu-body-inner">
+                <p class="edu-degree">High School Diploma</p>
+                <p class="edu-year">2014 &ndash; 2017</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SKILLS -->
+    <section class="block" id="skills">
+      <div class="wrap">
+        <p class="section-tag fade-up">03 CAPABILITIES</p>
+        <h2 class="section-title fade-up">Skills</h2>
+        <p class="section-sub fade-up">A versatile set of technical and professional abilities.</p>
+
+        <div class="skills-layout">
+          <div>
+            <p class="skill-group-label">// Technical_Proficiency</p>
+            <div class="skill-list">
+              <div class="skill-item">
+                <div class="skill-label-row"><span>Microsoft_Office</span><span class="skill-pct" data-target="88">0%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-width="88%"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-label-row"><span>ERP_Systems</span><span class="skill-pct" data-target="80">0%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-width="80%"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-label-row"><span>Python / HTML / CSS</span><span class="skill-pct" data-target="60">0%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-width="60%"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-label-row"><span>Photoshop / Video_Editing</span><span class="skill-pct" data-target="65">0%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-width="65%"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-label-row"><span>PC_Troubleshooting</span><span class="skill-pct" data-target="70">0%</span></div>
+                <div class="skill-bar"><div class="skill-fill" data-width="70%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="skill-group-label">// Professional_Strengths</p>
+            <div class="skill-tags" id="skill-tags">
+              <span class="skill-tag">Adaptability</span>
+              <span class="skill-tag">Critical_Thinking</span>
+              <span class="skill-tag">Perseverance</span>
+              <span class="skill-tag">Team_Collaboration</span>
+              <span class="skill-tag">Quality_Control</span>
+              <span class="skill-tag">Customer_Service</span>
+              <span class="skill-tag">Healthcare_Support</span>
+              <span class="skill-tag">Operations_Mgmt</span>
+              <span class="skill-tag">Process_Optimization</span>
+              <span class="skill-tag">Training &amp; Mentoring</span>
+              <span class="skill-tag">Attention_to_Detail</span>
+              <span class="skill-tag">Calm_Under_Pressure</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Makki Leonard Linugo &mdash; m.linugo</p>
+    <div style="display:flex;gap:20px;">
+      <a href="../index.html">home</a>
+      <a href="../about.html">about</a>
+      <a href="M.linugo_resume.pdf" download>download_pdf</a>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    function initToggle(selector) {
+      document.querySelectorAll(selector).forEach(btn => {
+        btn.addEventListener('click', () => {
+          const isOpen = btn.getAttribute('aria-expanded') === 'true';
+          const body   = document.getElementById(btn.getAttribute('aria-controls'));
+          const icon   = btn.querySelector('.toggle-icon');
+          btn.setAttribute('aria-expanded', String(!isOpen));
+          icon.textContent = isOpen ? '[+]' : '[-]';
+          if (isOpen) {
+            body.style.maxHeight = body.scrollHeight + 'px';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              body.style.maxHeight = '0';
+              body.classList.remove('open');
+            }));
+          } else {
+            body.classList.add('open');
+            body.style.maxHeight = body.scrollHeight + 'px';
+            body.addEventListener('transitionend', () => {
+              if (body.classList.contains('open')) body.style.maxHeight = '';
+            }, { once: true });
+          }
+        });
+      });
+    }
+    initToggle('.tl-toggle');
+    initToggle('.edu-toggle');
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.10 });
+    document.querySelectorAll('.fade-up, .tl-item, .edu-card').forEach(el => io.observe(el));
+
+    function animateBar(fill) {
+      const bar    = fill.parentElement;
+      const pct    = fill.closest('.skill-item').querySelector('.skill-pct');
+      const target = parseInt(pct ? pct.dataset.target : 0, 10);
+      const dur    = 1100;
+      const start  = performance.now();
+      fill.classList.add('glowing');
+      fill.style.width = fill.dataset.width;
+      function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        if (pct) pct.textContent = Math.round(eased * target) + '%';
+        if (p < 1) { requestAnimationFrame(tick); return; }
+        if (pct) pct.textContent = target + '%';
+        fill.classList.remove('glowing');
+        fill.classList.add('done');
+        setTimeout(() => { fill.classList.add('flicker'); bar.classList.add('sweep'); }, 80);
+        setTimeout(() => fill.classList.remove('flicker'), 600);
+        setTimeout(() => bar.classList.remove('sweep'), 700);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const skillIO = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('visible');
+        const fill = e.target.querySelector('.skill-fill[data-width]');
+        if (fill && !fill.dataset.animated) { fill.dataset.animated = '1'; animateBar(fill); }
+        skillIO.unobserve(e.target);
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('.skill-item').forEach((item, i) => {
+      item.style.transitionDelay = (i * 0.07) + 's';
+      skillIO.observe(item);
+    });
+
+    const tagContainer = document.getElementById('skill-tags');
+    const tagIO = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.querySelectorAll('.skill-tag').forEach((tag, i) => {
+          tag.style.animationDelay = (i * 0.055) + 's';
+          tag.style.transitionDelay = (i * 0.055) + 's';
+          setTimeout(() => tag.classList.add('visible'), i * 55);
+        });
+        tagIO.unobserve(e.target);
+      });
+    }, { threshold: 0.2 });
+    if (tagContainer) tagIO.observe(tagContainer);
+  </script>
+
+</body>
+</html>

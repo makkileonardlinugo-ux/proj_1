@@ -31,3 +31,37 @@ temporary_screenshots/
 
 # Internal documents
 *.docx
+
+# Claude Code internal sessions/config
+.claude/
+
+# Generated HTML artifacts
+images/generated/
+
+# Video reels (too large for GitHub)
+videos/reels/
+
+# Server output logs
+serve-err.txt
+serve-out.txt
+server-out.txt
+
+# Python dev scripts
+server.py
+trend_scraper.py
+requirements.txt
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Google OAuth credentials and tokens (sensitive)
+client_secret*.json
+token.json
+
+# Server error logs
+server.err
+*.err
+
+# Claude session notes
+*CLAUDE WAT*

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YT ANALYST</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 8'><rect width='11' height='8' fill='%23000'/><rect x='2' y='0' width='1' height='1' fill='%23fff'/><rect x='8' y='0' width='1' height='1' fill='%23fff'/><rect x='3' y='1' width='1' height='1' fill='%23fff'/><rect x='7' y='1' width='1' height='1' fill='%23fff'/><rect x='2' y='2' width='7' height='1' fill='%23fff'/><rect x='1' y='3' width='2' height='1' fill='%23fff'/><rect x='4' y='3' width='3' height='1' fill='%23fff'/><rect x='8' y='3' width='2' height='1' fill='%23fff'/><rect x='0' y='4' width='11' height='1' fill='%23fff'/><rect x='0' y='5' width='1' height='1' fill='%23fff'/><rect x='2' y='5' width='7' height='1' fill='%23fff'/><rect x='10' y='5' width='1' height='1' fill='%23fff'/><rect x='0' y='6' width='1' height='1' fill='%23fff'/><rect x='2' y='6' width='1' height='1' fill='%23fff'/><rect x='8' y='6' width='1' height='1' fill='%23fff'/><rect x='10' y='6' width='1' height='1' fill='%23fff'/><rect x='3' y='7' width='2' height='1' fill='%23fff'/><rect x='6' y='7' width='2' height='1' fill='%23fff'/></svg>"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ─────────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Variables ─────────────────────────────────────────────────────────── */
+    :root {
+      --bg:      #000;
+      --surface: #080808;
+      --border:  #2a2a2a;
+      --text:    #fff;
+      --dim:     #777;
+      --faint:   #333;
+      /* kept for JS inline-style compat */
+      --indigo:  #fff;
+      --cyan:    #fff;
+      --green:   #fff;
+      --red:     #fff;
+      --amber:   #bbb;
+      --muted:   #666;
+      --text-dim:#777;
+    }
+
+    /* ── Base ──────────────────────────────────────────────────────────────── */
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      font-size: 13px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* CRT scanlines */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+    /* CRT vignette */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%);
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ── Animations ────────────────────────────────────────────────────────── */
+    @keyframes blink      { 0%,49%{opacity:1}  50%,100%{opacity:0} }
+    @keyframes flash-box  { 0%,49%{border-color:#fff} 50%,100%{border-color:#333} }
+    @keyframes march      { to { background-position: 16px 0; } }
+    @keyframes fadeUp     { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes scanroll   { from{background-position:0 0} to{background-position:0 100%} }
+    @keyframes pixel-in   { 0%{clip-path:inset(0 100% 0 0)} 100%{clip-path:inset(0 0% 0 0)} }
+
+    .blink  { animation: blink 1s step-end infinite; }
+    .pulse  { animation: blink 0.7s step-end infinite; }
+    .fade-up{ animation: fadeUp 0.25s ease forwards; }
+
+    /* ── Layout ────────────────────────────────────────────────────────────── */
+    .page-header {
+      position: sticky; top: 0; z-index: 200;
+      background: #000;
+      border-bottom: 2px solid #fff;
+      padding: 10px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .header-left  { display: flex; align-items: center; gap: 14px; }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+
+    .marquee-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .marquee-title .bracket { color: #555; }
+
+    .header-meta {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 0.08em;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+      display: grid;
+      grid-template-columns: 1fr 290px;
+      gap: 20px;
+    }
+
+    .left-col { display: flex; flex-direction: column; gap: 18px; }
+    .right-col { display: flex; flex-direction: column; gap: 14px; }
+
+    /* ── Pixel Box ─────────────────────────────────────────────────────────── */
+    .pixel-box {
+      background: var(--surface);
+      border: 2px solid #fff;
+      box-shadow: 4px 4px 0 0 #333;
+      padding: 16px;
+    }
+    .pixel-box-dim {
+      background: var(--surface);
+      border: 2px solid #333;
+      padding: 16px;
+    }
+
+    /* ── Section Labels ────────────────────────────────────────────────────── */
+    .section-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      letter-spacing: 0.12em;
+      color: #fff;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::before { content: '//'; color: #444; margin-right: 2px; }
+    .section-label::after  { content: ''; flex: 1; height: 1px; background: #222; }
+
+    /* ── Form Labels ───────────────────────────────────────────────────────── */
+    label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      letter-spacing: 0.1em;
+      color: #666;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 7px;
+    }
+    label::before { content: '> '; color: #444; }
+
+    /* ── Inputs ────────────────────────────────────────────────────────────── */
+    input, select {
+      background: #000;
+      border: 2px solid #333;
+      color: #fff;
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      font-size: 12px;
+      padding: 9px 10px;
+      width: 100%;
+      outline: none;
+      border-radius: 0;
+      transition: border-color 0.1s;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus {
+      border-color: #fff;
+      box-shadow: 2px 2px 0 0 #444;
+    }
+    input::placeholder { color: #333; font-family: 'Share Tech Mono', monospace; }
+    select option { background: #000; color: #fff; }
+
+    /* ── Buttons ───────────────────────────────────────────────────────────── */
+    .btn-primary {
+      background: #fff;
+      color: #000;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 2px solid #fff;
+      padding: 13px 20px;
+      cursor: crosshair;
+      box-shadow: 4px 4px 0 0 #555;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      flex: 1;
+      transition: box-shadow 0.05s, transform 0.05s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 2px 2px 0 0 #555;
+      transform: translate(2px, 2px);
+    }
+    .btn-primary:active:not(:disabled) {
+      box-shadow: 0 0 0 0 #555;
+      transform: translate(4px, 4px);
+    }
+    .btn-primary:disabled {
+      background: #1a1a1a;
+      color: #444;
+      border-color: #333;
+      cursor: not-allowed;
+      box-shadow: 2px 2px 0 0 #111;
+    }
+
+    .btn-secondary {
+      background: #000;
+      color: #666;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 2px solid #333;
+      padding: 13px 20px;
+      cursor: crosshair;
+      box-shadow: 4px 4px 0 0 #1a1a1a;
+      transition: box-shadow 0.05s, transform 0.05s, color 0.1s, border-color 0.1s;
+      white-space: nowrap;
+    }
+    .btn-secondary:hover {
+      color: #fff; border-color: #888;
+      box-shadow: 2px 2px 0 0 #333;
+      transform: translate(2px, 2px);
+    }
+    .btn-secondary:active {
+      box-shadow: 0 0 0 0;
+      transform: translate(4px, 4px);
+    }
+
+    /* ── Badge / Status ────────────────────────────────────────────────────── */
+    .badge {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      padding: 5px 9px;
+      border: 2px solid;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .badge-idle    { border-color: #333; color: #555; }
+    .badge-running { border-color: #fff; color: #fff; animation: flash-box 0.7s step-end infinite; }
+    .badge-success { border-color: #fff; color: #fff; }
+    .badge-error   { border-color: #fff; color: #fff; border-style: dashed; }
+
+    /* ── Metric Cards ──────────────────────────────────────────────────────── */
+    #metrics-panel { display: none; flex-direction: column; gap: 14px; }
+    #metrics-panel.show { display: flex; animation: fadeUp 0.25s ease; }
+
+    .metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+
+    .metric-card {
+      background: #000;
+      border: 2px solid #fff;
+      padding: 14px 12px 12px;
+      box-shadow: 3px 3px 0 0 #444;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: repeating-linear-gradient(90deg, #fff 0,#fff 4px, #000 4px, #000 8px);
+    }
+    .metric-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      margin-top: 6px;
+    }
+    .metric-value {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    /* ── Console ───────────────────────────────────────────────────────────── */
+    .console-header {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: #555;
+      margin-bottom: 7px;
+      display: flex; align-items: center; gap: 8px;
+      letter-spacing: 0.08em;
+    }
+    .console-dot {
+      width: 8px; height: 8px;
+      background: #fff;
+      animation: blink 1.5s step-end infinite;
+      flex-shrink: 0;
+    }
+    .console-area {
+      background: #000;
+      border: 2px solid #222;
+      padding: 10px 12px;
+      max-height: 185px;
+      overflow-y: auto;
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      font-size: 11px;
+      line-height: 1.75;
+      position: relative;
+    }
+    .log-line { padding: 0; }
+    .log-time  { color: #333; margin-right: 8px; }
+    .log-info  { color: #666; margin-right: 6px; }
+    .log-ok    { color: #fff; margin-right: 6px; font-weight: bold; }
+    .log-err   { color: #fff; margin-right: 6px; text-decoration: underline wavy; }
+    .log-warn  { color: #aaa; margin-right: 6px; }
+
+    /* blinking cursor line */
+    .console-cursor::after {
+      content: '█';
+      color: #fff;
+      animation: blink 1s step-end infinite;
+      margin-left: 2px;
+    }
+
+    /* ── Pipeline ──────────────────────────────────────────────────────────── */
+    .pipeline-wrap {
+      background: var(--surface);
+      border: 2px solid #fff;
+      box-shadow: 4px 4px 0 0 #333;
+      padding: 14px 12px;
+    }
+
+    .step-connector {
+      width: 1px;
+      background: #2a2a2a;
+      height: 14px;
+      margin-left: 13px;
+      transition: background 0.3s;
+    }
+    .step-connector.active { background: #fff; }
+
+    .step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 3px 0;
+    }
+
+    .step-icon {
+      width: 28px; height: 28px;
+      border: 2px solid #333;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      font-weight: bold;
+      transition: border-color 0.2s;
+    }
+    .step-icon.idle    { border-color: #2a2a2a; color: #333; }
+    .step-icon.running { border-color: #fff; color: #fff; animation: flash-box 0.6s step-end infinite; }
+    .step-icon.success { border-color: #fff; color: #fff; }
+    .step-icon.error   { border-color: #fff; color: #fff; border-style: dashed; }
+
+    /* ── Scrollbar ─────────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #333; }
+    ::-webkit-scrollbar-thumb:hover { background: #666; }
+
+    /* ── Form Grid Helpers ─────────────────────────────────────────────────── */
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 130px; gap: 14px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .btn-row    { display: flex; gap: 10px; margin-top: 4px; }
+    .field      { display: flex; flex-direction: column; }
+
+    /* ── Hidden ────────────────────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="page-header">
+  <div class="header-left">
+    <span class="marquee-title">
+      <span class="bracket">◄ </span>YT ANALYST<span class="bracket"> ►</span>
+    </span>
+    <span class="badge badge-idle" id="global-status">IDLE</span>
+  </div>
+  <div class="header-right">
+    <span class="header-meta">CREDIT&nbsp;&nbsp;<span class="blink">█</span>&nbsp;1</span>
+    <span class="header-meta">youtube-analysis-499500</span>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- LEFT COLUMN -->
+  <div class="left-col">
+
+    <!-- Input Panel -->
+    <section class="pixel-box">
+      <div class="section-label">ANALYSIS TARGET</div>
+
+      <div class="field" style="margin-bottom:14px;">
+        <label for="channel-input">Channel URL or ID</label>
+        <input id="channel-input" type="text"
+          placeholder="https://youtube.com/@channel  or  UCxxxxxxxxxx" />
+      </div>
+
+      <div class="form-row-3" style="margin-bottom:14px;">
+        <div class="field">
+          <label for="date-start">Start Date</label>
+          <input id="date-start" type="date" />
+        </div>
+        <div class="field">
+          <label for="date-end">End Date</label>
+          <input id="date-end" type="date" />
+        </div>
+        <div class="field">
+          <label for="max-results">Max Results</label>
+          <select id="max-results">
+            <option value="10">10 videos</option>
+            <option value="25" selected>25 videos</option>
+            <option value="50">50 videos</option>
+            <option value="100">100 videos</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button id="run-btn" class="btn-primary">
+          <span>▶</span> RUN ANALYSIS
+        </button>
+        <button id="clear-btn" class="btn-secondary">CLEAR</button>
+      </div>
+    </section>
+
+    <!-- Metrics Panel -->
+    <section id="metrics-panel">
+      <div class="section-label">
+        CHANNEL METRICS
+        <span class="badge badge-success" style="margin-left:auto;margin-right:0;">LIVE</span>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Total Views</div>
+          <div class="metric-value" id="m-views">---</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Subscribers</div>
+          <div class="metric-value" id="m-subs">---</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total Videos</div>
+          <div class="metric-value" id="m-videos">---</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg Views/Vid</div>
+          <div class="metric-value" id="m-avg">---</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Console -->
+    <section>
+      <div class="console-header">
+        <div class="console-dot"></div>
+        TERMINAL OUTPUT
+      </div>
+      <div class="console-area" id="console-log">
+        <div class="log-line"><span class="log-time">--:--:--</span><span class="log-info">SYS</span><span style="color:var(--dim);">  Ready. Enter a channel and run analysis.</span></div>
+        <div class="console-cursor"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- RIGHT COLUMN — Pipeline -->
+  <aside class="right-col">
+    <div class="section-label">PIPELINE</div>
+    <div class="pipeline-wrap" id="pipeline-container">
+      <!-- Steps injected by JS -->
+    </div>
+  </aside>
+
+</main>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────────────
+  const STEPS = [
+    { id: 'fetch',   label: 'FETCH DATA',     idle: 'Waiting to start',       running: 'Fetching channel stats...',   done: 'Channel data retrieved',   err: 'Failed: quota exceeded' },
+    { id: 'analyze', label: 'ANALYZE',        idle: 'Waiting for data',        running: 'Processing video metrics...', done: 'Metrics analyzed',         err: 'Failed: parse error' },
+    { id: 'sheets',  label: 'WRITE SHEETS',   idle: 'Waiting for analysis',    running: 'Updating spreadsheet...',     done: 'Spreadsheet updated',      err: 'Failed: sheets API' },
+    { id: 'slides',  label: 'BUILD SLIDES',   idle: 'Waiting for sheets',      running: 'Building presentation...',    done: 'Slides updated',           err: 'Failed: slides API' },
+    { id: 'email',   label: 'SEND REPORT',    idle: 'Waiting for slides',      running: 'Sending report email...',     done: 'Email sent successfully',  err: 'Failed: auth error' },
+  ];
+
+  let state = {
+    running: false,
+    steps: STEPS.map(s => ({ ...s, status: 'idle' })),
+  };
+
+  // ── Render Pipeline ────────────────────────────────────────────────────────
+  function buildPipeline() {
+    const container = document.getElementById('pipeline-container');
+    container.innerHTML = '';
+
+    state.steps.forEach((step, i) => {
+      if (i > 0) {
+        const conn = document.createElement('div');
+        conn.className = 'step-connector';
+        conn.id = `conn-${i}`;
+        container.appendChild(conn);
+      }
+
+      const row = document.createElement('div');
+      row.className = 'step-row';
+
+      const iconMap = {
+        idle:    `<span style="color:#333;">·</span>`,
+        running: `<span class="pulse">►</span>`,
+        success: `<span>■</span>`,
+        error:   `<span>✕</span>`,
+      };
+
+      const msgMap = {
+        idle:    step.idle,
+        running: step._msg || step.running,
+        success: step._msg || step.done,
+        error:   step._msg || step.err,
+      };
+
+      const stageNum  = String(i + 1).padStart(2, '0');
+      const labelCol  = step.status === 'running' ? '#fff'
+                      : step.status === 'success' ? '#ccc'
+                      : step.status === 'error'   ? '#fff'
+                      : '#444';
+      const msgCol    = step.status === 'error' ? '#aaa' : '#555';
+      const pulseClass = step.status === 'running' ? ' pulse' : '';
+
+      row.innerHTML = `
+        <div class="step-icon ${step.status}" id="icon-${step.id}">
+          ${iconMap[step.status] || iconMap.idle}
+        </div>
+        <div style="min-width:0;padding-top:4px;flex:1;">
+          <div style="font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:0.06em;color:${labelCol};margin-bottom:4px;" class="${pulseClass}">
+            STG.${stageNum} &nbsp;${step.label}
+          </div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${msgCol};line-height:1.4;" id="msg-${step.id}">
+            ${msgMap[step.status]}
+          </div>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function updateStep(index, status, customMsg) {
+    state.steps[index].status = status;
+    if (customMsg !== undefined) state.steps[index]._msg = customMsg;
+    buildPipeline();
+    if (index > 0) {
+      const conn = document.getElementById(`conn-${index}`);
+      if (conn && (status === 'success' || status === 'running')) {
+        conn.style.background = '#fff';
+      }
+    }
+  }
+
+  // ── Logging ────────────────────────────────────────────────────────────────
+  function log(msg, type = 'info') {
+    const el  = document.getElementById('console-log');
+    const now = new Date();
+    const ts  = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+    const typeClasses = { info: 'log-info', ok: 'log-ok', err: 'log-err', warn: 'log-warn' };
+    const typeLabels  = { info: 'INF', ok: 'OK!', err: 'ERR', warn: 'WRN' };
+    // remove old cursor
+    const oldCursor = el.querySelector('.console-cursor');
+    if (oldCursor) oldCursor.remove();
+
+    const line = document.createElement('div');
+    line.className = 'log-line fade-up';
+    line.innerHTML = `<span class="log-time">${ts}</span><span class="${typeClasses[type]}">${typeLabels[type]}</span><span style="color:var(--dim);">  ${msg}</span>`;
+    el.appendChild(line);
+
+    // re-add blinking cursor
+    const cursor = document.createElement('div');
+    cursor.className = 'console-cursor';
+    el.appendChild(cursor);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  // ── Global badge ──────────────────────────────────────────────────────────
+  function setGlobalStatus(s) {
+    const el = document.getElementById('global-status');
+    el.className = `badge badge-${s}`;
+    const labels = { idle: 'IDLE', running: 'RUNNING', success: 'COMPLETE', error: 'ERROR' };
+    el.textContent = labels[s] || s.toUpperCase();
+  }
+
+  // ── Format large numbers ───────────────────────────────────────────────────
+  function fmt(n) {
+    if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return String(n);
+  }
+
+  // ── Live pipeline via SSE ──────────────────────────────────────────────────
+  function runPipeline() {
+    const channel = document.getElementById('channel-input').value.trim();
+    if (!channel) { log('No channel specified. Enter a URL or channel ID.', 'warn'); return; }
+
+    state.running = true;
+    document.getElementById('run-btn').disabled = true;
+    setGlobalStatus('running');
+    log(`Starting analysis for: ${channel}`);
+    log(`Max results: ${document.getElementById('max-results').value} videos`);
+    state.steps = STEPS.map(s => ({ ...s, status: 'idle' }));
+    buildPipeline();
+
+    const stepIndex = { fetch: 0, analyze: 1, sheets: 2, slides: 3, email: 4 };
+
+    const params = new URLSearchParams({
+      channel,
+      startDate:  document.getElementById('date-start').value,
+      endDate:    document.getElementById('date-end').value,
+      maxResults: document.getElementById('max-results').value,
+    });
+
+    const es = new EventSource(`/api/analyze/stream?${params}`);
+
+    function finish() {
+      state.running = false;
+      document.getElementById('run-btn').disabled = false;
+      es.close();
+    }
+
+    es.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.step === 'done') { finish(); return; }
+
+      const idx = stepIndex[msg.step];
+      if (idx === undefined) return;
+
+      updateStep(idx, msg.status, msg.message);
+
+      if (msg.status === 'running') log(msg.message, 'info');
+
+      if (msg.status === 'success') {
+        log(msg.message, 'ok');
+        if (msg.step === 'fetch' && msg.data) showResults(msg.data);
+        if (msg.step === 'analyze' && msg.data) {
+          document.getElementById('m-avg').textContent = fmt(msg.data.avg_views_per_video);
+        }
+        if (msg.step === 'email') {
+          setGlobalStatus('success');
+          log('Pipeline complete. Check your inbox.', 'ok');
+        }
+      }
+
+      if (msg.status === 'error') {
+        log(msg.message, 'err');
+        setGlobalStatus('error');
+        finish();
+      }
+    };
+
+    es.onerror = () => {
+      log('Connection to server lost.', 'err');
+      setGlobalStatus('error');
+      finish();
+    };
+  }
+
+  function showResults(data) {
+    const panel = document.getElementById('metrics-panel');
+    panel.classList.remove('hidden');
+    panel.classList.add('show');
+    document.getElementById('m-views').textContent  = data ? fmt(data.total_views)  : '---';
+    document.getElementById('m-subs').textContent   = data ? fmt(data.subscribers)  : '---';
+    document.getElementById('m-videos').textContent = data ? fmt(data.total_videos) : '---';
+    document.getElementById('m-avg').textContent    = '...';
+  }
+
+  function clearAll() {
+    document.getElementById('channel-input').value = '';
+    document.getElementById('date-start').value    = '';
+    document.getElementById('date-end').value      = '';
+    document.getElementById('max-results').value   = '25';
+
+    const panel = document.getElementById('metrics-panel');
+    panel.classList.add('hidden');
+    panel.classList.remove('show');
+
+    const consoleEl = document.getElementById('console-log');
+    consoleEl.innerHTML = `<div class="log-line"><span class="log-time">--:--:--</span><span class="log-info">SYS</span><span style="color:var(--dim);">  Cleared. Ready.</span></div><div class="console-cursor"></div>`;
+
+    state.steps = STEPS.map(s => ({ ...s, status: 'idle' }));
+    buildPipeline();
+    setGlobalStatus('idle');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.getElementById('run-btn').addEventListener('click', runPipeline);
+  document.getElementById('clear-btn').addEventListener('click', clearAll);
+
+  const today    = new Date().toISOString().split('T')[0];
+  const thirtyAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0];
+  document.getElementById('date-end').value   = today;
+  document.getElementById('date-start').value = thirtyAgo;
+
+  buildPipeline();
+</script>
+</body>
+</html>

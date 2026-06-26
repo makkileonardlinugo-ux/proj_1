@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Front End — Homepage Mood Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { overflow-x: hidden; }
+    body { background: #f8f7f5; color: #1a1a1a; font-family: 'Montserrat', sans-serif; font-weight: 500; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    .display-font { font-family: 'Playfair Display', serif; }
+
+    .gold-rule { height: 2px; background: linear-gradient(90deg, #c6a559, #e6b979, transparent); }
+    .category-pill { display: inline-block; border: 1px solid #e0ddd8; border-radius: 999px; padding: 3px 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #888; }
+    .style-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #c6a559; }
+    .section-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: #aaa; margin-bottom: 5px; }
+
+    /* ── Generator compact panel ── */
+    .gen-panel {
+      background: #fff;
+      border: 1px solid #e0ddd8;
+      border-radius: 14px;
+      padding: 20px 20px 18px;
+      box-shadow: 0 6px 28px -8px rgba(0,0,0,0.09), 0 2px 8px -4px rgba(0,0,0,0.05);
+      width: 100%;
+      flex-shrink: 0;
+    }
+    @media (min-width: 768px) {
+      .gen-panel { width: 300px; }
+    }
+    .gen-eyebrow { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: #c6a559; margin-bottom: 14px; }
+    .gfield { margin-bottom: 12px; }
+    .gfield label { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #aaa; margin-bottom: 5px; }
+    .gfield input, .gfield select, .gfield textarea {
+      width: 100%; background: #f8f7f5; border: 1px solid #e0ddd8; border-radius: 6px;
+      padding: 8px 10px; font-size: 12px; color: #1a1a1a; font-family: 'Montserrat', sans-serif;
+      font-weight: 500; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .gfield input:focus, .gfield select:focus, .gfield textarea:focus { border-color: #c6a55980; box-shadow: 0 0 0 3px #c6a55912; }
+    .gfield input::placeholder, .gfield textarea::placeholder { color: #c0bdb8; }
+    .gfield textarea { resize: none; height: 62px; line-height: 1.5; font-size: 11.5px; }
+    .gen-btn {
+      width: 100%; padding: 10px; border-radius: 7px; font-size: 11px; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border: none;
+      background: linear-gradient(135deg, #c6a559, #e6b979); color: #111;
+      font-family: 'Montserrat', sans-serif;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .gen-btn:hover { opacity: 0.87; }
+    .gen-btn:active { transform: scale(0.98); }
+    .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── Generated result dropdown ── */
+    #gen-dropdown {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.65s cubic-bezier(.16,1,.3,1), opacity 0.4s ease;
+      background: #fff;
+      border-top: 1px solid #e0ddd8;
+      border-bottom: 1px solid #e0ddd8;
+    }
+    #gen-dropdown.open { max-height: 2000px; opacity: 1; }
+
+    /* Full gallery layout */
+    #gen-dropdown-inner {
+      position: relative;
+      min-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 56px 72px 44px;
+    }
+    @media (max-width: 768px) {
+      #gen-dropdown-inner { padding: 48px 20px 36px; min-height: auto; }
+    }
+
+    /* Counter — top center */
+    .gal-counter {
+      position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.2em; color: #bbb; white-space: nowrap;
+    }
+
+    /* Delete icon — top right (trash) */
+    .gal-delete {
+      position: absolute; top: 18px; right: 22px; z-index: 10;
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1.5px solid #eadede; background: #fff8f8;
+      color: #c05252;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    }
+    .gal-delete svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .gal-delete:hover { background: #fce8e8; border-color: #d07070; transform: scale(1.08); }
+
+    /* Delete confirmation modal */
+    #delete-modal {
+      position: fixed; inset: 0; z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.45); backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    #delete-modal.open { opacity: 1; pointer-events: all; }
+    .del-modal-box {
+      background: #fff; border-radius: 14px; padding: 32px 28px 24px;
+      width: 320px; box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+      display: flex; flex-direction: column; gap: 18px;
+      transform: translateY(8px); transition: transform 0.2s cubic-bezier(.16,1,.3,1);
+    }
+    #delete-modal.open .del-modal-box { transform: translateY(0); }
+    .del-modal-icon { width: 44px; height: 44px; border-radius: 50%; background: #fce8e8; display: flex; align-items: center; justify-content: center; }
+    .del-modal-icon svg { width: 20px; height: 20px; stroke: #c05252; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .del-modal-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #1a1a1a; line-height: 1.2; }
+    .del-modal-body { font-size: 13px; color: #777; line-height: 1.6; margin-top: -8px; }
+    .del-modal-actions { display: flex; gap: 10px; }
+    .del-cancel-btn { flex: 1; padding: 10px 0; border-radius: 8px; border: 1.5px solid #e0ddd8; background: #fff; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #888; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+    .del-cancel-btn:hover { border-color: #c6a559; color: #c6a559; }
+    .del-confirm-btn { flex: 1; padding: 10px 0; border-radius: 8px; border: none; background: #c05252; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #fff; cursor: pointer; transition: background 0.15s; }
+    .del-confirm-btn:hover { background: #a83f3f; }
+
+    /* Side arrows — vertically centered */
+    .gal-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+      width: 46px; height: 46px; border-radius: 50%;
+      border: 1.5px solid #e0ddd8; background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(6px);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: #888; transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.15s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .gal-arrow:hover:not(:disabled) { border-color: #c6a559; color: #c6a559; background: #fdf9f2; transform: translateY(-50%) scale(1.07); }
+    .gal-arrow:active:not(:disabled) { transform: translateY(-50%) scale(0.96); }
+    .gal-arrow:disabled { opacity: 0.18; cursor: not-allowed; }
+    .gal-arrow svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .gal-arrow-prev { left: 20px; }
+    .gal-arrow-next { right: 20px; }
+    @media (max-width: 768px) { .gal-arrow-prev { left: 8px; } .gal-arrow-next { right: 8px; } }
+
+    /* Output container — 92% wide, side-by-side */
+    #gen-output { width: 92%; display: flex; flex-direction: row; gap: 40px; align-items: stretch; }
+    @media (max-width: 900px) { #gen-output { width: 100%; flex-direction: column; gap: 24px; } }
+
+    /* Left info column */
+    .gal-info-col {
+      width: 260px; flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 20px;
+      padding: 4px 0 4px;
+      border-right: 1px solid #e0ddd8;
+      padding-right: 36px;
+    }
+    @media (max-width: 900px) { .gal-info-col { width: 100%; border-right: none; border-bottom: 1px solid #e0ddd8; padding-right: 0; padding-bottom: 20px; } }
+    .gmc-number { font-size: 52px; font-weight: 800; color: #ece9e3; line-height: 1; letter-spacing: -0.04em; font-family: 'Playfair Display', serif; }
+    .gmc-fields { display: flex; flex-direction: column; gap: 12px; }
+    .gmc-field { display: flex; flex-direction: column; gap: 3px; }
+    .gmc-field-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: #c6a559; }
+    .gmc-field-value { font-size: 13px; font-weight: 600; color: #1a1a1a; line-height: 1.3; }
+    .gal-meta-desc { font-size: 12px; font-weight: 500; color: #777; line-height: 1.72; flex: 1; }
+    .gal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+
+    /* Right image column */
+    .gal-image-col { flex: 1; min-width: 0; }
+
+    /* Image area */
+    .gal-image-area { width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid #e0ddd8; cursor: zoom-in; position: relative; }
+    .img-placeholder { aspect-ratio: 16/9; background: #f0ede7; display: flex; align-items: center; justify-content: center; }
+    .placeholder-inner { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 160px; }
+    .ph-spinner { width: 28px; height: 28px; border: 3px solid #e0ddd8; border-top-color: #c6a559; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .ph-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #bbb; text-align: center; line-height: 1.4; }
+    .ph-pct { font-size: 11px; font-weight: 700; color: #c6a559; }
+    .ph-bar-wrap { width: 100%; height: 3px; background: #e0ddd8; border-radius: 3px; overflow: hidden; }
+    .ph-bar { height: 100%; background: linear-gradient(90deg, #c6a559, #e6b979); border-radius: 3px; width: 0%; transition: width 0.6s ease; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .gen-img-frame { width: 100%; }
+    .gen-img-frame img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; object-position: top; }
+
+    /* Export button */
+    .export-btn { padding: 9px 18px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border: 1px solid #c6a55940; background: #c6a55910; color: #c6a559; font-family: 'Montserrat', sans-serif; transition: background 0.15s; white-space: nowrap; }
+    .export-btn:hover { background: #c6a55920; }
+    .export-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .rule-chip { font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 100px; background: #f0ede7; color: #aaa; border: 1px solid #e0ddd8; }
+
+    /* ── Concept cards ── */
+    .concept-card { background: #fff; border: 1px solid #e0ddd8; border-radius: 12px; overflow: hidden; transition: box-shadow 0.4s ease, transform 0.4s ease; }
+    .concept-card:hover { box-shadow: 0 20px 48px -12px rgba(0,0,0,0.13); transform: translateY(-4px); }
+
+    .img-wrap { position: relative; overflow: hidden; cursor: zoom-in; }
+    .img-wrap::after { content: '⤢ View full'; position: absolute; bottom: 10px; right: 12px; background: rgba(0,0,0,0.65); color: #fff; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; opacity: 0; transform: translateY(4px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
+    .img-wrap:hover::after { opacity: 1; transform: translateY(0); }
+    .concept-img { width: 100%; height: 360px; object-fit: cover; object-position: top; display: block; background: #ece9e3; transition: transform 0.5s cubic-bezier(.16,1,.3,1); }
+    .img-wrap:hover .concept-img { transform: scale(1.02); }
+    .back-img { width: 100%; height: 240px; object-fit: cover; object-position: top; display: block; background: #ece9e3; border-radius: 6px; transition: transform 0.5s cubic-bezier(.16,1,.3,1); }
+    .img-wrap:hover .back-img { transform: scale(1.02); }
+
+    .prompt-quote { border-left: 3px solid #c6a559; padding: 10px 14px; background: #fdf9f2; font-style: italic; font-size: 11.5px; color: #555; line-height: 1.6; margin: 5px 0; border-radius: 0 4px 4px 0; }
+    .layout-diagram { width: 100%; height: 80px; background: #f0ede7; border: 1px solid #e0ddd8; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #aaa; letter-spacing: 0.1em; text-align: center; padding: 0 12px; }
+
+    .cat-header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+    .cat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: #c6a559; white-space: nowrap; }
+    .cat-rule { flex: 1; height: 1px; background: #e0ddd8; }
+    .cat-count { font-size: 10px; font-weight: 600; color: #bbb; white-space: nowrap; }
+
+    .examples-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: #bbb; text-align: center; margin-bottom: 10px; }
+
+    /* ── Generated Mood Board ── */
+    #mb-section { padding: 64px 0 0; border-top: 1px solid #e0ddd8; }
+    .mb-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: #c6a559; margin-bottom: 32px; }
+    #mb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }
+    .mb-empty { grid-column: 1 / -1; text-align: center; padding: 48px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .mb-empty svg { opacity: 0.25; }
+    .mb-empty-title { font-size: 12px; font-weight: 700; color: #bbb; text-transform: uppercase; letter-spacing: 0.18em; }
+    .mb-empty-sub { font-size: 12px; color: #ccc; max-width: 280px; line-height: 1.65; }
+    .mb-card { background: #fff; border: 1px solid #e0ddd8; border-radius: 14px; overflow: hidden; position: relative; transition: box-shadow 0.3s, transform 0.3s; }
+    .mb-delete-btn {
+      position: absolute; top: 10px; right: 10px; z-index: 5;
+      width: 28px; height: 28px; border-radius: 6px;
+      border: 1.5px solid rgba(255,255,255,0.6); background: rgba(0,0,0,0.45);
+      color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s, background 0.15s;
+    }
+    .mb-card:hover .mb-delete-btn { opacity: 1; }
+    .mb-delete-btn:hover { background: rgba(192,82,82,0.85); border-color: rgba(255,255,255,0.3); }
+    .mb-delete-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .mb-card:hover { box-shadow: 0 16px 48px -8px rgba(0,0,0,0.11); transform: translateY(-3px); }
+    .mb-img-wrap { position: relative; cursor: zoom-in; overflow: hidden; }
+    .mb-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; object-position: top; display: block; transition: transform 0.5s cubic-bezier(.16,1,.3,1); }
+    .mb-img-wrap:hover .mb-img { transform: scale(1.03); }
+    .mb-img-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .mb-img-overlay svg { opacity: 0; transform: scale(0.8); transition: opacity 0.2s, transform 0.2s; }
+    .mb-img-wrap:hover .mb-img-overlay { background: rgba(0,0,0,0.35); }
+    .mb-img-wrap:hover .mb-img-overlay svg { opacity: 1; transform: scale(1); }
+    .mb-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .mb-meta { display: flex; flex-direction: column; gap: 6px; }
+    .mb-meta-row { display: flex; align-items: baseline; gap: 8px; }
+    .mb-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: #c6a559; flex-shrink: 0; width: 52px; }
+    .mb-value { font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; }
+    .mb-desc { font-size: 11.5px; color: #888; line-height: 1.65; border-top: 1px solid #f0ede7; padding-top: 12px; }
+    .mb-prompt-block { background: #f7f5f0; border: 1px solid #e8e4dc; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .mb-prompt-label { font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: #c6a559; display: flex; align-items: center; gap: 5px; }
+    .mb-prompt-text { font-family: 'Courier New', monospace; font-size: 10.5px; color: #555; line-height: 1.6; word-break: break-word; }
+    .mb-copy-btn { align-self: flex-start; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 5px 12px; border-radius: 6px; border: 1px solid #e0ddd8; background: #fff; color: #888; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: border-color 0.15s, color 0.15s; }
+    .mb-copy-btn:hover { border-color: #c6a559; color: #c6a559; }
+    .mb-export-link { display: inline-flex; align-items: center; gap: 6px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #c6a559; text-decoration: none; border: 1px solid #c6a55940; background: #c6a55910; padding: 7px 14px; border-radius: 6px; transition: background 0.15s; }
+    .mb-export-link:hover { background: #c6a55920; }
+
+    /* ── Lightbox ── */
+    #lightbox { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); backdrop-filter: blur(12px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    #lightbox.open { opacity: 1; pointer-events: all; }
+    #lightbox img { max-width: 90vw; max-height: 88vh; object-fit: contain; border-radius: 6px; box-shadow: 0 32px 80px rgba(0,0,0,0.8); transform: scale(0.94); transition: transform 0.3s cubic-bezier(.16,1,.3,1); }
+    #lightbox.open img { transform: scale(1); }
+    #lb-close { position: absolute; top: 18px; right: 22px; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    #lb-close:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── History navigation ── */
+    .hist-nav { display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:22px; }
+    .hist-left { display:flex; align-items:center; gap:10px; }
+    .hist-arrow {
+      width:34px; height:34px; border-radius:50%; border:1.5px solid #e0ddd8;
+      background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+      color:#666;
+    }
+    .hist-arrow:hover:not(:disabled) { border-color:#c6a559; background:#fdf9f2; color:#c6a559; transform: scale(1.08); }
+    .hist-arrow:active:not(:disabled) { transform: scale(0.95); }
+    .hist-arrow:disabled { opacity:0.25; cursor:not-allowed; }
+    .hist-arrow svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+    .hist-counter { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.16em; color:#bbb; min-width:36px; text-align:center; }
+    .hist-delete {
+      padding:6px 13px; border-radius:6px; border:1.5px solid #f0dede; background:#fff8f8;
+      color:#c05252; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em;
+      cursor:pointer; font-family:'Montserrat',sans-serif;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .hist-delete:hover { background:#fce8e8; border-color:#d07070; }
+
+    /* ── HTML status chip ── */
+    .html-chip { display:inline-flex; align-items:center; gap:5px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; padding:4px 9px; border-radius:100px; }
+    .html-chip.pending { background:#f0ede7; color:#bbb; border:1px solid #e0ddd8; }
+    .html-chip.ready   { background:#edf7ed; color:#4a9a5a; border:1px solid #b5dcb5; }
+    .html-chip.error   { background:#fdecea; color:#c05252; border:1px solid #f0c0c0; }
+    .html-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .html-chip.pending .html-dot { animation: dotPulse 1.1s ease-in-out infinite; }
+    @keyframes dotPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.7)} }
+
+    /* ── History toggle button — always visible after first generation ── */
+    #history-toggle { display: flex; }
+    .toggle-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 22px; border-radius: 100px;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(8px);
+      font-family: 'Montserrat', sans-serif; font-size: 10px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em;
+      color: #555; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.2s;
+    }
+    .toggle-btn:hover { border-color: #c6a559; color: #c6a559; background: rgba(255,255,255,0.96); }
+    .toggle-btn svg {
+      width: 13px; height: 13px; stroke: currentColor; fill: none;
+      stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+      transition: transform 0.3s cubic-bezier(.16,1,.3,1);
+    }
+    .toggle-btn.open svg { transform: rotate(180deg); }
+
+    /* ── Toast ── */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(16px); background: #1a1a1a; border-radius: 8px; padding: 10px 18px; font-size: 11px; font-weight: 600; color: #f0eeea; opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; z-index: 99999; white-space: nowrap; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Mobile layout fixes ── */
+    @media (max-width: 768px) {
+      /* Hero: push content up so absolute toggle button doesn't overlap */
+      .hero-inner { padding-bottom: 90px !important; }
+
+      /* Concept images: proportional to mobile width, not desktop */
+      .concept-img { height: 220px; }
+      .back-img { height: 160px; }
+
+      /* Mood board: single column, smaller top padding */
+      #mb-section { padding-top: 40px; }
+      #mb-grid { grid-template-columns: 1fr; }
+
+      /* Category headers: tighter spacing */
+      .cat-header { margin-bottom: 18px; }
+
+      /* Gallery dropdown arrows: slightly smaller on mobile */
+      .gal-arrow { width: 38px; height: 38px; }
+      .gal-arrow svg { width: 15px; height: 15px; }
+
+      /* Prompt quote: ensure text wraps cleanly */
+      .prompt-quote { font-size: 11px; }
+    }
+
+    @media (max-width: 400px) {
+      /* Delete modal: don't exceed narrow screen */
+      .del-modal-box { width: calc(100% - 32px); padding: 24px 20px 18px; }
+
+      /* Hero text: scale down slightly on very small phones */
+      #history-toggle .toggle-btn { font-size: 9px; padding: 8px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─────────────────────────────────────── HERO -->
+<div style="min-height:100dvh; display:flex; align-items:center; border-bottom:1px solid #e0ddd8; position:relative;">
+<div class="max-w-[1320px] w-full mx-auto px-6 md:px-16 py-16 md:py-0 hero-inner">
+  <div class="flex flex-col md:flex-row items-start md:items-center gap-10 md:gap-12">
+
+    <!-- Left: title -->
+    <div class="flex-1 min-w-0">
+      <p class="style-label mb-6">Mood Board · 2026</p>
+      <h1 class="display-font text-[clamp(3rem,7vw,6rem)] font-bold leading-[0.92] tracking-[-0.03em] mb-6">
+        Front End
+      </h1>
+      <div class="gold-rule w-20 mb-7"></div>
+      <p class="text-[15px] leading-[1.75] text-[#555] max-w-lg">
+        Six homepage design concepts across three creative directions: minimalist restraint, contemporary expression, and dynamic impact. Use the generator to explore your own idea.
+      </p>
+      <div class="flex flex-wrap gap-3 mt-7">
+        <span class="category-pill">Minimalist × 2</span>
+        <span class="category-pill">Contemporary × 2</span>
+        <span class="category-pill">Dynamic × 2</span>
+      </div>
+    </div>
+
+    <!-- Right: compact generator panel -->
+    <div class="gen-panel">
+      <div class="gen-eyebrow">Generate Your Concept</div>
+
+      <div class="gfield">
+        <label>Website Concept</label>
+        <input id="g-concept" type="text" placeholder="e.g. Fintech dashboard, Portfolio..." />
+      </div>
+
+      <div class="gfield">
+        <label>Visual Theme</label>
+        <input id="g-theme" type="text" placeholder="e.g. Dark & Moody, Glassmorphic..." />
+      </div>
+
+      <div class="gfield">
+        <label>Key Section</label>
+        <input id="g-section" type="text" placeholder="e.g. Hero, Pricing, Features..." />
+      </div>
+
+      <div class="gfield" style="margin-bottom:16px;">
+        <label>Extra Details <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#c0bdb8;">(optional)</span></label>
+        <textarea id="g-extra" placeholder="Brand name, colors, specific elements..."></textarea>
+      </div>
+
+      <button class="gen-btn" id="gen-btn" onclick="runGenerate()">Generate Concept</button>
+
+      <div style="margin-top:14px;">
+        <div class="field-label" style="margin-bottom:7px;">Design Rules Applied</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="rule-chip">Custom Fonts</span>
+          <span class="rule-chip">CSS Variables</span>
+          <span class="rule-chip">Layered Shadows</span>
+          <span class="rule-chip">Grain Texture</span>
+          <span class="rule-chip">No Placeholders</span>
+          <span class="rule-chip">Real Copy</span>
+          <span class="rule-chip">Hover States</span>
+          <span class="rule-chip">Stagger Reveal</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <!-- Arrow pinned to bottom-center of hero — visible once history exists -->
+  <div id="history-toggle" style="position:absolute; bottom:22px; left:50%; transform:translateX(-50%);" >
+    <button class="toggle-btn" id="toggle-btn" onclick="toggleDropdown()">
+      <span id="toggle-label">View Concepts</span>
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<!-- ─────────────────────────────────────── GENERATED RESULT DROPDOWN -->
+<div id="gen-dropdown">
+
+  <!-- Empty state: shown when no concepts generated yet -->
+  <div id="no-history-msg" style="display:none; align-items:center; justify-content:center; min-height:38vh; flex-direction:column; gap:14px; padding:48px 24px;">
+    <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#d4cfc8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="12" width="32" height="28" rx="4"/>
+      <path d="M16 12V9a4 4 0 0 1 8 0v3"/>
+      <line x1="24" y1="22" x2="24" y2="32"/>
+      <line x1="19" y1="27" x2="29" y2="27"/>
+    </svg>
+    <p style="font-family:'Montserrat',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.18em; color:#bbb; text-align:center;">No concepts generated yet</p>
+    <p style="font-size:13px; color:#aaa; text-align:center; max-width:280px; line-height:1.6;">Fill in the form above and hit <strong style="color:#c6a559;">Generate Concept</strong> to see your first design here.</p>
+  </div>
+
+  <div id="gen-dropdown-inner">
+
+    <!-- Counter: top center -->
+    <div class="gal-counter" id="hist-counter">1 / 1</div>
+
+    <!-- Delete: top right (trash icon) -->
+    <button class="gal-delete" onclick="showDeleteConfirm()" title="Delete concept">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </button>
+
+    <!-- Left arrow: vertically centered -->
+    <button class="gal-arrow gal-arrow-prev" id="hist-prev" onclick="navigateHistory(-1)" disabled title="Previous concept">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <!-- Right arrow: vertically centered -->
+    <button class="gal-arrow gal-arrow-next" id="hist-next" onclick="navigateHistory(1)" disabled title="Next concept">
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
+    <!-- Main output: details left + image right -->
+    <div id="gen-output" style="display:none;">
+
+      <!-- Left: concept info -->
+      <div class="gal-info-col">
+        <div class="gmc-fields">
+          <div class="gmc-field">
+            <span class="gmc-field-label">Style</span>
+            <span class="gmc-field-value" id="res-style">—</span>
+          </div>
+          <div class="gmc-field">
+            <span class="gmc-field-label">Concept</span>
+            <span class="gmc-field-value" id="res-name">—</span>
+          </div>
+        </div>
+        <div class="gal-meta-desc" id="res-desc">—</div>
+        <div class="gal-actions">
+          <div id="html-status" class="html-chip pending"><span class="html-dot"></span>Building HTML...</div>
+          <button class="export-btn" id="export-btn" onclick="exportHTML()" disabled>Export as HTML</button>
+        </div>
+      </div>
+
+      <!-- Right: image -->
+      <div class="gal-image-col">
+        <div class="gal-image-area" onclick="openLb(document.getElementById('res-front-img').src)">
+          <div class="img-placeholder" id="front-placeholder">
+            <div class="placeholder-inner">
+              <div class="ph-spinner"></div>
+              <div class="ph-label">Generating your design</div>
+              <div class="ph-pct" id="front-pct">0%</div>
+              <div class="ph-bar-wrap"><div class="ph-bar" id="front-bar"></div></div>
+            </div>
+          </div>
+          <div class="gen-img-frame" id="front-frame" style="display:none;">
+            <img id="res-front-img" src="" alt="Generated design" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="delete-modal" onclick="if(event.target===this)hideDeleteConfirm()">
+  <div class="del-modal-box">
+    <div class="del-modal-icon">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </div>
+    <div>
+      <div class="del-modal-title">Delete Concept?</div>
+      <p class="del-modal-body">This concept will be removed from your session history. This cannot be undone.</p>
+    </div>
+    <div class="del-modal-actions">
+      <button class="del-cancel-btn" onclick="hideDeleteConfirm()">Cancel</button>
+      <button class="del-confirm-btn" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────── GENERATED MOOD BOARD -->
+<section id="mb-section" class="max-w-[1320px] mx-auto px-8 md:px-16">
+  <p class="mb-eyebrow">Your Generated Concepts</p>
+  <div id="mb-grid"></div>
+</section>
+
+<!-- ─────────────────────────────────────── DIVIDER + EXAMPLES LABEL -->
+<div class="max-w-[1320px] mx-auto px-8 md:px-16" style="padding-top:64px;">
+  <div style="height:1px;background:#e0ddd8;margin-bottom:52px;"></div>
+  <p class="examples-eyebrow">Examples · Reference Concepts</p>
+</div>
+
+<!-- ─────────────────────────────────────── MOOD BOARD GRID -->
+<main class="max-w-[1320px] mx-auto px-8 md:px-16 pb-24">
+
+  <!-- ── MINIMALIST ── -->
+  <div class="cat-header mt-4">
+    <span class="cat-label">Minimalist</span>
+    <div class="cat-rule"></div>
+    <span class="cat-count">01 — 02</span>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+
+    <article class="concept-card">
+      <div class="img-wrap">
+        <img src="images/moodboard/concept-1-front.jpg" alt="Void Space — front" class="concept-img" onerror="this.closest('.img-wrap').style.display='none'" />
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="style-label">Minimalist</span>
+          <span class="category-pill">01</span>
+        </div>
+        <div>
+          <h2 class="display-font text-2xl font-bold leading-tight mb-1">Void Space</h2>
+          <p class="text-[12.5px] text-[#777] leading-[1.65]">Radical restraint — 90% negative space, one display headline, a single gold accent line. Trust in emptiness as a statement.</p>
+        </div>
+        <div>
+          <p class="section-label">Front Image Prompt</p>
+          <blockquote class="prompt-quote">Website homepage screenshot, extreme minimalist design, pure white background, large centered serif headline "Precision Redefined", thin gold line beneath, one CTA, minimal nav bar. Desktop 1440x900.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Home Page Layout</p>
+          <div class="layout-diagram">Full-bleed white · lone centered H1 · gold rule · single CTA · vast negative space</div>
+        </div>
+        <div>
+          <p class="section-label">Back Image Prompt</p>
+          <blockquote class="prompt-quote">Website interior section, minimalist white, single testimonial quote centered with massive whitespace, serif italic text, thin rule dividers. Desktop viewport.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Inner Section</p>
+          <div class="img-wrap" style="border-radius:6px;overflow:hidden;">
+            <img src="images/moodboard/concept-1-back.jpg" alt="Void Space — inner" class="back-img" onerror="this.closest('.img-wrap').style.display='none'" />
+          </div>
+          <p class="text-[11px] text-[#aaa] mt-2 leading-[1.5]">Single testimonial block centered on a white field — mono-weight text, no decoration.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="concept-card">
+      <div class="img-wrap">
+        <img src="images/moodboard/concept-2-front.jpg" alt="Linen — front" class="concept-img" onerror="this.closest('.img-wrap').style.display='none'" />
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="style-label">Minimalist</span>
+          <span class="category-pill">02</span>
+        </div>
+        <div>
+          <h2 class="display-font text-2xl font-bold leading-tight mb-1">Linen</h2>
+          <p class="text-[12.5px] text-[#777] leading-[1.65]">Warm off-white ground, refined serif at variable weight, generous leading. High-end print catalogue feel. Quiet authority.</p>
+        </div>
+        <div>
+          <p class="section-label">Front Image Prompt</p>
+          <blockquote class="prompt-quote">Website homepage, luxury editorial minimalist, warm cream #F5F0E4, two-column hero: left serif headline + CTA, right editorial photo bleeding to edge. Wide margins. Desktop 1440px.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Home Page Layout</p>
+          <div class="layout-diagram">Two-column · serif headline left · editorial image right bleeding · generous margins</div>
+        </div>
+        <div>
+          <p class="section-label">Back Image Prompt</p>
+          <blockquote class="prompt-quote">Website interior, warm cream, narrow single-column, three numbered features with gold numbers and rule dividers. Generous whitespace. Desktop viewport.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Inner Section</p>
+          <div class="img-wrap" style="border-radius:6px;overflow:hidden;">
+            <img src="images/moodboard/concept-2-back.jpg" alt="Linen — inner" class="back-img" onerror="this.closest('.img-wrap').style.display='none'" />
+          </div>
+          <p class="text-[11px] text-[#aaa] mt-2 leading-[1.5]">Horizontal rule dividers, numbered feature list in a narrow centered column.</p>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ── CONTEMPORARY MODERN ── -->
+  <div class="cat-header">
+    <span class="cat-label">Contemporary Modern</span>
+    <div class="cat-rule"></div>
+    <span class="cat-count">03 — 04</span>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+
+    <article class="concept-card">
+      <div class="img-wrap">
+        <img src="images/moodboard/concept-3-front.jpg" alt="Glass Membrane — front" class="concept-img" onerror="this.closest('.img-wrap').style.display='none'" />
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="style-label">Contemporary Modern</span>
+          <span class="category-pill">03</span>
+        </div>
+        <div>
+          <h2 class="display-font text-2xl font-bold leading-tight mb-1">Glass Membrane</h2>
+          <p class="text-[12.5px] text-[#777] leading-[1.65]">Frosted glass panels float above a deep teal-to-indigo gradient. Translucent cards, 1px glow borders. Interface feels like polished ice.</p>
+        </div>
+        <div>
+          <p class="section-label">Front Image Prompt</p>
+          <blockquote class="prompt-quote">Vault fintech SaaS homepage, dark teal-to-indigo gradient, glassmorphic dashboard card right, frosted glass effect, real portfolio numbers. Desktop 1440x900.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Home Page Layout</p>
+          <div class="layout-diagram">Dark gradient · hero text left · floating glass card right · frosted translucent panels</div>
+        </div>
+        <div>
+          <p class="section-label">Back Image Prompt</p>
+          <blockquote class="prompt-quote">Vault interior features, dark navy, three glassmorphic cards "99.9% uptime", "2.4M+ transactions", "47+ integrations", glow borders. Desktop viewport.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Inner Section</p>
+          <div class="img-wrap" style="border-radius:6px;overflow:hidden;">
+            <img src="images/moodboard/concept-3-back.jpg" alt="Glass Membrane — inner" class="back-img" onerror="this.closest('.img-wrap').style.display='none'" />
+          </div>
+          <p class="text-[11px] text-[#aaa] mt-2 leading-[1.5]">Three glassmorphic feature cards in a row — frosted bg, icon top, stat number, short label.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="concept-card">
+      <div class="img-wrap">
+        <img src="images/moodboard/concept-4-front.jpg" alt="Neo-Editorial — front" class="concept-img" onerror="this.closest('.img-wrap').style.display='none'" />
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="style-label">Contemporary Modern</span>
+          <span class="category-pill">04</span>
+        </div>
+        <div>
+          <h2 class="display-font text-2xl font-bold leading-tight mb-1">Neo-Editorial</h2>
+          <p class="text-[12.5px] text-[#777] leading-[1.65]">Magazine-grid layout with deliberate asymmetry. Photography bleeds through text. Mixed type scales. Looks like a design publication.</p>
+        </div>
+        <div>
+          <p class="section-label">Front Image Prompt</p>
+          <blockquote class="prompt-quote">Studio Forma architecture firm homepage, asymmetric 12-column grid, massive 120px headline left 8 cols, luxury interior photo right 4 cols bleeding to top. Desktop 1440x900.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Home Page Layout</p>
+          <div class="layout-diagram">12-col asymmetric grid · giant headline left · editorial photo right bleeding to top edge</div>
+        </div>
+        <div>
+          <p class="section-label">Back Image Prompt</p>
+          <blockquote class="prompt-quote">Studio Forma selected works, full-width italic serif pull-quote 72px, below: 5-image asymmetric masonry grid, no gaps. Desktop viewport.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Inner Section</p>
+          <div class="img-wrap" style="border-radius:6px;overflow:hidden;">
+            <img src="images/moodboard/concept-4-back.jpg" alt="Neo-Editorial — inner" class="back-img" onerror="this.closest('.img-wrap').style.display='none'" />
+          </div>
+          <p class="text-[11px] text-[#aaa] mt-2 leading-[1.5]">Pull-quote in oversized italic serif full width, photography collage mosaic grid below.</p>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ── DYNAMIC ── -->
+  <div class="cat-header">
+    <span class="cat-label">Dynamic</span>
+    <div class="cat-rule"></div>
+    <span class="cat-count">05 — 06</span>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    <article class="concept-card">
+      <div class="img-wrap">
+        <img src="images/moodboard/concept-5-front.jpg" alt="Dark Kinetic — front" class="concept-img" onerror="this.closest('.img-wrap').style.display='none'" />
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="style-label">Dynamic</span>
+          <span class="category-pill">05</span>
+        </div>
+        <div>
+          <h2 class="display-font text-2xl font-bold leading-tight mb-1">Dark Kinetic</h2>
+          <p class="text-[12.5px] text-[#777] leading-[1.65]">Near-black ground, electric cyan accents, condensed sans at massive scale. Diagonal composition, angled cropping. Urgent, fast, powerful.</p>
+        </div>
+        <div>
+          <p class="section-label">Front Image Prompt</p>
+          <blockquote class="prompt-quote">Apex Athletics sports tech homepage, near-black #0A0B0E, "TRAIN HARDER." in massive 160px condensed white, diagonal electric cyan accent line, athlete silhouette right edge. Desktop 1440x900.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Home Page Layout</p>
+          <div class="layout-diagram">Full-bleed dark · condensed headline massive · diagonal accent line · athlete right bleed</div>
+        </div>
+        <div>
+          <p class="section-label">Back Image Prompt</p>
+          <blockquote class="prompt-quote">Apex Athletics dark interior, ticker strip, large video frame with athlete mid-sprint, 4 stats row. Desktop viewport.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Inner Section</p>
+          <div class="img-wrap" style="border-radius:6px;overflow:hidden;">
+            <img src="images/moodboard/concept-5-back.jpg" alt="Dark Kinetic — inner" class="back-img" onerror="this.closest('.img-wrap').style.display='none'" />
+          </div>
+          <p class="text-[11px] text-[#aaa] mt-2 leading-[1.5]">Ticker strip of feature labels, video thumbnail at full width, 4-stat row below.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="concept-card">
+      <div class="img-wrap">
+        <img src="images/moodboard/concept-6-front.jpg" alt="Collision — front" class="concept-img" onerror="this.closest('.img-wrap').style.display='none'" />
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="style-label">Dynamic</span>
+          <span class="category-pill">06</span>
+        </div>
+        <div>
+          <h2 class="display-font text-2xl font-bold leading-tight mb-1">Collision</h2>
+          <p class="text-[12.5px] text-[#777] leading-[1.65]">Elements deliberately overlap. Text crashes through image boundaries. Bold color blocks jut into adjacent sections. Confident visual tension.</p>
+        </div>
+        <div>
+          <p class="section-label">Front Image Prompt</p>
+          <blockquote class="prompt-quote">Disrupt Studio creative agency homepage, red block top-left #C0302A, "DISRUPT" white on red + "STUDIO" black on cream, headline split across color boundary 140px. Desktop 1440x900.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Home Page Layout</p>
+          <div class="layout-diagram">Split color-block · headline breaks boundary · photography overlapping grid from right</div>
+        </div>
+        <div>
+          <p class="section-label">Back Image Prompt</p>
+          <blockquote class="prompt-quote">Disrupt Studio case study section, giant "03" bleeding off left edge, bold headline + copy + project thumbnails flush right, extreme asymmetry. Desktop viewport.</blockquote>
+        </div>
+        <div>
+          <p class="section-label">Inner Section</p>
+          <div class="img-wrap" style="border-radius:6px;overflow:hidden;">
+            <img src="images/moodboard/concept-6-back.jpg" alt="Collision — inner" class="back-img" onerror="this.closest('.img-wrap').style.display='none'" />
+          </div>
+          <p class="text-[11px] text-[#aaa] mt-2 leading-[1.5]">Section number in giant weight bleeding off-screen left, content flush right.</p>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</main>
+
+<!-- ── Lightbox ── -->
+<div id="lightbox">
+  <button id="lb-close">&times;</button>
+  <img id="lb-img" src="" alt="" />
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Lightbox ──────────────────────────────────────────
+function closeLb() { document.getElementById('lightbox').classList.remove('open'); }
+
+document.querySelectorAll('.img-wrap').forEach(wrap => {
+  wrap.addEventListener('click', () => {
+    const img = wrap.querySelector('img');
+    if (img && img.src && img.src !== location.href) openLb(img.src);
+  });
+});
+document.getElementById('lb-close').addEventListener('click', closeLb);
+document.getElementById('lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLb(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+// ── Toast ──────────────────────────────────────────────
+let _toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── History store ─────────────────────────────────────
+let genHistory = [];
+let histIdx    = -1;
+let genCount   = parseInt(localStorage.getItem('cs_gen_count') || '0');
+
+function saveHistory() {
+  try {
+    localStorage.setItem('cs_gen_history', JSON.stringify(genHistory));
+    localStorage.setItem('cs_hist_idx', String(histIdx));
+    localStorage.setItem('cs_gen_count', String(genCount));
+  } catch(e) {}
+}
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem('cs_gen_history');
+    if (!raw) return;
+    genHistory = JSON.parse(raw);
+    // Any entry that was mid-generation (no image/html) — mark html as error since we can't resume
+    genHistory.forEach(e => { if (!e.htmlUrl && !e.htmlError) e.htmlError = true; });
+    const saved = parseInt(localStorage.getItem('cs_hist_idx') || '0');
+    histIdx = genHistory.length === 0 ? -1 : Math.max(0, Math.min(saved, genHistory.length - 1));
+  } catch(e) { genHistory = []; histIdx = -1; }
+}
+
+loadHistory();
+updateNavBar();
+renderMoodBoard(); // Restore mood board from cache on load
+
+// ── Helpers ───────────────────────────────────────────
+function buildDescription(concept, theme, section, extra) {
+  const parts = [];
+  if (theme)   parts.push(`${theme} visual style`);
+  if (section) parts.push(`focused on the ${section} section`);
+  if (extra)   parts.push(extra);
+  if (concept) return `A ${parts.join(', ')} design for ${concept}.`;
+  return parts.length ? parts.join(', ') + '.' : 'Custom generated concept.';
+}
+
+function startProgress(barId, pctId, durationMs) {
+  const bar = document.getElementById(barId);
+  const pct = document.getElementById(pctId);
+  let current = 0;
+  const target = 88;
+  const steps  = 60;
+  const step   = target / steps;
+  const iv = setInterval(() => {
+    current = Math.min(current + step + (Math.random() * step * 0.4 - step * 0.2), target);
+    bar.style.width = current.toFixed(1) + '%';
+    pct.textContent = Math.round(current) + '%';
+    if (current >= target) clearInterval(iv);
+  }, durationMs / steps);
+  return iv;
+}
+
+function finishProgress(barId, pctId) {
+  const bar = document.getElementById(barId);
+  const pct = document.getElementById(pctId);
+  bar.style.transition = 'width 0.4s ease';
+  bar.style.width = '100%';
+  pct.textContent = '100%';
+}
+
+function setHtmlChip(state, text) {
+  const chip = document.getElementById('html-status');
+  chip.className = 'html-chip ' + state;
+  const label = text || (state === 'pending' ? 'Waiting for image...' : state === 'ready' ? 'HTML Ready' : 'HTML Failed');
+  chip.innerHTML = `<span class="html-dot"></span>${label}`;
+}
+
+// ── Render a history entry into the UI ────────────────
+function renderEntry(idx) {
+  const e = genHistory[idx];
+  if (!e) return;
+
+  document.getElementById('res-style').textContent = e.style || '—';
+  document.getElementById('res-name').textContent  = e.name;
+  document.getElementById('res-desc').textContent  = e.desc;
+
+  const frontImg = document.getElementById('res-front-img');
+  if (e.imageUrl) {
+    frontImg.src = e.imageUrl;
+    document.getElementById('front-placeholder').style.display = 'none';
+    document.getElementById('front-frame').style.display = 'block';
+  } else {
+    document.getElementById('front-placeholder').style.display = 'flex';
+    document.getElementById('front-frame').style.display = 'none';
+  }
+
+  if (e.htmlUrl) {
+    setHtmlChip('ready');
+    document.getElementById('export-btn').disabled = false;
+  } else if (e.htmlError) {
+    setHtmlChip('error');
+    document.getElementById('export-btn').disabled = true;
+  } else {
+    setHtmlChip('pending');
+    document.getElementById('export-btn').disabled = true;
+  }
+
+  updateNavBar();
+}
+
+function updateNavBar() {
+  const total = genHistory.length;
+  const isOpen = document.getElementById('gen-dropdown').classList.contains('open');
+
+  document.getElementById('hist-counter').textContent = total > 0 ? `${histIdx + 1} / ${total}` : '— / —';
+  document.getElementById('hist-prev').disabled = histIdx <= 0;
+  document.getElementById('hist-next').disabled = histIdx >= total - 1;
+
+  // Toggle label — always visible
+  if (total > 0) {
+    document.getElementById('toggle-label').textContent = isOpen ? 'Hide Concepts' : `View Concepts (${total})`;
+  } else {
+    document.getElementById('toggle-label').textContent = isOpen ? 'Close' : 'View Concepts';
+  }
+  document.getElementById('toggle-btn').classList.toggle('open', isOpen);
+
+  // Show/hide the right panel inside the dropdown
+  document.getElementById('no-history-msg').style.display  = total === 0 ? 'flex' : 'none';
+  document.getElementById('gen-dropdown-inner').style.display = total > 0  ? 'flex' : 'none';
+}
+
+// ── Mood Board ────────────────────────────────────────
+function buildRegenPrompt(e) {
+  if (e.masterPrompt) return e.masterPrompt;
+  const parts = [];
+  if (e.concept) parts.push(`Concept: ${e.concept}`);
+  if (e.theme)   parts.push(`Theme: ${e.theme}`);
+  if (e.section) parts.push(`Section: ${e.section}`);
+  if (e.extra)   parts.push(`Extra: ${e.extra}`);
+  return parts.join(' · ');
+}
+
+function copyPrompt(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1600);
+  });
+}
+
+function renderMoodBoard() {
+  const container = document.getElementById('mb-grid');
+  if (!container) return;
+  const entries = genHistory.filter(e => e.imageUrl);
+  if (entries.length === 0) {
+    container.innerHTML = `
+      <div class="mb-empty">
+        <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="10" width="36" height="28" rx="4"/>
+          <path d="M6 20h36"/><path d="M18 10v10"/><path d="M30 10v10"/>
+        </svg>
+        <p class="mb-empty-title">No mood board yet</p>
+        <p class="mb-empty-sub">Generated concepts will appear here once your first design image is ready.</p>
+      </div>`;
+    return;
+  }
+  container.innerHTML = entries.map(e => {
+    const genIdx = genHistory.indexOf(e);
+    const prompt = buildRegenPrompt(e);
+    const hasMaster = !!e.masterPrompt;
+    const desc = e.conceptDesc || e.desc || '';
+    const safePrompt = prompt.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `
+    <div class="mb-card">
+      <div class="mb-img-wrap" onclick="openLb('${e.imageUrl}')">
+        <img src="${e.imageUrl}" alt="${e.name}" class="mb-img" />
+        <div class="mb-img-overlay">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        </div>
+      </div>
+      <button class="mb-delete-btn" onclick="showMbDeleteConfirm(${genIdx})" title="Delete concept">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+      <div class="mb-body">
+        <div class="mb-meta">
+          <div class="mb-meta-row">
+            <span class="mb-label">Concept</span>
+            <span class="mb-value">${e.name || '—'}</span>
+          </div>
+          <div class="mb-meta-row">
+            <span class="mb-label">Style</span>
+            <span class="mb-value">${e.style || '—'}</span>
+          </div>
+          ${e.section ? `<div class="mb-meta-row"><span class="mb-label">Section</span><span class="mb-value">${e.section}</span></div>` : ''}
+        </div>
+        ${desc ? `<p class="mb-desc">${desc}</p>` : ''}
+        <div class="mb-prompt-block">
+          <div class="mb-prompt-label">
+            <svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            ${hasMaster ? 'Master Prompt' : 'Regeneration Prompt'}
+          </div>
+          <div class="mb-prompt-text">${prompt}</div>
+          <button class="mb-copy-btn" onclick="copyPrompt(this, '${safePrompt}')">Copy Prompt</button>
+        </div>
+        ${e.htmlUrl ? `<a class="mb-export-link" href="${e.htmlUrl}" download="${e.name.replace(/\s+/g,'-').toLowerCase()}.html">Export HTML</a>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDropdown() {
+  const dropdown = document.getElementById('gen-dropdown');
+  const isOpen   = dropdown.classList.contains('open');
+  if (isOpen) {
+    dropdown.classList.remove('open');
+  } else {
+    dropdown.classList.add('open');
+    if (genHistory.length > 0) {
+      document.getElementById('gen-output').style.display = 'flex';
+      renderEntry(histIdx);
+    }
+    setTimeout(() => dropdown.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+  }
+  updateNavBar();
+}
+
+// ── Navigation ────────────────────────────────────────
+function navigateHistory(dir) {
+  const next = histIdx + dir;
+  if (next < 0 || next >= genHistory.length) return;
+  histIdx = next;
+  saveHistory();
+  renderEntry(histIdx);
+}
+
+// ── Delete with confirmation ──────────────────────────
+let _deleteTargetIdx = -1;
+
+function showDeleteConfirm() {            // gallery trash button
+  if (histIdx < 0 || histIdx >= genHistory.length) return;
+  _deleteTargetIdx = histIdx;
+  document.getElementById('delete-modal').classList.add('open');
+}
+function showMbDeleteConfirm(genIdx) {    // mood board card trash button
+  if (genIdx < 0 || genIdx >= genHistory.length) return;
+  _deleteTargetIdx = genIdx;
+  document.getElementById('delete-modal').classList.add('open');
+}
+function hideDeleteConfirm() {
+  document.getElementById('delete-modal').classList.remove('open');
+}
+function confirmDelete() {
+  hideDeleteConfirm();
+  const idx = _deleteTargetIdx;
+  if (idx < 0 || idx >= genHistory.length) return;
+  genHistory.splice(idx, 1);
+  if (genHistory.length === 0) {
+    histIdx = -1;
+    document.getElementById('gen-dropdown').classList.remove('open');
+    document.getElementById('gen-output').style.display = 'none';
+  } else {
+    histIdx = Math.min(histIdx, genHistory.length - 1);
+    if (histIdx >= 0) renderEntry(histIdx);
+  }
+  saveHistory();
+  renderMoodBoard();
+  updateNavBar();
+}
+
+// ── Generator ─────────────────────────────────────────
+async function runGenerate() {
+  const concept = document.getElementById('g-concept').value.trim();
+  const theme   = document.getElementById('g-theme').value.trim();
+  const section = document.getElementById('g-section').value.trim();
+  const extra   = document.getElementById('g-extra').value.trim();
+  if (!concept && !theme && !section) return toast('Fill in at least one field to generate.');
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.textContent = 'Crafting prompt...';
+
+  genCount++;
+  localStorage.setItem('cs_gen_count', genCount);
+
+  const name = concept || theme || section || 'Custom Concept';
+  const entry = {
+    number: genCount,
+    name,
+    style: theme || '—',
+    desc: buildDescription(concept, theme, section, extra),
+    imageUrl: null,
+    htmlUrl: null,
+    htmlError: false,
+    masterPrompt: null,
+    concept, theme, section, extra,
+  };
+
+  genHistory.push(entry);
+  histIdx = genHistory.length - 1;
+  saveHistory();
+
+  // Reset image area
+  const frontImg = document.getElementById('res-front-img');
+  frontImg.src = '';
+  document.getElementById('front-frame').style.display = 'none';
+  document.getElementById('front-placeholder').style.display = 'flex';
+  document.getElementById('front-bar').style.width = '0%';
+  document.getElementById('front-pct').textContent = '0%';
+  document.getElementById('export-btn').disabled = true;
+  setHtmlChip('pending', 'Crafting master prompt...');
+
+  // Show dropdown
+  document.getElementById('gen-output').style.display = 'flex';
+  document.getElementById('gen-dropdown').classList.add('open');
+  renderEntry(histIdx);
+  setTimeout(() => document.getElementById('gen-dropdown').scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+
+  // Phase 0: generate master prompt
+  let masterPrompt = null;
+  try {
+    const mp = await fetch('/api/master-prompt', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ concept, theme, section, extra }),
+    }).then(r => r.json());
+    if (mp.ok && mp.masterPrompt) {
+      masterPrompt = mp.masterPrompt;
+      entry.masterPrompt = masterPrompt;
+      saveHistory();
+    }
+  } catch(e) { /* falls back gracefully — server uses buildConceptDescription() */ }
+
+  btn.textContent = 'Generating...';
+  setHtmlChip('pending', 'Waiting for image...');
+
+  // Phase 1: generate image
+  const frontIv = startProgress('front-bar', 'front-pct', 65000);
+  try {
+    const j = await fetch('/api/generate-concept', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ concept, theme, section, extra, masterPrompt }),
+    }).then(r => r.json());
+    clearInterval(frontIv);
+
+    if (j.ok && j.imageUrl) {
+      finishProgress('front-bar', 'front-pct');
+      entry.imageUrl = j.imageUrl;
+      if (j.conceptDesc) entry.conceptDesc = j.conceptDesc;
+      saveHistory();
+      renderMoodBoard();
+      if (histIdx === genHistory.indexOf(entry)) renderEntry(histIdx);
+      toast('Design image ready — building HTML...');
+      setHtmlChip('pending', 'Image ready — building HTML...');
+
+      // Phase 2: generate HTML using image as visual reference
+      try {
+        const hj = await fetch('/api/export-concept', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ concept, theme, section, extra, imagePath: j.imagePath, masterPrompt }),
+        }).then(r => r.json());
+
+        if (hj.ok && hj.htmlUrl) {
+          entry.htmlUrl = hj.htmlUrl;
+          entry.htmlError = false;
+        } else {
+          entry.htmlError = true;
+          toast('HTML error: ' + (hj.error || 'Unknown'));
+        }
+      } catch (e) {
+        entry.htmlError = true;
+        toast('HTML error: ' + e.message);
+      }
+
+    } else {
+      document.getElementById('front-pct').textContent = 'Error';
+      document.getElementById('front-bar').style.background = '#e05252';
+      entry.htmlError = true;
+      setHtmlChip('error', 'Image failed');
+      toast('Image error: ' + (j.error || 'Unknown'));
+    }
+  } catch (e) {
+    clearInterval(frontIv);
+    document.getElementById('front-pct').textContent = 'Error';
+    document.getElementById('front-bar').style.background = '#e05252';
+    entry.htmlError = true;
+    setHtmlChip('error', 'Image failed');
+    toast('Image error: ' + e.message);
+  }
+
+  saveHistory();
+  renderMoodBoard();
+  if (histIdx === genHistory.indexOf(entry)) renderEntry(histIdx);
+  btn.disabled = false;
+  btn.textContent = 'Generate Concept';
+}
+
+// ── Export: download already-saved HTML ───────────────
+function exportHTML() {
+  const entry = genHistory[histIdx];
+  if (!entry?.htmlUrl) return toast('HTML not ready yet.');
+  const a = document.createElement('a');
+  a.href = entry.htmlUrl;
+  a.download = entry.name.replace(/\s+/g, '-').toLowerCase() + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  toast('HTML exported!');
+}
+
+function openLb(src) {
+  if (!src) return;
+  document.getElementById('lb-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+</script>
+</body>
+</html>

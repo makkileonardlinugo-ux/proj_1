@@ -1,0 +1,6 @@
+{
+  "name": "trend-finder-v2",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Trend Finder Phase 2 — Node static/proxy server"
+}

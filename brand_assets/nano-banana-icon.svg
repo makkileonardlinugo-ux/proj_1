@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
+  <!-- splatter blob -->
+  <path d="M17 7 C21 6 25 9 25 13 C26 15 27 18 24 20 C22 23 18 25 15 24 C12 25 8 22 8 19 C6 16 6 13 9 11 C11 8 14 8 17 7 Z" fill="#c0524a"/>
+  <!-- splatter arms -->
+  <path d="M24 10 L28 7" stroke="#c0524a" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M9 11 L6 7" stroke="#c0524a" stroke-width="1.4" stroke-linecap="round"/>
+  <!-- satellite drops -->
+  <circle cx="29" cy="14" r="1.4" fill="#c0524a"/>
+  <circle cx="5" cy="20" r="1" fill="#c0524a"/>
+  <!-- drip -->
+  <path d="M16 24 C15.5 25.5 15 28 16 31" stroke="#c0524a" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TREND FINDER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="trend-finder.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 8'><rect width='11' height='8' fill='%23000'/><rect x='2' y='0' width='1' height='1' fill='%23fff'/><rect x='8' y='0' width='1' height='1' fill='%23fff'/><rect x='2' y='2' width='7' height='1' fill='%23fff'/><rect x='0' y='4' width='11' height='1' fill='%23fff'/></svg>"/>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────── -->
+<header class="page-header">
+  <div class="header-left">
+    <span class="tool-title">
+      <span class="bracket">&#9668;&nbsp;</span>TREND FINDER<span class="bracket">&nbsp;&#9658;</span>
+    </span>
+    <span class="badge badge-idle" id="nav-status">IDLE</span>
+  </div>
+  <div class="header-right">
+    <span class="header-meta">GEMINI&nbsp;&nbsp;<span class="blink">&#9608;</span>&nbsp;FLASH</span>
+    <span class="header-meta">google news // reddit // hn</span>
+  </div>
+</header>
+
+<!-- ── Main ───────────────────────────────────────────────────── -->
+<main>
+
+  <!-- LEFT COLUMN -->
+  <div class="left-col">
+
+    <!-- Search panel -->
+    <section class="t-box" data-title="SEARCH TARGET">
+      <div class="section-label">INPUT PARAMETERS</div>
+
+      <div style="margin-bottom:14px;">
+        <label class="field-label" for="tf-search-input">Search query</label>
+        <div class="tf-search-row">
+          <span class="tf-search-prompt">&gt;_</span>
+          <input
+            id="tf-search-input"
+            class="tf-input"
+            type="search"
+            placeholder="AI tools 2025, remote work, startup ideas..."
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Search query"
+          >
+          <button id="tf-search-btn" class="btn-primary" aria-label="Run search">
+            &#9658;&nbsp;RUN
+          </button>
+        </div>
+      </div>
+
+      <div class="tf-chips">
+        <span class="tf-chips-label">PRESETS:</span>
+        <button class="tf-chip" data-q="AI tools 2025">AI tools 2025</button>
+        <button class="tf-chip" data-q="best productivity apps">productivity</button>
+        <button class="tf-chip" data-q="remote work tips">remote work</button>
+        <button class="tf-chip" data-q="startup ideas">startups</button>
+        <button class="tf-chip" data-q="web development trends">web dev</button>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section>
+      <div id="tf-results-header" class="section-label" style="display:none;">
+        RESULTS
+        <span id="tf-results-meta"></span>
+      </div>
+
+      <!-- Loading -->
+      <div id="tf-loading-state" class="tf-state" role="status">
+        <div class="tf-spinner">
+          <div class="tf-spinner-ring"></div>
+          <div class="tf-spinner-ring"></div>
+          <div class="tf-spinner-ring"></div>
+        </div>
+        <div class="tf-state-msg">SCANNING...</div>
+        <div class="tf-state-sub">Querying Google News, Reddit, and Hacker News in parallel.</div>
+      </div>
+
+      <!-- Empty -->
+      <div id="tf-empty-state" class="tf-state">
+        <div class="tf-state-msg">NO RESULTS</div>
+        <div class="tf-state-sub">Query returned zero results. Try different keywords or a broader topic.</div>
+      </div>
+
+      <!-- Error -->
+      <div id="tf-error-state" class="tf-state">
+        <div class="tf-state-msg">ERR: CONNECTION FAILED</div>
+        <div id="tf-error-msg" class="tf-state-sub tf-state-sub-err" style="margin-bottom:12px;">
+          Could not reach the API server. Make sure both servers are running.
+        </div>
+        <button id="tf-retry-btn" class="btn-secondary" style="padding:9px 14px;">&#9654; RETRY</button>
+      </div>
+
+      <!-- Idle -->
+      <div id="tf-list-state" class="tf-state visible">
+        <div class="tf-state-msg">AWAITING INPUT</div>
+        <div class="tf-state-sub">Enter a query above and press RUN to search all three sources simultaneously. Results appear as cards below.</div>
+      </div>
+
+      <!-- Results list -->
+      <div id="tf-results-list" class="tf-results-list" role="list" aria-label="Search results"></div>
+    </section>
+
+  </div><!-- /left-col -->
+
+  <!-- RIGHT COLUMN — Idea Panel -->
+  <aside class="right-col">
+    <div class="section-label" style="margin-top:0;">IDEA BUFFER</div>
+
+    <div class="idea-panel">
+      <div class="idea-panel-header">
+        <span class="idea-panel-title">// COLLECTED IDEAS</span>
+        <span id="tf-panel-count" class="tf-panel-count">0</span>
+      </div>
+
+      <div id="tf-panel-empty" class="tf-panel-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5
+               M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/>
+        </svg>
+        <p>Click EXTRACT on a result to collect ideas here.</p>
+      </div>
+
+      <div id="tf-panel-list" class="tf-panel-list" style="display:none" role="list"></div>
+
+      <div id="tf-panel-controls" class="tf-panel-controls">
+        <div class="tf-panel-btn-row">
+          <button id="tf-panel-select-all" class="tf-panel-btn">SEL ALL</button>
+          <button id="tf-panel-deselect"   class="tf-panel-btn">DESEL</button>
+          <button id="tf-panel-remove"     class="tf-panel-btn tf-panel-btn-danger">REMOVE</button>
+          <button id="tf-panel-dedup"      class="tf-panel-btn">DEDUP</button>
+          <button id="tf-panel-clear"      class="tf-panel-btn tf-panel-btn-danger">CLEAR</button>
+        </div>
+        <div class="tf-panel-primary-row">
+          <button id="tf-panel-preview" class="tf-panel-preview-btn">PREVIEW</button>
+          <button id="tf-panel-export"  class="tf-panel-export-btn">EXPORT CSV</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</main>
+
+<!-- ── Browse & Pick modal ─────────────────────────────────────── -->
+<div id="tf-browse-modal" class="tf-modal" role="dialog" aria-modal="true" aria-labelledby="tf-browse-modal-title">
+  <div class="tf-modal-backdrop"></div>
+  <div class="tf-modal-box">
+    <div class="tf-modal-header">
+      <div>
+        <h3 id="tf-browse-modal-title" class="tf-modal-title">BROWSE &amp; PICK</h3>
+        <p class="tf-modal-subtitle">Select ideas to add to the buffer</p>
+      </div>
+      <button class="tf-modal-close" aria-label="Close">&times;</button>
+    </div>
+    <div id="tf-browse-list" class="tf-modal-body"></div>
+    <div class="tf-modal-footer">
+      <button id="tf-browse-add-btn" class="btn-primary">&#9658; ADD SELECTED</button>
+      <button class="btn-secondary" onclick="document.getElementById('tf-browse-modal').classList.remove('open');document.body.style.overflow=''">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Preview modal ──────────────────────────────────────────── -->
+<div id="tf-preview-modal" class="tf-modal" role="dialog" aria-modal="true" aria-labelledby="tf-preview-modal-title">
+  <div class="tf-modal-backdrop"></div>
+  <div class="tf-modal-box tf-modal-box-wide">
+    <div class="tf-modal-header">
+      <div>
+        <h3 id="tf-preview-modal-title" class="tf-modal-title">IDEA PREVIEW</h3>
+        <p id="tf-preview-count" class="tf-modal-subtitle">0 ideas</p>
+      </div>
+      <button class="tf-modal-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="tf-modal-body tf-preview-wrap">
+      <table class="tf-preview-table">
+        <thead>
+          <tr>
+            <th class="tf-preview-rank">#</th>
+            <th>IDEA</th>
+            <th>ARTICLE</th>
+            <th>SOURCE</th>
+            <th>PLATFORM</th>
+            <th>DATE</th>
+          </tr>
+        </thead>
+        <tbody id="tf-preview-tbody"></tbody>
+      </table>
+    </div>
+    <div class="tf-modal-footer">
+      <button id="tf-preview-export-btn" class="btn-primary">&#8659; EXPORT CSV</button>
+      <button class="btn-secondary" onclick="document.getElementById('tf-preview-modal').classList.remove('open');document.body.style.overflow=''">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Status bar ──────────────────────────────────────────────── -->
+<div class="term-statusbar" aria-hidden="true">
+  <span class="statusbar-item">TF&#8209;v2</span>
+  <span class="statusbar-item">STATE:&nbsp;<span class="statusbar-val" id="sb-state">IDLE</span></span>
+  <span class="statusbar-item">QUERY:&nbsp;<span class="statusbar-val" id="sb-query">--</span></span>
+  <span class="statusbar-item">RESULTS:&nbsp;<span class="statusbar-val" id="sb-count">--</span></span>
+  <span class="statusbar-item">IDEAS:&nbsp;<span class="statusbar-val" id="sb-ideas">0</span></span>
+  <span class="statusbar-item">GEMINI&#8209;1.5&#8209;FLASH</span>
+</div>
+
+<script src="trend-finder.js"></script>
+<script>
+  document.getElementById('tf-preview-export-btn').onclick = () => {
+    if (typeof exportCSV === 'function') exportCSV();
+  };
+</script>
+</body>
+</html>

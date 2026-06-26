@@ -444,6 +444,106 @@
       #nav.scrolled{padding:13px 24px}
       .nav-links{display:none}
     }
+
+    /* PURCHASE BUTTON */
+    .btn-purchase{
+      width:100%;padding:10px;margin-top:13px;border-radius:6px;
+      font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;
+      text-transform:uppercase;cursor:pointer;
+      background:rgba(63,231,200,.07);border:1px solid rgba(63,231,200,.28);color:var(--accent);
+      transition:all .25s var(--spring);
+    }
+    .btn-purchase:hover{background:rgba(63,231,200,.16);border-color:rgba(63,231,200,.55);box-shadow:0 0 18px rgba(63,231,200,.18);transform:translateY(-2px);}
+    .btn-purchase:active{transform:scale(.98);}
+
+    /* PAYWALL */
+    #pw-overlay{
+      position:fixed;inset:0;z-index:9999;
+      background:rgba(0,0,5,.84);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      display:flex;align-items:center;justify-content:center;padding:20px;
+      opacity:0;pointer-events:none;transition:opacity .35s var(--spring);
+    }
+    #pw-overlay.open{opacity:1;pointer-events:all;}
+    @keyframes pw-up{from{opacity:0;transform:translateY(32px) scale(.96)}to{opacity:1;transform:none}}
+    #pw-modal{
+      background:var(--bg-1);border:1px solid rgba(63,231,200,.28);border-radius:24px;
+      width:100%;max-width:490px;padding:44px 40px;position:relative;overflow:hidden;
+      box-shadow:0 0 80px rgba(63,231,200,.13),0 0 180px rgba(123,45,255,.06),0 40px 100px rgba(0,0,0,.75);
+    }
+    #pw-overlay.open #pw-modal{animation:pw-up .42s var(--spring);}
+    #pw-modal::before{
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(ellipse at 50% -15%,rgba(63,231,200,.13) 0%,transparent 52%),
+                 radial-gradient(ellipse at 88% 92%,rgba(123,45,255,.08) 0%,transparent 42%);
+    }
+    .pw-close{
+      position:absolute;top:18px;right:18px;width:30px;height:30px;
+      background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:50%;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      color:var(--muted);font-size:13px;transition:all .2s;z-index:2;line-height:1;
+    }
+    .pw-close:hover{background:rgba(255,255,255,.1);color:var(--text);border-color:rgba(255,255,255,.16);}
+    .pw-dots{display:flex;gap:7px;justify-content:center;margin-bottom:30px;position:relative;z-index:1;}
+    .pw-dot{width:7px;height:7px;border-radius:50%;background:var(--faint);transition:all .35s var(--spring);}
+    .pw-dot.active{width:22px;border-radius:4px;background:var(--accent);box-shadow:0 0 10px rgba(63,231,200,.55);}
+    .pw-step{display:none;position:relative;z-index:1;}
+    .pw-step.active{display:block;animation:pw-up .32s var(--spring);}
+    .pw-tag{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:7px;}
+    .pw-heading{font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.025em;line-height:1.15;margin-bottom:4px;}
+    .pw-sub{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.55;}
+    .pw-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--line);}
+    .pw-big-price{font-family:'Bricolage Grotesque',sans-serif;font-size:42px;font-weight:800;letter-spacing:-0.04em;color:var(--accent);}
+    .pw-usd{font-size:11px;color:var(--faint);}
+    .pw-includes{display:flex;flex-direction:column;gap:9px;margin-bottom:26px;}
+    .pw-include-row{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);}
+    .pw-include-row::before{
+      content:'';width:15px;height:15px;border-radius:50%;flex-shrink:0;
+      background:rgba(63,231,200,.1) url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 7l2.5 2.5L11 4' stroke='%233fe7c8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/cover;
+      border:1px solid rgba(63,231,200,.22);
+    }
+    .pw-btn{
+      width:100%;padding:14px;border-radius:8px;font-family:'Manrope',sans-serif;
+      font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+      transition:all .25s var(--spring);text-align:center;display:block;
+    }
+    .pw-btn-solid{background:var(--accent);color:#000;border:none;margin-top:4px;}
+    .pw-btn-solid:hover{box-shadow:0 0 30px rgba(63,231,200,.5),0 8px 20px rgba(63,231,200,.22);transform:translateY(-2px);}
+    .pw-btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text);margin-top:10px;}
+    .pw-btn-ghost:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.04);}
+    .pw-security{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;font-size:11px;color:var(--faint);}
+    .pw-security svg{width:12px;height:12px;stroke:var(--faint);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+    .pw-fgroup{margin-bottom:15px;}
+    .pw-flabel{display:block;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-bottom:7px;}
+    .pw-finput{
+      width:100%;padding:12px 14px;background:var(--bg-2);border:1px solid var(--line);
+      border-radius:8px;color:var(--text);font-family:'Manrope',sans-serif;font-size:14px;
+      transition:border-color .2s,box-shadow .2s;outline:none;
+    }
+    .pw-finput:focus{border-color:rgba(63,231,200,.4);box-shadow:0 0 0 3px rgba(63,231,200,.06);}
+    .pw-finput::placeholder{color:var(--faint);}
+    .pw-frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .pw-card-icons{display:flex;gap:6px;margin-bottom:18px;}
+    .pw-card-icon{padding:4px 10px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--muted);}
+    .pw-success-wrap{text-align:center;padding:6px 0;}
+    .pw-success-ring{
+      width:70px;height:70px;border-radius:50%;border:1px solid rgba(63,231,200,.3);
+      background:rgba(63,231,200,.06);display:flex;align-items:center;justify-content:center;
+      margin:0 auto 20px;position:relative;
+    }
+    .pw-success-ring::before{
+      content:'';position:absolute;inset:-8px;border-radius:50%;
+      border:1px solid rgba(63,231,200,.12);animation:pulse 2.2s ease-in-out infinite;
+    }
+    .pw-success-ring svg{width:28px;height:28px;stroke:var(--accent);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+    .pw-deed-chip{
+      display:inline-flex;align-items:center;gap:7px;
+      padding:7px 16px;border:1px solid rgba(63,231,200,.28);border-radius:100px;
+      font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--accent);background:rgba(63,231,200,.05);margin-bottom:22px;
+    }
+    .pw-success-title{font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px;}
+    .pw-success-sub{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:28px;max-width:340px;margin-left:auto;margin-right:auto;}
+    @media(max-width:520px){#pw-modal{padding:32px 22px;border-radius:18px;}.pw-big-price{font-size:34px;}}
   </style>
 </head>
 <body>
@@ -522,7 +622,7 @@
             <div class="stat-chip">Dist <b>1402 ly</b></div>
           </div>
           <div class="card-foot">
-            <div><div class="card-price-lbl">Asking Price</div><div class="card-price">CR 4.2B</div></div>
+            <div><div class="card-price-lbl">Asking Price</div><div class="card-price">CR 2.9B</div></div>
             <div class="avail"><div class="avail-dot"></div>Available</div>
           </div>
         </div>
@@ -543,7 +643,7 @@
             <div class="stat-chip">Dist <b>42 ly</b></div>
           </div>
           <div class="card-foot">
-            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#9b6cff">CR 2.8B</div></div>
+            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#9b6cff">CR 3.2B</div></div>
             <div class="avail"><div class="avail-dot"></div>Available</div>
           </div>
         </div>
@@ -564,7 +664,7 @@
             <div class="stat-chip">Dist <b>23.6 ly</b></div>
           </div>
           <div class="card-foot">
-            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#3ddc84">CR 6.1B</div></div>
+            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#3ddc84">CR 6.8B</div></div>
             <div class="avail"><div class="avail-dot"></div>Available</div>
           </div>
         </div>
@@ -585,7 +685,7 @@
             <div class="stat-chip">Dist <b>39.5 ly</b></div>
           </div>
           <div class="card-foot">
-            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#00c6ff">CR 3.5B</div></div>
+            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#00c6ff">CR 5.4B</div></div>
             <div class="avail"><div class="avail-dot"></div>Available</div>
           </div>
         </div>
@@ -606,7 +706,7 @@
             <div class="stat-chip">Dist <b>13.8 ly</b></div>
           </div>
           <div class="card-foot">
-            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#ff6432">CR 1.9B</div></div>
+            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#ff6432">CR 1.95B</div></div>
             <div class="avail"><div class="avail-dot"></div>Available</div>
           </div>
         </div>
@@ -627,7 +727,7 @@
             <div class="stat-chip">Dist <b>11.9 ly</b></div>
           </div>
           <div class="card-foot">
-            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#ffb428">CR 2.3B</div></div>
+            <div><div class="card-price-lbl">Asking Price</div><div class="card-price" style="color:#ffb428">CR 2.6B</div></div>
             <div class="avail"><div class="avail-dot"></div>Available</div>
           </div>
         </div>
@@ -719,7 +819,7 @@
           <li>Spectroscopic Analysis Report</li>
           <li>Basic Naming Rights</li>
         </ul>
-        <a href="#" class="btn-p btn-p-ghost">Get Started</a>
+        <button class="btn-p btn-p-ghost" onclick="openPW('explorer')">Get Started</button>
       </div>
       <div class="pricing-card featured reveal" style="transition-delay:.10s">
         <div class="pricing-badge">Most Popular</div>
@@ -738,7 +838,7 @@
           <li>Priority Deed Transfer (48 hrs)</li>
           <li>Dedicated Account Manager</li>
         </ul>
-        <a href="#" class="btn-p btn-p-solid">Acquire Now</a>
+        <button class="btn-p btn-p-solid" onclick="openPW('collector')">Acquire Now</button>
       </div>
       <div class="pricing-card reveal" style="transition-delay:.15s">
         <div class="p-tier">Tier 03</div>
@@ -820,6 +920,92 @@
   </div>
 </footer>
 
+<!-- PAYWALL OVERLAY -->
+<div id="pw-overlay">
+  <div id="pw-modal">
+    <button class="pw-close" onclick="closePW()" aria-label="Close">&#x2715;</button>
+    <div class="pw-dots">
+      <div class="pw-dot active" id="pwdot1"></div>
+      <div class="pw-dot" id="pwdot2"></div>
+      <div class="pw-dot" id="pwdot3"></div>
+    </div>
+
+    <!-- STEP 1: Review Order -->
+    <div class="pw-step active" id="pws1">
+      <div class="pw-tag">Acquisition Order</div>
+      <div class="pw-heading" id="pw-name">Kepler-452b</div>
+      <div class="pw-sub" id="pw-type">Super Earth — 1,402 ly from Sol</div>
+      <div class="pw-price-row">
+        <div class="pw-big-price" id="pw-price">CR 2.9B</div>
+        <div class="pw-usd" id="pw-usd">approx. $13.9M USD equivalent</div>
+      </div>
+      <div class="pw-includes" id="pw-includes">
+        <div class="pw-include-row">Official Galactic Property Deed</div>
+        <div class="pw-include-row">30-day Survey Access Window</div>
+        <div class="pw-include-row">Spectroscopic Analysis Report</div>
+        <div class="pw-include-row">Full Naming Rights</div>
+        <div class="pw-include-row">500-Year PLANETEX Guarantee</div>
+      </div>
+      <button class="pw-btn pw-btn-solid" onclick="pwNext(2)">Continue to Payment &rarr;</button>
+      <button class="pw-btn pw-btn-ghost" onclick="closePW()">Cancel Acquisition</button>
+      <div class="pw-security">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        Quantum-secured transaction &middot; Galactic Registry certified
+      </div>
+    </div>
+
+    <!-- STEP 2: Payment -->
+    <div class="pw-step" id="pws2">
+      <div class="pw-tag">Payment Details</div>
+      <div class="pw-heading">Complete Your Acquisition</div>
+      <div class="pw-sub">All transactions are quantum-encrypted and finalized within 72 hours.</div>
+      <div class="pw-card-icons">
+        <div class="pw-card-icon">VISA</div>
+        <div class="pw-card-icon">MC</div>
+        <div class="pw-card-icon">AMEX</div>
+        <div class="pw-card-icon">CRYPTO</div>
+      </div>
+      <div class="pw-fgroup">
+        <label class="pw-flabel">Cardholder Name</label>
+        <input class="pw-finput" type="text" placeholder="Commander Jane Doe" autocomplete="name">
+      </div>
+      <div class="pw-fgroup">
+        <label class="pw-flabel">Card Number</label>
+        <input class="pw-finput" type="text" placeholder="&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;" maxlength="19">
+      </div>
+      <div class="pw-frow">
+        <div class="pw-fgroup">
+          <label class="pw-flabel">Expiry</label>
+          <input class="pw-finput" type="text" placeholder="MM / YY" maxlength="7">
+        </div>
+        <div class="pw-fgroup">
+          <label class="pw-flabel">Security Code</label>
+          <input class="pw-finput" type="text" placeholder="&bull;&bull;&bull;" maxlength="4">
+        </div>
+      </div>
+      <button class="pw-btn pw-btn-solid" onclick="pwNext(3)" style="margin-top:18px;">Finalize Purchase &rarr;</button>
+      <button class="pw-btn pw-btn-ghost" onclick="pwNext(1)">&larr; Back to Review</button>
+      <div class="pw-security">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        256-bit quantum encryption &middot; PCI-DSS compliant
+      </div>
+    </div>
+
+    <!-- STEP 3: Confirmation -->
+    <div class="pw-step" id="pws3">
+      <div class="pw-success-wrap">
+        <div class="pw-success-ring">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="pw-deed-chip"><div class="badge-dot"></div>Deed Transfer Initiated</div>
+        <div class="pw-success-title">World Acquired.</div>
+        <div class="pw-success-sub">Your ownership of <strong id="pw-conf-name">Kepler-452b</strong> is now registered in the Galactic Property Registry. Expect your official deed within 72 hours.</div>
+        <button class="pw-btn pw-btn-solid" onclick="closePW()" style="max-width:260px;margin:0 auto;">Return to Catalog</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   // STAR FIELD
   const canvas = document.getElementById('stars');
@@ -876,6 +1062,43 @@
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
   }, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // PAYWALL
+  const PW_DATA = {
+    'kepler-452b': { name:'Kepler-452b', type:'Super Earth — 1,402 ly from Sol', price:'CR 2.9B', usd:'approx. $13.9M USD equivalent', includes:['Official Galactic Property Deed','30-day Survey Access Window','Spectroscopic Analysis Report','Full Naming Rights','500-Year PLANETEX Guarantee'] },
+    'hd-40307g':   { name:'HD 40307g',   type:'Mini Neptune — 42 ly from Sol',   price:'CR 3.2B', usd:'approx. $15.4M USD equivalent', includes:['Official Galactic Property Deed','30-day Survey Access Window','Spectroscopic Analysis Report','Full Naming Rights','500-Year PLANETEX Guarantee'] },
+    'gliese-667cc':{ name:'Gliese 667Cc',type:'Habitable Zone — 23.6 ly from Sol',price:'CR 6.8B', usd:'approx. $32.7M USD equivalent', includes:['Official Galactic Property Deed','Full Terraforming Viability Plan','Spectroscopic Analysis Report','Full Naming Rights + Catalog Listing','Priority Deed Transfer (48 hrs)','500-Year PLANETEX Guarantee'] },
+    'trappist-1e': { name:'TRAPPIST-1e', type:'Ocean World — 39.5 ly from Sol',  price:'CR 5.4B', usd:'approx. $25.9M USD equivalent', includes:['Official Galactic Property Deed','30-day Survey Access Window','Spectroscopic Analysis Report','Full Naming Rights','Rare Ocean-World Classification Certificate','500-Year PLANETEX Guarantee'] },
+    'wolf-1061c':  { name:'Wolf 1061c',  type:'Rocky World — 13.8 ly from Sol',  price:'CR 1.95B',usd:'approx. $9.4M USD equivalent',  includes:['Official Galactic Property Deed','30-day Survey Access Window','Spectroscopic Analysis Report','Basic Naming Rights','500-Year PLANETEX Guarantee'] },
+    'tau-ceti-e':  { name:'Tau Ceti e',  type:'Desert World — 11.9 ly from Sol', price:'CR 2.6B', usd:'approx. $12.5M USD equivalent', includes:['Official Galactic Property Deed','30-day Survey Access Window','Spectroscopic Analysis Report','Full Naming Rights','Proximity Advantage Certificate','500-Year PLANETEX Guarantee'] },
+    'explorer':    { name:'Explorer Tier',type:'First-time planetary acquisition', price:'CR 500M', usd:'approx. $2.4M USD equivalent',  includes:['Official Galactic Property Deed','30-day Survey Access Window','Spectroscopic Analysis Report','Basic Naming Rights'] },
+    'collector':   { name:'Collector Tier',type:'Multi-world portfolio building',  price:'CR 2.4B', usd:'approx. $11.5M USD equivalent', includes:['Everything in Explorer','Full Terraforming Viability Plan','Naming Rights + Catalog Listing','Priority Deed Transfer (48 hrs)','Dedicated Account Manager'] },
+  };
+
+  function openPW(key) {
+    const d = PW_DATA[key]; if (!d) return;
+    document.getElementById('pw-name').textContent = d.name;
+    document.getElementById('pw-type').textContent = d.type;
+    document.getElementById('pw-price').textContent = d.price;
+    document.getElementById('pw-usd').textContent = d.usd;
+    document.getElementById('pw-conf-name').textContent = d.name;
+    document.getElementById('pw-includes').innerHTML = d.includes.map(i => `<div class="pw-include-row">${i}</div>`).join('');
+    pwNext(1);
+    document.getElementById('pw-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePW() {
+    document.getElementById('pw-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function pwNext(n) {
+    [1,2,3].forEach(i => {
+      document.getElementById('pws'+i).classList.toggle('active', i===n);
+      document.getElementById('pwdot'+i).classList.toggle('active', i===n);
+    });
+  }
+  document.getElementById('pw-overlay').addEventListener('click', e => { if (e.target === document.getElementById('pw-overlay')) closePW(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePW(); });
 </script>
 </body>
 </html>

@@ -8,6 +8,10 @@ import { dirname, join } from 'path';
 import cron from 'node-cron';
 import Groq from 'groq-sdk';
 import { createHmac } from 'crypto';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import puppeteer from 'puppeteer';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -377,6 +381,292 @@ app.delete('/schedules/:id', async (req, res) => {
     .eq('id', req.params.id);
   if (error) return res.status(500).json({ ok: false, error: error.message });
   res.json({ ok: true });
+});
+
+// ── KIE Image Generation ─────────────────────────────────────────────────────
+const KIE_API_KEY = process.env.KIE_API_KEY;
+
+app.post('/generate-image', async (req, res) => {
+  const { prompt, aspectRatio = '16:9', resolution = '1K', filename } = req.body || {};
+  if (!prompt) return res.status(400).json({ ok: false, error: 'prompt required' });
+  if (!KIE_API_KEY) return res.status(500).json({ ok: false, error: 'KIE_API_KEY not configured' });
+
+  try {
+    const taskRes = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${KIE_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'nano-banana-2', input: { prompt, aspect_ratio: aspectRatio, resolution, output_format: 'jpg' } }),
+    });
+    const taskJson = await taskRes.json();
+    if (taskJson.code !== 200 || !taskJson.data?.taskId) {
+      return res.status(500).json({ ok: false, error: 'KIE task creation failed', detail: taskJson });
+    }
+    const taskId = taskJson.data.taskId;
+
+    let imageUrl = null;
+    for (let i = 0; i < 72; i++) {
+      await new Promise(r => setTimeout(r, 5000));
+      const statusRes = await fetch(`https://api.kie.ai/api/v1/jobs/recordInfo?taskId=${taskId}`, {
+        headers: { 'Authorization': `Bearer ${KIE_API_KEY}` },
+      });
+      const s = await statusRes.json();
+      const d = s.data || {};
+      const state = (d.state || d.status || '').toLowerCase();
+      if (state === 'success' || state === 'completed') {
+        try { imageUrl = JSON.parse(d.resultJson).resultUrls?.[0]; } catch {}
+        imageUrl = imageUrl || d.output?.url || d.result?.url || d.url;
+        if (imageUrl) break;
+        return res.status(500).json({ ok: false, error: 'Task done but no URL', data: d });
+      }
+      if (state === 'failed' || state === 'error') {
+        return res.status(500).json({ ok: false, error: 'KIE task failed', data: d });
+      }
+    }
+    if (!imageUrl) return res.status(500).json({ ok: false, error: 'Timeout waiting for image' });
+
+    const imgBuf = await (await fetch(imageUrl)).arrayBuffer();
+    const genDir = join(__dirname, 'images', 'generated');
+    mkdirSync(genDir, { recursive: true });
+    const fname = filename || `gen-${Date.now()}-${taskId.slice(0, 8)}.jpg`;
+    writeFileSync(join(genDir, fname), Buffer.from(imgBuf));
+
+    res.json({ ok: true, imageUrl: `/images/generated/${fname}`, taskId });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ── Shared design rules for prompt building ───────────────────────────────────
+const DESIGN_RULES = `
+DESIGN RULES (frontend-design skill):
+- Typography: distinctive editorial serif + refined sans pairing (e.g. Cormorant + DM Sans, Fraunces + Outfit, Playfair Display + Syne). NEVER Inter, Roboto, Arial.
+- Colors: custom brand palette derived from the theme. CSS custom properties for every color. Never default blue/indigo/purple.
+- Shadows: layered, color-tinted (not flat). Multiple shadow layers with low opacity.
+- Texture: subtle grain/noise overlay for depth.
+- Layout: intentional asymmetry, overlap, or diagonal flow. Massive display headings (clamp 5–9vw).
+- Animations: transform and opacity only. Staggered reveal on load.
+- Interactive states: :hover, :focus-visible, :active on every button and link.
+- No placeholder images, no lorem ipsum. Realistic brand-specific copy and CSS-only visuals.
+`;
+
+// Maps theme keywords to visual direction descriptors
+function buildConceptDescription(concept, theme, section, extra) {
+  const t = (theme || '').toLowerCase();
+  const colorMood =
+    t.includes('dark') || t.includes('moody') ? 'near-black grounds with warm amber and raw umber accents' :
+    t.includes('light') || t.includes('minimal') ? 'pure white with one strong accent color and generous negative space' :
+    t.includes('glass') || t.includes('frosted') ? 'translucent layers, cool blue-white tints, layered blur surfaces' :
+    t.includes('luxury') || t.includes('gold') ? 'deep charcoal or midnight navy with champagne gold accents' :
+    t.includes('neon') || t.includes('cyber') || t.includes('futur') ? 'pitch black with electric neon accent, high contrast' :
+    t.includes('warm') || t.includes('earthy') || t.includes('organic') ? 'warm cream, terracotta, and muted sage' :
+    t.includes('bold') || t.includes('dynamic') || t.includes('kinetic') ? 'saturated brand color block with high-contrast typography' :
+    'custom brand palette with one dominant hue and complementary neutral';
+
+  const typeFeel =
+    t.includes('editorial') || t.includes('luxury') || t.includes('minimal') ? 'condensed display serif at monumental scale with fine-weight sans body' :
+    t.includes('bold') || t.includes('dynamic') || t.includes('kinetic') ? 'extended grotesque in ultra-heavy weight with tight tracking' :
+    t.includes('organic') || t.includes('warm') || t.includes('earthy') ? 'humanist serif paired with soft rounded sans' :
+    t.includes('glass') || t.includes('cyber') || t.includes('futur') ? 'geometric sans with variable weight, sharp and technical' :
+    'editorial display serif paired with clean geometric sans';
+
+  const sec = (section || '').toLowerCase();
+  const layoutIntent =
+    sec.includes('hero') ? 'asymmetric full-viewport hero, image bleeding to one edge, headline dominant left' :
+    sec.includes('pric') ? 'three-column pricing grid, featured tier visually elevated, clear CTA hierarchy' :
+    sec.includes('feat') ? 'alternating text-image rows with subtle background shifts per row' :
+    sec.includes('about') ? 'editorial two-column layout with large pull quote and team photography' :
+    sec.includes('contact') ? 'split-panel contact form, left brand message, right clean form inputs' :
+    'asymmetric layout with intentional negative space and one full-bleed visual element';
+
+  const atmosphere = `A ${theme || 'contemporary'} ${section || 'homepage'} experience for ${concept || 'a modern brand'} — ${colorMood.split(' with ')[0]}, ${typeFeel.split(' paired')[0].toLowerCase()}, built for impact.`;
+
+  return `Brand Concept: ${concept || 'modern brand'}
+Visual Theme: ${theme || 'contemporary modern'}
+Key Section: ${section || 'Hero / Homepage'}${extra ? `\nExtra Context: ${extra}` : ''}
+
+Visual Direction:
+- Color mood: ${colorMood}
+- Typography feel: ${typeFeel}
+- Layout intent: ${layoutIntent}
+- Atmosphere: ${atmosphere}`;
+}
+
+function buildKiePrompt(conceptDesc) {
+  return `Full desktop website screenshot at 1440x900px, showing a live production-quality website.
+
+${conceptDesc}
+
+${DESIGN_RULES}
+
+The screenshot must show:
+- A complete nav bar with logo and links
+- A bold hero with massive display typography (not generic, not centered by default)
+- Real brand-specific copy — no lorem ipsum, no placeholder text
+- Custom color palette matching the theme — no default blues or purples
+- Realistic UI components with depth, shadows, and texture
+- At least one supporting section visible below the fold
+- Zero gray placeholder boxes
+
+Photorealistic browser screenshot. Looks like a real, active, shipped website.`;
+}
+
+// ── Master Prompt — Claude creative brief from user inputs ───────────────────
+app.post('/master-prompt', async (req, res) => {
+  const { concept = '', theme = '', section = '', extra = '' } = req.body || {};
+  if (!KIE_API_KEY) return res.status(500).json({ ok: false, error: 'KIE_API_KEY not configured' });
+
+  const system = `You are a creative director at a world-class design agency. Write a vivid, specific design brief (3–5 sentences) for both an AI image generator and a frontend developer to create a website. Cover: visual atmosphere, color palette, typography style, layout composition, and one defining UI detail. Be evocative and precise. Output only the brief — no labels, no markdown, no bullet points.`;
+
+  const user = `Concept: ${concept || 'modern brand'}
+Theme: ${theme || 'contemporary'}
+Section: ${section || 'Homepage'}${extra ? `\nExtra: ${extra}` : ''}`;
+
+  try {
+    const r = await fetch('https://api.kie.ai/claude/v1/messages', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${KIE_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        system,
+        messages: [{ role: 'user', content: user }],
+      }),
+    });
+    const json = await r.json();
+    const masterPrompt = json.content?.[0]?.text?.trim();
+    if (!masterPrompt) throw new Error(json.error?.message || 'No content returned');
+    res.json({ ok: true, masterPrompt });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ── Concept Generator — KIE Nano Banana 2 image ───────────────────────────────
+app.post('/generate-concept', async (req, res) => {
+  const { concept = '', theme = '', section = '', extra = '', masterPrompt = null } = req.body || {};
+  if (!concept && !theme && !section) {
+    return res.status(400).json({ ok: false, error: 'At least one field required' });
+  }
+  if (!KIE_API_KEY) return res.status(500).json({ ok: false, error: 'KIE_API_KEY not configured' });
+
+  const slug = ((concept || theme || section).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')).slice(0, 28);
+  const fname = `${slug}-${Date.now()}.jpg`;
+  const genDir = join(__dirname, 'images', 'generated');
+  mkdirSync(genDir, { recursive: true });
+
+  const conceptDesc = masterPrompt || buildConceptDescription(concept, theme, section, extra);
+  try {
+    // 1. Create KIE task
+    const taskRes = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${KIE_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'nano-banana-2', input: { prompt: buildKiePrompt(conceptDesc), aspect_ratio: '16:9', resolution: '1K', output_format: 'jpg' } }),
+    });
+    const taskJson = await taskRes.json();
+    if (taskJson.code !== 200 || !taskJson.data?.taskId) {
+      return res.status(500).json({ ok: false, error: 'KIE task creation failed', detail: taskJson });
+    }
+    const taskId = taskJson.data.taskId;
+
+    // 2. Poll for completion
+    let imageUrl = null;
+    for (let i = 0; i < 72; i++) {
+      await new Promise(r => setTimeout(r, 5000));
+      const s = await (await fetch(`https://api.kie.ai/api/v1/jobs/recordInfo?taskId=${taskId}`, {
+        headers: { 'Authorization': `Bearer ${KIE_API_KEY}` },
+      })).json();
+      const d = s.data || {};
+      const state = (d.state || d.status || '').toLowerCase();
+      if (state === 'success' || state === 'completed') {
+        try { imageUrl = JSON.parse(d.resultJson).resultUrls?.[0]; } catch {}
+        imageUrl = imageUrl || d.output?.url || d.result?.url || d.url;
+        if (imageUrl) break;
+        return res.status(500).json({ ok: false, error: 'Task done but no URL', data: d });
+      }
+      if (state === 'failed' || state === 'error') {
+        return res.status(500).json({ ok: false, error: 'KIE task failed', data: d });
+      }
+    }
+    if (!imageUrl) return res.status(500).json({ ok: false, error: 'Timeout waiting for image' });
+
+    // 3. Download and save
+    const imgBuf = await (await fetch(imageUrl)).arrayBuffer();
+    writeFileSync(join(genDir, fname), Buffer.from(imgBuf));
+
+    const imagePath = join(genDir, fname);
+    res.json({ ok: true, imageUrl: `/images/generated/${fname}`, imagePath, conceptDesc, taskId });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ── Export Concept as HTML — Claude Sonnet 4.6 via KIE API ───────────────────
+app.post('/export-concept', async (req, res) => {
+  const { concept = '', theme = '', section = '', extra = '', imagePath = null, masterPrompt = null } = req.body || {};
+  if (!KIE_API_KEY) return res.status(500).json({ ok: false, error: 'KIE_API_KEY not configured' });
+
+  const slug = ((concept || theme || section).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')).slice(0, 28);
+  const genDir  = join(__dirname, 'images', 'generated');
+  mkdirSync(genDir, { recursive: true });
+  const htmlFilePath = join(genDir, `${slug}-${Date.now()}.html`);
+  const htmlUrl  = `/images/generated/${htmlFilePath.split(/[\\/]/).pop()}`;
+
+  const conceptDesc = masterPrompt || buildConceptDescription(concept, theme, section, extra);
+
+  // Try to read the image as base64 for vision input
+  let imageBlock = null;
+  if (imagePath) {
+    try {
+      const data = readFileSync(imagePath).toString('base64');
+      imageBlock = { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data } };
+    } catch (e) {
+      console.warn('/export-concept: could not read imagePath, proceeding without image:', e.message);
+    }
+  }
+
+  const systemPrompt = imageBlock
+    ? `You are an elite frontend designer. A screenshot of the target website design is attached — match it exactly. Output a complete HTML file that replicates the layout, color palette, typography style, spacing, and overall atmosphere shown. No markdown, no code fences. Start with <!DOCTYPE html> and end with </html>. CSS under 60 lines. Body MUST have nav + hero + one section with real visible content.`
+    : `You are an elite frontend designer. Output a complete HTML file. No markdown, no code fences. Start with <!DOCTYPE html> and end with </html>. CSS under 60 lines. Body MUST have nav + hero + one section with real visible content — never empty or skeleton-only.`;
+
+  // Build user message: image first (Anthropic convention), then text
+  const userContent = [];
+  if (imageBlock) userContent.push(imageBlock);
+  userContent.push({
+    type: 'text',
+    text: `Build a website matching this concept:\n${conceptDesc}\n\n${imageBlock ? 'Match the attached screenshot precisely — same layout, colors, fonts, and atmosphere.' : 'Bold, distinctive, not generic.'} Google Fonts only (editorial serif + clean sans). CSS custom properties for all colors. placehold.co for images. Complete document, nothing truncated.`,
+  });
+
+  try {
+    const claudeRes = await fetch('https://api.kie.ai/claude/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${KIE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userContent }],
+      }),
+    });
+    const claudeJson = await claudeRes.json();
+    let html = claudeJson.content?.[0]?.text?.trim() || '';
+    if (!html) {
+      const errMsg = claudeJson.error?.message || claudeJson.message || claudeJson.detail || JSON.stringify(claudeJson).slice(0, 200);
+      throw new Error('KIE Claude: ' + errMsg);
+    }
+    html = html.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+    if (!html.toLowerCase().startsWith('<!doctype') && !html.toLowerCase().startsWith('<html')) {
+      const idx = html.toLowerCase().indexOf('<!doctype');
+      if (idx > -1) html = html.slice(idx);
+      else throw new Error('Claude did not return valid HTML');
+    }
+    writeFileSync(htmlFilePath, html, 'utf8');
+    res.json({ ok: true, htmlUrl });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 app.listen(3001, () => {

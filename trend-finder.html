@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trend Finder · Tester.io</title>
+  <meta name="description" content="Discover the latest trending products, gadgets, tools, accessories, and popular items from across the internet." />
+  <link rel="icon" type="image/png" href="brand_assets/tester-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="trend-finder.css" />
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- NAVIGATION -->
+  <header class="nav" id="nav">
+    <a href="index.html" class="brand">
+      <img class="brand-icon" src="brand_assets/tester-icon.png" alt="Tester.io logo" />
+      Tester<span class="brand-em">.io</span>
+    </a>
+    <nav class="nav-links" role="navigation" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="product.html">Products</a>
+      <a href="about.html">About</a>
+      <a href="trend-finder.html" class="nav-active">Trend Finder</a>
+      <a href="product.html" class="nav-cta">Get Started &rarr;</a>
+    </nav>
+    <button class="nav-mobile-btn" id="nav-mobile-btn" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <div class="nav-mobile-menu" id="nav-mobile-menu" aria-hidden="true">
+    <a href="index.html">Home</a>
+    <a href="product.html">Products</a>
+    <a href="about.html">About</a>
+    <a href="trend-finder.html" class="nav-active">Trend Finder</a>
+    <a href="product.html" class="nav-cta">Get Started &rarr;</a>
+  </div>
+
+  <main id="main">
+
+    <!-- HERO -->
+    <section class="tf-hero">
+      <div class="tf-hero-glow"></div>
+      <div class="wrap">
+
+        <p class="eyebrow">
+          <span class="pulse-dot"></span>
+          Real Internet Data
+        </p>
+
+        <h1 class="display tf-headline">
+          Trend <span class="grad">Finder</span>
+        </h1>
+
+        <p class="tf-hero-sub">
+          Discover the latest trending products, gadgets, tools, accessories, and popular items from across the internet. Enter any topic to surface what people are actually searching for and buying right now.
+        </p>
+
+        <!-- Search box -->
+        <div class="tf-search-wrap">
+          <div class="tf-search-box" id="tf-search-box">
+            <svg class="tf-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              id="tf-input"
+              class="tf-input"
+              placeholder="camping gear, fitness gadgets, kitchen tools..."
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Search for trending items"
+              maxlength="200"
+            />
+            <button id="tf-btn" class="btn btn-primary" aria-label="Search trends">
+              <span class="btn-label">Search Trends</span>
+              <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Suggestion chips -->
+          <div class="tf-chips" role="group" aria-label="Suggested searches">
+            <span class="tf-chips-label">Try:</span>
+            <button class="tf-chip" data-query="camping gear">camping gear</button>
+            <button class="tf-chip" data-query="fitness gadgets">fitness gadgets</button>
+            <button class="tf-chip" data-query="kitchen tools">kitchen tools</button>
+            <button class="tf-chip" data-query="photography accessories">photography accessories</button>
+            <button class="tf-chip" data-query="travel accessories">travel accessories</button>
+            <button class="tf-chip" data-query="gaming equipment">gaming equipment</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="tf-results-section" id="tf-results-section">
+      <div class="wrap">
+
+        <!-- Results header (shown after first search) -->
+        <div class="tf-results-header" id="tf-results-header">
+          <h2 class="tf-results-title">
+            Trending for: <span class="grad" id="tf-query-display"></span>
+          </h2>
+          <p class="tf-results-sub" id="tf-results-sub"></p>
+        </div>
+
+        <!-- Loading -->
+        <div class="tf-state-wrap" id="tf-loading">
+          <div class="tf-spinner" role="status" aria-label="Loading results">
+            <div class="tf-spinner-ring"></div>
+            <div class="tf-spinner-ring"></div>
+            <div class="tf-spinner-ring"></div>
+          </div>
+          <p class="tf-state-msg">Searching for trending items...</p>
+          <p class="tf-state-sub-msg">Gathering real-time data from across the web</p>
+        </div>
+
+        <!-- Results grid -->
+        <div class="tf-grid" id="tf-grid" role="list" aria-label="Trending results"></div>
+
+        <!-- Empty state -->
+        <div class="tf-state-wrap" id="tf-empty">
+          <div class="tf-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </div>
+          <p class="tf-state-msg">No trending items found.</p>
+          <p class="tf-state-sub-msg">Try a more general term or different keywords.</p>
+          <button class="btn btn-ghost tf-action-btn" id="tf-retry-empty">Search Again</button>
+        </div>
+
+        <!-- Error state -->
+        <div class="tf-state-wrap" id="tf-error">
+          <div class="tf-state-icon tf-state-icon-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+          </div>
+          <p class="tf-state-msg">Unable to retrieve trend data.</p>
+          <p class="tf-state-sub-msg">Make sure the Python server is running on port 5000, then try again.</p>
+          <button class="btn btn-ghost tf-action-btn" id="tf-retry-btn">Try Again</button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="tf-footer">
+    <div class="wrap">
+      <div class="tf-footer-inner">
+        <a href="index.html" class="brand tf-footer-brand">
+          <img class="brand-icon" src="brand_assets/tester-icon.png" alt="Tester.io" />
+          Tester<span class="brand-em">.io</span>
+        </a>
+        <p class="tf-footer-note">Trend Finder surfaces real-time results from live internet sources. Results reflect current trends.</p>
+        <nav class="tf-footer-links" aria-label="Footer navigation">
+          <a href="index.html">Home</a>
+          <a href="product.html">Products</a>
+          <a href="about.html">About</a>
+          <a href="trend-finder.html">Trend Finder</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="trend-finder.js"></script>
+</body>
+</html>
