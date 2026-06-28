@@ -722,10 +722,13 @@ app.post('/ask', async (req, res) => {
 
   for (const model of MODELS) {
     try {
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 10000);
       const upstream = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey }, body }
+        { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey }, body, signal: ac.signal }
       );
+      clearTimeout(timer);
       const data  = await upstream.json();
       const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (reply) return res.json({ reply });

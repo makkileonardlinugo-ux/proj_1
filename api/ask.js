@@ -54,16 +54,19 @@ export default async function handler(req, res) {
   ];
   const reqBody = JSON.stringify({ system_instruction: { parts: [{ text: SYSTEM }] }, contents: history });
 
-  try {
-    for (const model of MODELS) {
+  for (const model of MODELS) {
+    try {
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 10000);
       const upstream = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey }, body: reqBody }
+        { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey }, body: reqBody, signal: ac.signal }
       );
+      clearTimeout(timer);
       const data  = await upstream.json();
       const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (reply) return res.status(200).json({ reply });
-    }
-    return res.status(502).json({ error: 'No response from Gemini' });
+    } catch (_) {}
   }
+  return res.status(502).json({ error: 'No response from Gemini' });
 }

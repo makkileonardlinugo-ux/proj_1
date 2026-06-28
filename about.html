@@ -2350,7 +2350,7 @@
           aiEl.textContent = reply;
           requestAnimationFrame(() => { aiEl.scrollIntoView({ block: 'end', behavior: 'smooth' }); });
         } catch (err) {
-          aiEl.textContent = 'Connection error. Please try again.';
+          aiEl.textContent = 'Could not reach the AI right now. Please try again in a moment.';
           requestAnimationFrame(() => { aiEl.scrollIntoView({ block: 'end', behavior: 'smooth' }); });
         }
 
