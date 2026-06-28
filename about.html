@@ -1742,6 +1742,21 @@
     </div><!-- /.h-scroll-sticky -->
   </main>
 
+  <!-- AI terminal — must be before the <script> so getElementById finds it -->
+  <div class="wwh-terminal" id="wwhTerminal" role="dialog" aria-label="Ask about Makki">
+    <div class="wwh-term-header">
+      <span class="wwh-term-title">// ASK_ABOUT_MAKKI</span>
+      <button class="wwh-term-close" id="wwhTermClose" aria-label="close">×</button>
+    </div>
+    <div class="wwh-term-body" id="wwhTermBody"></div>
+    <div class="wwh-term-input-row">
+      <span class="wwh-term-caret">&gt;</span>
+      <input class="wwh-term-input" id="wwhTermInput" type="text"
+             placeholder="ask anything about makki..." autocomplete="off" spellcheck="false"/>
+      <button class="wwh-term-send" id="wwhTermSend">enter</button>
+    </div>
+  </div>
+
   <script>
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
@@ -2332,8 +2347,7 @@
           const data  = await res.json();
           const reply = data.reply || 'Sorry, I did not get a response. Try again.';
           history.push({ role: 'model', parts: [{ text: reply }] });
-          aiEl.textContent = '';
-          await typeOut(aiEl, reply);
+          aiEl.textContent = reply;
         } catch (err) {
           aiEl.textContent = 'Connection error. Please try again.';
         }
@@ -2363,20 +2377,6 @@
     });
   </script>
 
-  <!-- AI terminal -->
-  <div class="wwh-terminal" id="wwhTerminal" role="dialog" aria-label="Ask about Makki">
-    <div class="wwh-term-header">
-      <span class="wwh-term-title">// ASK_ABOUT_MAKKI</span>
-      <button class="wwh-term-close" id="wwhTermClose" aria-label="close">×</button>
-    </div>
-    <div class="wwh-term-body" id="wwhTermBody"></div>
-    <div class="wwh-term-input-row">
-      <span class="wwh-term-caret">&gt;</span>
-      <input class="wwh-term-input" id="wwhTermInput" type="text"
-             placeholder="ask anything about makki..." autocomplete="off" spellcheck="false"/>
-      <button class="wwh-term-send" id="wwhTermSend">enter</button>
-    </div>
-  </div>
 
 </body>
 </html>
