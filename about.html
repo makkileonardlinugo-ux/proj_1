@@ -2289,7 +2289,7 @@
         msg.appendChild(prompt);
         msg.appendChild(textEl);
         body.appendChild(msg);
-        body.scrollTop = body.scrollHeight;
+        requestAnimationFrame(() => { msg.scrollIntoView({ block: 'end', behavior: 'smooth' }); });
         return textEl;
       }
 
@@ -2348,8 +2348,10 @@
           const reply = data.reply || 'Sorry, I did not get a response. Try again.';
           history.push({ role: 'model', parts: [{ text: reply }] });
           aiEl.textContent = reply;
+          requestAnimationFrame(() => { aiEl.scrollIntoView({ block: 'end', behavior: 'smooth' }); });
         } catch (err) {
           aiEl.textContent = 'Connection error. Please try again.';
+          requestAnimationFrame(() => { aiEl.scrollIntoView({ block: 'end', behavior: 'smooth' }); });
         }
 
         send.disabled = false;
