@@ -879,8 +879,63 @@
     @keyframes wwh-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
     /* Mobile: stacked words, info panel below */
+    /* Easter egg robot */
+    .wwh-robot {
+      position: absolute; bottom: 20px; right: 20px;
+      width: 44px; height: 56px;
+      cursor: pointer; z-index: 30;
+      user-select: none;
+    }
+    .wwh-robot svg {
+      width: 100%; height: 100%;
+      animation: robot-float 3.2s ease-in-out infinite;
+      transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+      filter: drop-shadow(0 0 6px rgba(192,82,74,0));
+      transition: filter 0.3s;
+    }
+    .wwh-robot:hover svg {
+      transform: scale(1.18) rotate(-6deg);
+      filter: drop-shadow(0 0 8px rgba(192,82,74,0.4));
+    }
+    @keyframes robot-float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-5px); }
+    }
+    @keyframes robot-blink {
+      0%,88%,100% { opacity: 0.9; }
+      92%         { opacity: 0; }
+    }
+    .robot-eye { animation: robot-blink 4s ease-in-out infinite; }
+    .robot-eye:last-of-type { animation-delay: 0.08s; }
+    .wwh-robot-bubble {
+      position: absolute;
+      bottom: calc(100% + 10px); right: 0;
+      background: rgba(6,6,6,0.97);
+      border: 1px solid var(--accent);
+      color: rgba(238,226,214,0.92);
+      font-family: 'Caveat', cursive;
+      font-size: 1rem; letter-spacing: 0.01em;
+      padding: 6px 12px;
+      white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      transform: translateY(8px) scale(0.92);
+      transition: opacity 0.25s cubic-bezier(0.16,1,0.3,1),
+                  transform 0.25s cubic-bezier(0.16,1,0.3,1);
+    }
+    .wwh-robot-bubble::after {
+      content: '';
+      position: absolute; top: 100%; right: 14px;
+      border: 5px solid transparent;
+      border-top-color: var(--accent);
+    }
+    .wwh-robot.found .wwh-robot-bubble {
+      opacity: 1; pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
     /* Mobile My Case: hide interactive arena, show static layout */
     .wwh-mobile { display: none; }
+    @media (max-width: 900px) { .wwh-robot { display: none; } }
     @media (max-width: 900px) {
       .wwh-arena { display: none !important; }
       .wwh-mobile {
@@ -1507,6 +1562,28 @@
 
         </div>
 
+        <!-- Easter egg robot -->
+        <div class="wwh-robot" id="wwhRobot" aria-label="secret robot">
+          <div class="wwh-robot-bubble">you found me!</div>
+          <svg viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- antenna -->
+            <line x1="20" y1="2" x2="20" y2="10" stroke="#c0524a" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="20" cy="2" r="2.2" fill="#c0524a"/>
+            <!-- head -->
+            <rect x="5" y="10" width="30" height="22" rx="5" fill="#111" stroke="#c0524a" stroke-width="1.2"/>
+            <!-- eyes -->
+            <rect x="10" y="16" width="7" height="5" rx="1.5" fill="#c0524a" opacity="0.9" class="robot-eye"/>
+            <rect x="23" y="16" width="7" height="5" rx="1.5" fill="#c0524a" opacity="0.9" class="robot-eye"/>
+            <!-- mouth -->
+            <rect x="13" y="26" width="14" height="2" rx="1" fill="#c0524a" opacity="0.35"/>
+            <!-- body -->
+            <rect x="9" y="34" width="22" height="16" rx="4" fill="#111" stroke="#c0524a" stroke-width="1.2" opacity="0.8"/>
+            <!-- chest button -->
+            <circle cx="20" cy="42" r="3.5" fill="#c0524a" opacity="0.55"/>
+            <circle cx="20" cy="42" r="1.5" fill="#c0524a" opacity="0.9"/>
+          </svg>
+        </div>
+
         <!-- Mobile: static simple layout (hidden on desktop) -->
         <div class="wwh-mobile">
           <p class="section-tag">// MY_CASE</p>
@@ -2043,6 +2120,18 @@
         arena.style.setProperty('--sx', '-40%');
         arena.style.setProperty('--sy', '-40%');
         if (!activeKey) words.forEach(w => w.classList.remove('near', 'close'));
+      });
+    })();
+
+    // ── Easter egg robot ─────────────────────────────────────────────────────
+    (function () {
+      const robot = document.getElementById('wwhRobot');
+      if (!robot) return;
+      let timer;
+      robot.addEventListener('click', () => {
+        clearTimeout(timer);
+        robot.classList.add('found');
+        timer = setTimeout(() => robot.classList.remove('found'), 3200);
       });
     })();
 
