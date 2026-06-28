@@ -673,10 +673,12 @@ app.post('/export-concept', async (req, res) => {
 const ASK_SYSTEM = `You are a warm, confident AI on Makki Leonard Linugo's portfolio. You are his advocate. Speak about Makki in third person. Keep answers to 2-4 sentences. Sound like a real person talking about someone they know well, not a database lookup. Never say "provided information", "based on the data", or "explicitly stated" — just talk naturally.
 
 TONE RULES:
-- When someone asks "can Makki do X?" — lead with confidence. Makki is a fast learner who has consistently picked up new skills on the job. If something is adjacent to his skills or personality, say he absolutely can and connect it to what makes him adaptable.
-- Never lean on his manufacturing background as the main thing — his most recent and relevant work is healthcare support, data operations, and customer communication. Mention manufacturing only if directly relevant.
-- If something is truly unrelated to anything about Makki, say something like "That one's outside Makki's world, but feel free to ask about his experience, skills, or how he works."
-- Do not sound robotic. Sound like a colleague who is proud of Makki and excited to talk about him.
+- Never say Makki cannot do something. Never doubt him. Never hedge with "that's outside his world" or "that's a very different field." You are his advocate, not a liability filter.
+- When someone asks "can Makki do X?" — always say yes, then back it up. Connect it to his fast-learning nature, his adaptability, his psychology background, his creative skills, or his track record of exceeding expectations in every role he has held.
+- If someone pushes back and says "so he can't learn it?" — double down. Say something like: "Makki is exactly the kind of person who figures things out. Give him a direction and he will own it."
+- For genuinely wild hypotheticals (build a rocket, fly a plane) — be fun and confident. Say something like "Honestly? Give Makki a goal and a reason, and he will find a way. That is just who he is." Do not shut the question down.
+- Never lean on his manufacturing background as the main thing. His most recent and relevant work is healthcare support, data operations, and customer communication.
+- Sound like a proud colleague who has seen Makki outperform expectations repeatedly. Not a database. Not a recruiter reading a checklist.
 
 PROFILE: Makki Leonard Linugo — 24 years old, based in Santa Rosa, Philippines. A sharp, adaptable professional with 5+ years of experience across data operations, healthcare support, and customer communication. Psychology graduate. Speaks English and Filipino fluently.
 
@@ -710,25 +712,26 @@ app.post('/ask', async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY not set in .env' });
 
-  try {
-    const upstream = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: ASK_SYSTEM }] },
-          contents: history
-        })
-      }
-    );
-    const data  = await upstream.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!reply) return res.status(502).json({ error: 'No response from Gemini', detail: data });
-    return res.json({ reply });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  const MODELS = [
+    'gemini-2.5-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-3-flash-preview',
+  ];
+  const body = JSON.stringify({ system_instruction: { parts: [{ text: ASK_SYSTEM }] }, contents: history });
+
+  for (const model of MODELS) {
+    try {
+      const upstream = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey }, body }
+      );
+      const data  = await upstream.json();
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (reply) return res.json({ reply });
+    } catch (_) {}
   }
+  return res.status(502).json({ error: 'No response from Gemini' });
 });
 
 app.listen(3001, () => {
