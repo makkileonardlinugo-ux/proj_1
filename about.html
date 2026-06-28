@@ -577,13 +577,13 @@
 
     /* ---------- HORIZONTAL SCROLL (desktop only) ---------- */
     @media (min-width: 901px) {
-      main.h-scroll-outer { height: 400vh; }
+      main.h-scroll-outer { height: 500vh; }
       .h-scroll-sticky {
         position: sticky; top: 0;
         height: 100vh; overflow: hidden;
       }
       .h-scroll-track {
-        display: flex; width: 400vw; height: 100vh;
+        display: flex; width: 500vw; height: 100vh;
         will-change: transform;
       }
       .h-scroll-track.is-snapping {
@@ -599,7 +599,9 @@
       .h-panel #gallery .wrap { height: 100vh; max-width: 100%; padding: 0; }
       .h-panel .bounce-arena { height: 100vh; margin-top: 0; }
       .h-panel #exp-panel,
-      .h-panel #skills-panel {
+
+      .h-panel #skills-panel,
+      .h-panel #wwh-panel {
         height: 100vh; padding: 96px 0 32px;
         display: flex; flex-direction: column; justify-content: center;
       }
@@ -721,6 +723,171 @@
     @media (max-width: 900px) {
       .psk-bg { display: none !important; }
       .psk-layout { grid-template-columns: 1fr !important; gap: 32px; }
+    }
+
+    /* ---------- MY CASE PANEL ---------- */
+    #wwh-panel { overflow: hidden; position: relative; }
+    #wwh-panel::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 64px 64px;
+    }
+
+    .wwh-arena {
+      position: absolute; inset: 0; z-index: 1;
+    }
+
+    /* Section label top-left */
+    .wwh-arena-tag {
+      position: absolute; top: 80px; left: 32px; z-index: 10;
+      font-size: 0.65rem; letter-spacing: 0.26em; text-transform: uppercase;
+      color: var(--accent); display: flex; align-items: center; gap: 8px;
+    }
+    .wwh-arena-tag::before { content: "//"; color: rgba(192,82,74,0.45); }
+    .wwh-arena-title {
+      position: absolute; top: 80px; right: 32px; z-index: 10;
+      font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 700;
+      letter-spacing: -0.02em; text-transform: uppercase;
+      color: var(--text); line-height: 1.05;
+    }
+
+    /* Hint text center */
+    .wwh-hint {
+      position: absolute; bottom: 28px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--faint); z-index: 10; white-space: nowrap;
+      transition: opacity 0.4s;
+    }
+    .wwh-arena.has-active .wwh-hint { opacity: 0; }
+
+    /* Spotlight overlay — follows cursor via --sx / --sy */
+    .wwh-arena::after {
+      content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: radial-gradient(
+        circle 420px at var(--sx, -40%) var(--sy, -40%),
+        rgba(255,200,170,0.22) 0%,
+        rgba(192,82,74,0.14) 35%,
+        rgba(192,82,74,0.04) 60%,
+        transparent 75%
+      );
+      transition: background 0.04s linear;
+    }
+
+    /* Giant scattered words */
+    .wwh-word {
+      position: absolute; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      z-index: 3; line-height: 1;
+    }
+    .wwh-letter {
+      display: block;
+      font-size: clamp(5rem, 13vw, 17rem);
+      font-weight: 700; letter-spacing: -0.04em;
+      text-transform: uppercase; line-height: 0.88;
+      color: rgba(255,255,255,0.04);
+      transition: color 0.35s cubic-bezier(0.16,1,0.3,1),
+                  text-shadow 0.35s cubic-bezier(0.16,1,0.3,1),
+                  transform 0.4s cubic-bezier(0.16,1,0.3,1);
+      user-select: none;
+    }
+    .wwh-word:hover .wwh-letter {
+      color: rgba(192,82,74,0.35);
+    }
+    .wwh-word.near .wwh-letter {
+      color: rgba(255,255,255,0.22);
+      text-shadow: 0 0 55px rgba(192,82,74,0.14);
+    }
+    .wwh-word.close .wwh-letter {
+      color: rgba(192,82,74,0.52);
+      text-shadow: 0 0 70px rgba(192,82,74,0.32), 0 0 130px rgba(192,82,74,0.12);
+    }
+    .wwh-word.active .wwh-letter {
+      color: var(--accent);
+      text-shadow:
+        0 0 60px rgba(192,82,74,0.55),
+        0 0 140px rgba(192,82,74,0.22);
+      transform: scale(1.03);
+    }
+    .wwh-word.dimmed .wwh-letter {
+      color: rgba(255,255,255,0.02);
+      text-shadow: none;
+    }
+
+    /* Inline reveal — content types out in arena right side */
+    .wwh-reveal {
+      position: absolute;
+      left: 42%; top: 50%;
+      transform: translateY(-50%);
+      width: calc(55% - 24px);
+      max-height: 78vh;
+      display: flex; flex-direction: column; justify-content: center; gap: 0;
+      padding: 0 32px 0 0;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.16,1,0.3,1);
+      z-index: 10; overflow: hidden;
+    }
+    .wwh-reveal.visible { opacity: 1; }
+
+    .wwh-reveal-echo {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(7rem, 13vw, 12rem);
+      font-weight: 700;
+      color: rgba(192,82,74,0.045);
+      letter-spacing: -0.04em;
+      user-select: none; pointer-events: none;
+      white-space: nowrap; line-height: 1;
+    }
+
+    .wwh-type-block { margin-bottom: 26px; }
+    .wwh-type-block:last-child { margin-bottom: 0; }
+
+    .wwh-type-lead {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(0.82rem, 1.5vw, 1.05rem);
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: -0.01em; line-height: 1.4;
+    }
+    .wwh-type-lead::before { content: '→ '; color: var(--accent); }
+
+    .wwh-type-body {
+      display: block;
+      font-family: 'Caveat', cursive;
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      color: var(--muted);
+      line-height: 1.65;
+      padding: 7px 0 0 22px;
+      border-left: 1px solid rgba(192,82,74,0.2);
+      margin-top: 7px;
+    }
+
+    .wwh-cursor {
+      display: inline-block;
+      width: 2px; height: 0.85em;
+      background: var(--accent);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: wwh-blink 0.85s step-end infinite;
+    }
+    @keyframes wwh-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* Mobile: stacked words, info panel below */
+    @media (max-width: 900px) {
+      .wwh-arena { position: static; height: auto; padding: 80px 24px 40px; display: flex; flex-direction: column; gap: 0; }
+      .wwh-arena-tag { position: static; margin-bottom: 32px; }
+      .wwh-word { position: static; transform: none !important; margin-bottom: 12px; }
+      .wwh-letter { font-size: clamp(3.5rem, 18vw, 6rem); }
+      .wwh-reveal { position: static !important; transform: none !important; width: 100%; margin-top: 24px;
+                   opacity: 1 !important; pointer-events: auto; padding: 0; max-height: none; }
+      .wwh-reveal-echo { display: none; }
+      .wwh-hint { display: none; }
     }
   </style>
 </head>
@@ -1175,6 +1342,8 @@
       </section>
     </div><!-- /.h-panel experience -->
 
+
+
     <!-- SKILLS PANEL -->
     <div class="h-panel">
       <section class="block" id="skills-panel">
@@ -1277,6 +1446,35 @@
         </div>
       </section>
     </div><!-- /.h-panel skills -->
+
+    <!-- MY CASE PANEL -->
+    <div class="h-panel">
+      <section id="wwh-panel">
+        <div class="wwh-arena" id="wwhArena">
+
+          <span class="wwh-hint">click a word</span>
+
+          <!-- WHY -->
+          <div class="wwh-word" id="wwh-why" style="top:6%;left:4%;transform:rotate(-5deg)" data-key="why">
+            <span class="wwh-letter">WHY</span>
+          </div>
+
+          <!-- WHAT -->
+          <div class="wwh-word" id="wwh-what" style="top:8%;left:66%;transform:rotate(3deg)" data-key="what">
+            <span class="wwh-letter">WHAT</span>
+          </div>
+
+          <!-- HOW -->
+          <div class="wwh-word" id="wwh-how" style="top:62%;left:7%;transform:rotate(-2deg)" data-key="how">
+            <span class="wwh-letter">HOW</span>
+          </div>
+
+          <!-- Inline reveal (content typed by JS) -->
+          <div class="wwh-reveal" id="wwhReveal"></div>
+
+        </div>
+      </section>
+    </div><!-- /.h-panel wwh -->
 
       </div><!-- /.h-scroll-track -->
     </div><!-- /.h-scroll-sticky -->
@@ -1419,7 +1617,7 @@
       const track = document.querySelector('.h-scroll-track');
       if (!outer || !track) return;
 
-      const PANELS = 4;
+      const PANELS = 5;
       let currentPanel = 0;
       let skillsAnimated = false;
 
@@ -1427,7 +1625,7 @@
         const scrolled  = Math.max(0, -outer.getBoundingClientRect().top);
         const maxScroll = outer.offsetHeight - window.innerHeight;
         const progress  = maxScroll > 0 ? Math.min(1, scrolled / maxScroll) : 0;
-        const maxX      = track.scrollWidth - window.innerWidth;
+        const maxX      = (PANELS - 1) * window.innerWidth;
         track.style.transform = `translateX(${-(progress * maxX).toFixed(2)}px)`;
         currentPanel = Math.round(progress * (PANELS - 1));
       }
@@ -1463,7 +1661,7 @@
         window.scrollTo({ top: target, behavior: 'instant' });
         currentPanel = next;
 
-        if (next === PANELS - 1) animateSkills();
+        if (next === PANELS - 2) animateSkills();
 
         setTimeout(() => {
           track.classList.remove('is-snapping');
@@ -1613,6 +1811,156 @@
         });
       }, { threshold: 0.05 });
       skillsIO.observe(panel);
+    })();
+
+    // ── My Case interactive words ─────────────────────────────────────────────
+    (function () {
+      const arena  = document.getElementById('wwhArena');
+      const reveal = document.getElementById('wwhReveal');
+      const words  = [...document.querySelectorAll('.wwh-word')];
+      if (!arena || !reveal) return;
+
+      const DATA = {
+        why: {
+          echo: 'WHY',
+          items: [
+            { lead: 'Goes beyond what\'s asked',
+              text:  'Recognized across every company I\'ve held a role in. Not once, every time, without exception.' },
+            { lead: 'Adapts fast, stays calm',
+              text:  'Manufacturing. Data ops. Healthcare. Completely different environments, consistently the same reliable output.' }
+          ]
+        },
+        what: {
+          echo: 'WHAT',
+          items: [
+            { lead: 'Fast Results',      text: 'Delivered quickly without sacrificing accuracy.' },
+            { lead: 'Multiple Options',  text: 'I bring alternatives, not just one answer.' },
+            { lead: 'Improvement Flags', text: 'I surface what could be better before I\'m asked.' }
+          ]
+        },
+        how: {
+          echo: 'HOW',
+          items: [
+            { lead: '01 — Plan',    text: 'Understand the full scope before moving. No guesswork.' },
+            { lead: '02 — Execute', text: 'Move with intention. Every step tied to the outcome.' },
+            { lead: '03 — Deliver', text: 'Own it to completion. No follow-up required.' }
+          ]
+        }
+      };
+
+      let activeKey = null;
+      let typeGen   = 0;
+
+      function typeText(el, text, speed, gen, cb) {
+        let i = 0;
+        const cursor = document.createElement('span');
+        cursor.className = 'wwh-cursor';
+        el.appendChild(cursor);
+        function tick() {
+          if (typeGen !== gen) { cursor.remove(); return; }
+          if (i < text.length) {
+            cursor.before(document.createTextNode(text[i++]));
+            setTimeout(tick, speed + Math.round(Math.random() * speed * 0.35));
+          } else {
+            cursor.remove();
+            if (cb) cb();
+          }
+        }
+        tick();
+      }
+
+      function showReveal(key) {
+        const d   = DATA[key];
+        const gen = ++typeGen;
+
+        reveal.innerHTML = '';
+
+
+        const echo = document.createElement('div');
+        echo.className = 'wwh-reveal-echo';
+        echo.textContent = d.echo;
+        reveal.appendChild(echo);
+
+        reveal.classList.add('visible');
+
+        function typeItem(idx) {
+          if (typeGen !== gen || idx >= d.items.length) return;
+          const item  = d.items[idx];
+          const block = document.createElement('div');
+          block.className = 'wwh-type-block';
+          reveal.appendChild(block);
+
+          const leadEl = document.createElement('span');
+          leadEl.className = 'wwh-type-lead';
+          block.appendChild(leadEl);
+
+          typeText(leadEl, item.lead, 22, gen, () => {
+            if (!item.text) { setTimeout(() => typeItem(idx + 1), 150); return; }
+            const bodyEl = document.createElement('span');
+            bodyEl.className = 'wwh-type-body';
+            block.appendChild(bodyEl);
+            typeText(bodyEl, item.text, 11, gen, () => {
+              setTimeout(() => typeItem(idx + 1), 280);
+            });
+          });
+        }
+
+        setTimeout(() => typeItem(0), 80);
+      }
+
+      function activate(key) {
+        if (activeKey === key) { deactivate(); return; }
+        activeKey = key;
+        arena.classList.add('has-active');
+        words.forEach(w => {
+          w.classList.remove('near', 'close');
+          w.classList.toggle('active', w.dataset.key === key);
+          w.classList.toggle('dimmed', w.dataset.key !== key);
+        });
+        showReveal(key);
+      }
+
+      function deactivate() {
+        typeGen++;
+        activeKey = null;
+        arena.classList.remove('has-active');
+        words.forEach(w => { w.classList.remove('active', 'dimmed'); });
+        reveal.classList.remove('visible');
+        setTimeout(() => { if (!activeKey) reveal.innerHTML = ''; }, 400);
+      }
+
+      words.forEach(word => {
+        word.addEventListener('click', () => activate(word.dataset.key));
+      });
+
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') deactivate(); });
+
+      // ── Spotlight + proximity glow ──────────────────────────────────────
+      arena.addEventListener('mousemove', e => {
+        const rect = arena.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+
+        arena.style.setProperty('--sx', (cx / rect.width  * 100).toFixed(1) + '%');
+        arena.style.setProperty('--sy', (cy / rect.height * 100).toFixed(1) + '%');
+
+        if (activeKey) return;
+
+        words.forEach(word => {
+          const wr  = word.getBoundingClientRect();
+          const wcx = wr.left + wr.width  / 2 - rect.left;
+          const wcy = wr.top  + wr.height / 2 - rect.top;
+          const dist = Math.sqrt((cx - wcx) ** 2 + (cy - wcy) ** 2);
+          word.classList.toggle('near',  dist < 290 && dist >= 115);
+          word.classList.toggle('close', dist < 115);
+        });
+      });
+
+      arena.addEventListener('mouseleave', () => {
+        arena.style.setProperty('--sx', '-40%');
+        arena.style.setProperty('--sy', '-40%');
+        if (!activeKey) words.forEach(w => w.classList.remove('near', 'close'));
+      });
     })();
 
     // ── Video prefetch after page load ───────────────────────────────────────
