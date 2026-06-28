@@ -2260,12 +2260,15 @@
       const panel = document.getElementById('wwh-panel');
       if (!robot || !panel) return;
 
-      // Click: found state
+      const robotSvg = robot.querySelector('svg');
+
+      // Click: found state — clear inline SVG transform so CSS class takes over
       let foundTimer;
       robot.addEventListener('click', () => {
         clearTimeout(foundTimer);
         robot.classList.remove('near', 'close');
         robot.classList.add('found');
+        if (robotSvg) robotSvg.style.transform = '';
         foundTimer = setTimeout(() => robot.classList.remove('found'), 3200);
       });
 
@@ -2301,7 +2304,8 @@
         x += dirX * SPEED;
         robot.style.left   = x + 'px';
         robot.style.bottom = (MARGIN + bob) + 'px';
-        robot.style.transform = dirX > 0 ? 'scaleX(1)' : 'scaleX(-1)';
+        // Flip only the SVG, not the whole container — keeps bubble text readable
+        if (robotSvg) robotSvg.style.transform = dirX > 0 ? 'scaleX(1)' : 'scaleX(-1)';
 
         if (x >= pw - RW - MARGIN) { x = pw - RW - MARGIN; dirX = -1; pauseFrames = 28; }
         if (x <= MARGIN)            { x = MARGIN;           dirX =  1; pauseFrames = 28; }
