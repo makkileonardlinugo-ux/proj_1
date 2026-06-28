@@ -879,15 +879,48 @@
     @keyframes wwh-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
     /* Mobile: stacked words, info panel below */
+    /* Mobile My Case: hide interactive arena, show static layout */
+    .wwh-mobile { display: none; }
     @media (max-width: 900px) {
-      .wwh-arena { position: static; height: auto; padding: 80px 24px 40px; display: flex; flex-direction: column; gap: 0; }
-      .wwh-arena-tag { position: static; margin-bottom: 32px; }
-      .wwh-word { position: static; transform: none !important; margin-bottom: 12px; }
-      .wwh-letter { font-size: clamp(3.5rem, 18vw, 6rem); }
-      .wwh-reveal { position: static !important; transform: none !important; width: 100%; margin-top: 24px;
-                   opacity: 1 !important; pointer-events: auto; padding: 0; max-height: none; }
-      .wwh-reveal-echo { display: none; }
-      .wwh-hint { display: none; }
+      .wwh-arena { display: none !important; }
+      .wwh-mobile {
+        display: block;
+        padding: 80px 24px 48px;
+      }
+      .wwh-m-block {
+        margin-bottom: 36px;
+        padding-bottom: 36px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+      .wwh-m-block:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+      .wwh-m-key {
+        font-family: 'Space Mono', monospace;
+        font-size: 2.2rem; font-weight: 700;
+        color: rgba(192,82,74,0.55);
+        letter-spacing: -0.03em;
+        margin: 0 0 18px;
+      }
+      .wwh-m-item {
+        padding: 0 0 14px 16px;
+        border-left: 1px solid rgba(192,82,74,0.2);
+        margin-bottom: 14px;
+      }
+      .wwh-m-item:last-child { margin-bottom: 0; padding-bottom: 0; }
+      .wwh-m-lead {
+        display: block;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.78rem; font-weight: 700;
+        color: rgba(255,255,255,0.88);
+        margin-bottom: 5px;
+      }
+      .wwh-m-lead::before { content: '→ '; color: var(--accent); }
+      .wwh-m-text {
+        display: block;
+        font-family: 'Caveat', cursive;
+        font-size: 1.05rem;
+        color: var(--muted);
+        line-height: 1.65;
+      }
     }
   </style>
 </head>
@@ -1473,6 +1506,56 @@
           <div class="wwh-reveal" id="wwhReveal"></div>
 
         </div>
+
+        <!-- Mobile: static simple layout (hidden on desktop) -->
+        <div class="wwh-mobile">
+          <p class="section-tag">// MY_CASE</p>
+
+          <div class="wwh-m-block">
+            <p class="wwh-m-key">WHY</p>
+            <div class="wwh-m-item">
+              <span class="wwh-m-lead">Goes beyond what's asked</span>
+              <span class="wwh-m-text">Recognized across every company I've held a role in. Not once, every time, without exception.</span>
+            </div>
+            <div class="wwh-m-item">
+              <span class="wwh-m-lead">Adapts fast, stays calm</span>
+              <span class="wwh-m-text">Manufacturing. Data ops. Healthcare. Completely different environments, consistently the same reliable output.</span>
+            </div>
+          </div>
+
+          <div class="wwh-m-block">
+            <p class="wwh-m-key">WHAT</p>
+            <div class="wwh-m-item">
+              <span class="wwh-m-lead">Fast Results</span>
+              <span class="wwh-m-text">Delivered quickly without sacrificing accuracy.</span>
+            </div>
+            <div class="wwh-m-item">
+              <span class="wwh-m-lead">Multiple Options</span>
+              <span class="wwh-m-text">I bring alternatives, not just one answer.</span>
+            </div>
+            <div class="wwh-m-item">
+              <span class="wwh-m-lead">Improvement Flags</span>
+              <span class="wwh-m-text">I surface what could be better before I'm asked.</span>
+            </div>
+          </div>
+
+          <div class="wwh-m-block">
+            <p class="wwh-m-key">HOW</p>
+            <div class="wwh-m-item">
+              <span class="wwh-m-lead">01 — Plan</span>
+              <span class="wwh-m-text">Understand the full scope before moving. No guesswork.</span>
+            </div>
+            <div class="wwh-m-item">
+              <span class="wwh-m-lead">02 — Execute</span>
+              <span class="wwh-m-text">Move with intention. Every step tied to the outcome.</span>
+            </div>
+            <div class="wwh-m-item">
+              <span class="wwh-m-lead">03 — Deliver</span>
+              <span class="wwh-m-text">Own it to completion. No follow-up required.</span>
+            </div>
+          </div>
+        </div>
+
       </section>
     </div><!-- /.h-panel wwh -->
 
